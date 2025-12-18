@@ -1,0 +1,79 @@
+<section class="content-header">
+  <div class="container-fluid">
+    <h1>Create Schedule</h1>
+  </div>
+</section>
+
+<section class="content">
+  <div class="container-fluid mt-3">
+    <div class="card card-default">
+      <div class="card-header">
+        <h4>Form Schedule</h4>
+      </div>
+
+      <div class="card-body">
+        <form method="POST" action="/activity/create">
+          <div class="row">
+
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Schedule ID</label>
+                <input type="text" class="form-control" name="activity_id" placeholder="SCH001">
+              </div>
+
+              <div class="form-group">
+                <label>Start Date</label>
+                <input type="datetime-local" class="form-control" name="start_date">
+              </div>
+
+              <div class="form-group">
+                <label>Room ID</label>
+                <input type="text" class="form-control" name="room_id">
+              </div>
+
+              <div class="form-group">
+                <label>Description</label>
+                <input type="text" class="form-control" name="description">
+              </div>
+
+            </div>
+
+            <div class="col-md-6">
+
+              <div class="form-group">
+                <label>Schedule Name</label>
+                <input type="text" class="form-control" name="activity_name">
+              </div>
+
+              <div class="form-group">
+                <label>End Date</label>
+                <input type="datetime-local" class="form-control" name="end_date">
+              </div>
+
+              <div class="form-group">
+                <label>Chat ID</label>
+                <input type="text" class="form-control" name="chat_id">
+              </div>
+
+              <div class="form-group">
+                <label>Status</label>
+                <select name="status" class="form-control">
+                  <option value="1">Active</option>
+                  <option value="0">Inactive</option>
+                </select>
+              </div>
+
+              <input type="hidden" name="user_id" value="USR001">
+
+            </div>
+
+          </div>
+
+          <button type="submit" class="btn btn-success">Save</button>
+          <a href="/activity" class="btn btn-secondary">Back</a>
+
+        </form>
+      </div>
+    </div>
+  </div>
+</section>

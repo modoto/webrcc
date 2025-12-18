@@ -1,0 +1,525 @@
+<!-- jQuery -->
+<script src="/plugins/jquery/jquery.min.js"></script>
+<!-- Bootstrap 4 -->
+<script src="/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- overlayScrollbars -->
+<script src="/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
+<!-- AdminLTE App -->
+<script src="/dist/js/adminlte.min.js"></script>
+<!-- AdminLTE for demo purposes -->
+
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+
+<script>
+  // =============================
+  //  GLOBAL STATE
+  // =============================
+  console.log("========START=========");
+
+  let activeConversationId = null;
+  let activeUserId = null;
+  let isLoadingMessages = false;
+
+  const token = document.getElementById("token").value;
+  const myUserId = document.getElementById("user_id").value;
+  const myUsername = document.getElementById("username").value;
+
+  let lastRenderedDate = null;
+
+  console.log("token:", token);
+  loadContactList();
+
+  // =============================
+  //  INIT SOCKET.IO
+  // =============================
+  const socket = io("http://localhost:3001", { auth: { token } });
+
+  socket.on("connect", () => console.log("Socket Connected:", socket.id));
+
+  socket.on("new_message", (msg) => {
+    // Jika sedang buka conversation yang sama → tampilkan
+    //if (msg.conversation_id == activeConversationId) {
+    //appendChatWhatsApp(msg, msg.sender_id == myUserId);
+    //}
+
+    // kalau bukan conversation aktif → reload sidebar
+    if (msg.conversation_id != activeConversationId) {
+      loadContactList();
+      return;
+    }
+
+    appendChatWhatsApp(msg, false);
+
+  });
+
+
+  // =============================
+  //  CONTACT CLICK HANDLER
+  // =============================
+  document.getElementById("contact-list").addEventListener("click", async (e) => {
+    console.log('CONTACT CLICK HANDLER');
+    const item = e.target.closest(".wa-contact-item");
+    if (!item) return;
+
+    let conversationId = item.dataset.conversationid;
+    const targetUserId = item.dataset.userid;
+    const name = item.dataset.name;
+    const avatar = item.dataset.avatar;
+    const status = item.dataset.status;
+    const isGroup = item.dataset.isgroup === "true";
+    activeUserId = targetUserId;
+
+    console.log('conversationId :', conversationId);
+    console.log('targetUserId :', targetUserId);
+    console.log('name :', name);
+    console.log('status :', status);
+    console.log('isGroup :', isGroup);
+    console.log('activeUserId :', activeUserId);
+
+    updateChatHeader(conversationId, name, avatar, status, isGroup);
+
+    if (isGroup) {
+      // 🟢 GROUP → langsung pakai conversation
+      activeConversationId = conversationId;
+
+    } else {
+      // 🟢 PRIVATE
+      // CARI / BUAT CONVERSATION
+        const conversationIdd = await getOrCreateConversation(targetUserId);
+        activeConversationId = conversationIdd;
+        conversationId = conversationIdd;
+    }
+
+   
+
+    console.log('conversationId:', conversationId);
+
+    // JOIN ROOM DI SOCKET.IO
+    socket.emit("join_room", conversationId);
+
+    // tandai semua pesan sebagai read
+    socket.emit("message_read", { conversationId: conversationId });
+
+    // reload sidebar (badge hilang)
+    loadContactList();
+
+    // LOAD MESSAGE
+    await loadMessages(conversationId);
+
+    // HIGHLIGHT CONTACT
+    document.querySelectorAll(".wa-contact-item")
+      .forEach(i => i.classList.remove("active-contact"));
+
+    item.classList.add("active-contact");
+  });
+
+
+  // =============================
+  //  API: GET / CREATE CONVERSATION
+  // =============================
+  async function getOrCreateConversation(targetUserId) {
+    console.log('getOrCreateConversation:', targetUserId);
+    const res = await fetch(`/conversations/find-or-create/${targetUserId}`, {
+      headers: { Authorization: "Bearer " + token }
+    });
+
+    const data = await res.json();
+    return data.conversationId;
+  }
+
+
+  // =============================
+  //  API: LOAD MESSAGES (With Pagination)
+  // =============================
+  async function loadMessages(conversationId, before = null) {
+    if (isLoadingMessages) return;
+    isLoadingMessages = true;
+
+    console.log('loadMessages:', conversationId);
+
+    let url = `/messages/${conversationId}?limit=20`;
+    if (before) url += `&before=${before}`;
+    console.log('url:', url);
+
+    const res = await fetch(url, {
+      headers: { Authorization: "Bearer " + token }
+    });
+
+    const messages = await res.json();
+
+    // Jika bukan paginasi, kosongkan
+    if (!before) {
+      document.getElementById("chat-container").innerHTML = "";
+      lastRenderedDate = null; // 🔴 WAJIB RESET
+    }
+
+    // Urutkan lama → baru
+    messages.reverse().forEach(m => {
+      appendChatWhatsApp(
+        {
+          username: m.username,
+          content: m.content,
+          created_at: m.created_at,
+          avatar: `https://ui-avatars.com/api/?name=${m.username}`,
+          status: m.status
+        },
+        m.sender_id == myUserId
+      );
+    });
+
+    isLoadingMessages = false;
+  }
+
+
+  // =============================
+  //  UI: UPDATE HEADER CHAT KANAN
+  // =============================
+  function updateChatHeader(conversationId, name, avatar, status, isGroup) {
+    document.getElementById("chat-header-name").innerText = name;
+    document.getElementById("chat-header-status").innerText = status;
+    document.getElementById("chat-header-avatar").src = avatar;
+  }
+
+
+  // =============================
+  //  SEND MESSAGE
+  // =============================
+  document.getElementById("sendMessage").onclick = () => {
+    const content = document.getElementById("msg").value;
+    if (!content.trim()) return;
+
+    socket.emit("send_message", {
+      conversationId: activeConversationId,
+      senderId: myUserId,
+      username: myUsername,
+      content
+    });
+
+    appendChatWhatsApp(
+      {
+        username: myUsername,
+        content,
+        created_at: new Date(),
+        avatar: `https://ui-avatars.com/api/?name=${myUsername}`,
+        status: 'sent'
+      },
+      true
+    );
+
+    document.getElementById("msg").value = "";
+  };
+
+
+  // =============================
+  //  SCROLL PAGINATION
+  // =============================
+  const chatBody = document.getElementById("chat-container");
+
+  chatBody.addEventListener("scroll", async () => {
+    if (chatBody.scrollTop !== 0 || isLoadingMessages) return;
+
+    const first = chatBody.querySelector(".chat-row");
+    const firstTimestamp = first?.dataset.timestamp;
+
+    if (firstTimestamp) {
+      await loadMessages(activeConversationId, firstTimestamp);
+    }
+  });
+
+
+  // =============================
+  //  TYPING INDICATOR
+  // =============================
+  let typingTimeout;
+  document.getElementById("msg").addEventListener("input", () => {
+    socket.emit("typing", { conversationId: activeConversationId, isTyping: true });
+    clearTimeout(typingTimeout);
+    typingTimeout = setTimeout(() => {
+      socket.emit("typing", { conversationId: activeConversationId, isTyping: false });
+    }, 800);
+  });
+
+
+  // =============================
+  //  UI: APPEND CHAT WHATSAPP STYLE
+  // =============================
+  function appendChatWhatsApp(msg, isMe = false) {
+    const container = document.getElementById("chat-container");
+
+    const senderName = msg.username;
+    const avatar = `https://ui-avatars.com/api/?name=${senderName}`;
+    const time = timeAgo(msg.created_at);
+
+    const messageDate = new Date(msg.created_at);
+    const currentDateKey = messageDate.toDateString(); // unik per hari
+    const dateLabel = formatDateSeparator(messageDate);
+
+    // ✅ HANYA tambah separator JIKA HARI BERUBAH
+    if (lastRenderedDate !== currentDateKey) {
+      lastRenderedDate = currentDateKey;
+
+      container.insertAdjacentHTML("beforeend", `
+      <div class="chat-date-separator">
+        <span>${dateLabel}</span>
+      </div>
+    `);
+    }
+
+    const html = `
+    <div class="chat-row ${isMe ? "chat-right" : "chat-left"}">
+      ${!isMe ? `<img src="${avatar}" class="chat-avatar">` : ""}
+
+      <div class="chat-bubble">
+        ${!isMe ? `<div class="chat-name">${senderName}</div>` : ""}
+        <div>${escapeHtml(msg.content)}</div>
+        <div class="chat-time">
+          ${time}
+          ${isMe ? `<span class="msg-status">${getCheckIcon(msg.status)}</span>` : ""}
+        </div>
+      </div>
+
+      ${isMe ? `<img src="${avatar}" class="chat-avatar chat-avatar-right">` : ""}
+    </div>
+  `;
+
+    container.insertAdjacentHTML("beforeend", html);
+    container.scrollTop = container.scrollHeight;
+  }
+
+
+  function getCheckIcon(status) {
+    if (status === "sent") return `<span class="tick">✔</span>`;
+    if (status === "delivered") return `<span class="tick">✔✔</span>`;
+    if (status === "read") return `<span class="tick tick-blue">✔✔</span>`;
+    return "";
+  }
+
+  function formatDateSeparator(date) {
+    const d = new Date(date);
+    const today = new Date();
+    const yesterday = new Date();
+    yesterday.setDate(today.getDate() - 1);
+
+    const isSameDay = (a, b) =>
+      a.getFullYear() === b.getFullYear() &&
+      a.getMonth() === b.getMonth() &&
+      a.getDate() === b.getDate();
+
+    if (isSameDay(d, today)) return "Today";
+    if (isSameDay(d, yesterday)) return "Yesterday";
+
+    return d.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric"
+    });
+  }
+
+
+  function shouldAddDateSeparator(container, date) {
+    const lastSeparator = container.querySelector(".chat-date-separator:last-of-type");
+    if (!lastSeparator) return true;
+
+    return lastSeparator.dataset.date !== formatDateSeparator(date);
+  }
+
+
+  // =============================
+  //  MENU SIDEBAR
+  // =============================
+
+  const btnMenu = document.getElementById("sidebarMenuBtn");
+  const menuDropdown = document.getElementById("sidebarMenuDropdown");
+
+  btnMenu.addEventListener("click", () => {
+    menuDropdown.classList.toggle("hidden");
+  });
+
+  // klik di luar → hide
+  document.addEventListener("click", (e) => {
+    if (!btnMenu.contains(e.target) && !menuDropdown.contains(e.target)) {
+      menuDropdown.classList.add("hidden");
+    }
+  });
+
+  document.getElementById("openCreateGroup").addEventListener("click", async () => {
+    await loadAllUsers();
+    document.getElementById("createGroupModal").classList.remove("hidden");
+    menuDropdown.classList.add("hidden");
+  });
+
+  document.getElementById("btnCreateGroup").onclick = async () => {
+    const name = document.getElementById("groupName").value;
+    const avatar = document.getElementById("groupAvatar").value || null;
+
+    const memberIds = [...selectedUsers];
+
+    const res = await fetch("/conversations/create-group", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token
+      },
+      body: JSON.stringify({ name, avatar, memberIds })
+    });
+
+    const data = await res.json();
+    console.log("Group created:", data);
+
+    // Tutup modal
+    document.getElementById("createGroupModal").classList.add("hidden");
+
+    // Reset
+    selectedUsers.clear();
+  };
+
+
+
+  // =============================
+  //  LOAD USERS
+  // =============================
+
+  let allUsers = [];
+  let selectedUsers = new Set();
+
+  async function loadAllUsers() {
+    const res = await fetch("/users/list", {
+      headers: { Authorization: "Bearer " + token }
+    });
+    allUsers = await res.json();
+    renderUserList(allUsers);
+  }
+
+  function renderUserList(users) {
+    const list = document.getElementById("memberList");
+    list.innerHTML = "";
+
+    users.forEach(u => {
+      const checked = selectedUsers.has(u.id) ? "checked" : "";
+
+      const html = `
+            <div class="wa-user-item" data-id="${u.id}">
+                <img src="https://ui-avatars.com/api/?name=${u.username}" class="wa-user-avatar">
+                <div class="wa-user-info">
+                    <div><strong>${u.username}</strong></div>
+                </div>
+                <input type="checkbox" class="wa-user-check" ${checked} style="margin-left:auto;">
+            </div>
+        `;
+
+      list.insertAdjacentHTML("beforeend", html);
+    });
+
+    activateUserClickEvent();
+  }
+
+  function activateUserClickEvent() {
+    document.querySelectorAll(".wa-user-item").forEach(item => {
+      item.addEventListener("click", () => {
+        const userId = Number(item.dataset.id);
+
+        if (selectedUsers.has(userId)) {
+          selectedUsers.delete(userId);
+        } else {
+          selectedUsers.add(userId);
+        }
+
+        renderUserList(allUsers);
+        renderSelectedChips();
+      });
+    });
+  }
+
+  function renderSelectedChips() {
+    const box = document.getElementById("selectedUsers");
+
+    if (selectedUsers.size === 0) {
+      box.classList.add("hidden");
+      box.innerHTML = "";
+      return;
+    }
+
+    box.classList.remove("hidden");
+    box.innerHTML = "";
+
+    selectedUsers.forEach(id => {
+      const user = allUsers.find(u => u.id === id);
+
+      box.insertAdjacentHTML("beforeend", `
+        <div class="wa-chip">
+            ${user.username}
+            <span class="wa-chip-remove" data-id="${id}">×</span>
+        </div>
+        `);
+    });
+
+    // remove chip
+    document.querySelectorAll(".wa-chip-remove").forEach(btn => {
+      btn.addEventListener("click", () => {
+        selectedUsers.delete(Number(btn.dataset.id));
+        renderUserList(allUsers);
+        renderSelectedChips();
+      });
+    });
+  }
+
+  // =============================
+  //  LOAD CONTACT LIST
+  // =============================
+  async function loadContactList() {
+    const res = await fetch("/conversations/getUserConversations", {
+      headers: { Authorization: "Bearer " + token }
+    });
+
+    const list = await res.json();
+    renderContactList(list);
+  }
+
+  function renderContactList(conversations) {
+    const container = document.getElementById("contact-list");
+    container.innerHTML = "";
+    console.log(conversations);
+    conversations.forEach(conv => {
+
+      const unread = Number(conv.unread_count);
+
+      const badge = unread > 0
+        ? `<div class="wa-unread-badge">${unread}</div>`
+        : "";
+
+      const html = `
+      <div class="wa-contact-item" data-userid="${conv.id}" data-conversationid="${conv.conversation_id}" data-name="${conv.display_name}"
+              data-avatar="${conv.display_avatar}" data-isgroup="${conv.is_group}" data-status="online">
+              <img src="${conv.display_avatar}" class="wa-avatar">
+              <div class="wa-contact-info">
+                <div class="wa-contact-name">${conv.display_name}</div>
+                <div class="wa-contact-last-msg">${conv.last_message || ""}</div>
+             </div>
+              ${badge}
+      </div>
+    `;
+      container.insertAdjacentHTML("beforeend", html);
+    });
+
+  }
+
+
+
+  // =============================
+  //  HELPERS
+  // =============================
+  function escapeHtml(txt) {
+    return txt.replace(/[&<>"']/g, t => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+    }[t]));
+  }
+
+  function timeAgo(date) {
+    const d = new Date(date);
+    const diff = (Date.now() - d.getTime()) / 1000;
+    if (diff < 60) return "Just now";
+    if (diff < 3600) return Math.floor(diff / 60) + "m ago";
+    if (diff < 86400) return Math.floor(diff / 3600) + "h ago";
+    return Math.floor(diff / 86400) + "d ago";
+  }
+</script>

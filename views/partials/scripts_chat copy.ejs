@@ -1,0 +1,251 @@
+<!-- jQuery -->
+<script src="/plugins/jquery/jquery.min.js"></script>
+<!-- Bootstrap 4 -->
+<script src="/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- overlayScrollbars -->
+<script src="/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
+<!-- AdminLTE App -->
+<script src="/dist/js/adminlte.min.js"></script>
+<!-- AdminLTE for demo purposes -->
+
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+<script>
+
+  let activeConversationId = null;
+  let activeUserId = null; // user yang sedang kita chat
+  let isLoadingMessages = false;
+
+
+  // Ambil semua item kontak
+  const contactItems = document.querySelectorAll(".wa-contact-item");
+
+  // Untuk tiap kontak → pasang event onClick
+  contactItems.forEach(item => {
+    item.addEventListener("click", async () => {
+
+      const targetUserId = item.dataset.userid;
+      const name = item.dataset.name;
+      const avatar = item.dataset.avatar;
+      const status = item.dataset.status;
+
+      activeUserId = targetUserId;
+
+      // 1) Update header kanan
+      updateChatHeader(name, avatar, status);
+      document.getElementById("conversationId").value = activeUserId;
+
+      // 2) Cek / buat conversation
+      const conversationId = await getOrCreateConversation(targetUserId);
+
+      activeConversationId = conversationId;
+
+      // 3) Load message conversation ini
+      await loadMessages(conversationId, null);
+
+
+      // Opsional: highlight kontak yang aktif
+      contactItems.forEach(i => i.classList.remove("active-contact"));
+      item.classList.add("active-contact");
+    });
+  });
+
+  // Update Header Chat Kanan
+  function updateChatHeader(name, avatar, status) {
+    document.getElementById("chat-header-name").innerText = name;
+    document.getElementById("chat-header-status").innerText = status;
+    document.getElementById("chat-header-avatar").src = avatar;
+  }
+
+  // Function getOrCreateConversation()
+  async function getOrCreateConversation(targetUserId) {
+    const res = await fetch(`/conversations/find-or-create/${targetUserId}`, {
+      headers: { Authorization: "Bearer " + localStorage.token }
+    });
+
+    const data = await res.json();
+    return data.conversationId;
+  }
+
+  // Function loadMessages() dengan Pagination
+  async function loadMessages(conversationId, before = null) {
+    if (isLoadingMessages) return;
+    isLoadingMessages = true;
+
+    let url = `/messages/${conversationId}?limit=20`;
+    if (before) url += `&before=${before}`;
+
+    const res = await fetch(url, {
+      headers: { Authorization: "Bearer " + localStorage.token }
+    });
+
+    const messages = await res.json();
+
+    // jika bukan paginasi → clear dulu
+    if (!before) {
+      document.getElementById("chat-container").innerHTML = "";
+    }
+
+    // urutkan dari paling lama
+    messages.reverse().forEach(m => {
+      appendChatWhatsApp({
+        content: m.content,
+        sender_name: m.username,
+        created_at: m.created_at,
+        avatar: `https://ui-avatars.com/api/?name=${m.username}`
+      }, m.sender_id == myUserId); // true jika pesan dari diri sendiri
+    });
+
+    isLoadingMessages = false;
+
+    return messages;
+  }
+
+
+  // Pagination ketika scroll ke atas
+  const chatBody = document.getElementById("chat-container");
+
+  chatBody.addEventListener("scroll", async () => {
+    if (chatBody.scrollTop === 0 && !isLoadingMessages) {
+
+      const firstMessage = chatBody.querySelector(".chat-row");
+      const firstTimestamp = firstMessage?.dataset?.timestamp;
+
+      if (firstTimestamp) {
+        await loadMessages(activeConversationId, firstTimestamp);
+      }
+    }
+  });
+
+
+
+  //============================================================
+
+  console.log("start")
+  let token = document.getElementById('token').value;
+  let user_id = document.getElementById('user_id').value;
+  let username = document.getElementById('username').value;
+
+  console.log("token:", token);
+
+  // setelah login dapat token
+  const socket = io("http://localhost:3001", { auth: { token } });
+
+  socket.emit("join_room", user_id); // join conversation 1
+
+  socket.on("connect", () => console.log("connected", socket.id));
+
+  socket.on("new_message", (msg) => {
+    console.log('new_message :', msg);
+    appendChatWhatsApp(msg, false);
+  });
+
+  document.getElementById("sendMessage").onclick = () => {
+    let conversationId = document.getElementById('conversationId').value;
+    const content = document.getElementById("msg").value;
+    console.log('Kepada:', conversationId);
+    console.log('content:', content);
+    socket.emit("send_message", { conversationId: activeConversationId, senderId: user_id, username: username, content });
+
+    appendChatWhatsApp({
+      content: content,
+      username: "Saya",
+      created_at: new Date(),
+      avatar: `https://ui-avatars.com/api/?name=${username}`
+    }, true);
+
+    document.getElementById("msg").value = "";
+  };
+
+  // typing example
+  const input = document.getElementById("msg");
+  let typingTimeout;
+  input.addEventListener("input", () => {
+    socket.emit("typing", { conversationId: 1, isTyping: true });
+    clearTimeout(typingTimeout);
+    typingTimeout = setTimeout(() => socket.emit("typing", { conversationId: 1, isTyping: false }), 1000);
+  });
+
+  socket.on("typing", ({ userId, isTyping }) => {
+    console.log("typing", userId, isTyping);
+  });
+
+  function appendChat(msg) {
+    const container = document.getElementById("chat-container"); // div tempat menampung chat
+
+    const html = `
+    <div class="post clearfix">
+      <div class="user-block">
+        <img class="img-circle img-bordered-sm" src="https://ui-avatars.com/api/?name=${msg.username}" alt="User Image">
+        <span class="username">
+          <a href="#">${msg.username}</a>
+        </span>
+        <span class="description">Just now</span>
+      </div>
+
+      <p>${msg.content}</p>
+    </div>
+  `;
+
+    container.insertAdjacentHTML("beforeend", html);
+  }
+
+
+  function appendChatWhatsApp(msg, isMe = false) {
+    const container = document.getElementById("chat-container");
+
+    const senderName = msg.username || "Unknown";
+    const avatar = msg.avatar || `https://ui-avatars.com/api/?name=${senderName}`;
+    const time = timeAgo(msg.created_at || new Date());
+
+    const rowClass = isMe ? "chat-row chat-right" : "chat-row chat-left";
+    const avatarClass = isMe ? "chat-avatar chat-avatar-right" : "chat-avatar";
+
+    const html = `
+    <div class="${rowClass}">
+        ${!isMe
+        ? `<img src="${avatar}" class="${avatarClass}">`
+        : ""
+      }
+
+        <div class="chat-bubble">
+            <div class="chat-name">${senderName}</div>
+            <div>${escapeHtml(msg.content)}</div>
+            <div class="chat-time">${time}</div>
+        </div>
+
+        ${isMe
+        ? `<img src="${avatar}" class="${avatarClass}">`
+        : ""
+      }
+    </div>
+  `;
+
+    container.insertAdjacentHTML("beforeend", html);
+
+    // Auto scroll ke bawah
+    container.scrollTop = container.scrollHeight;
+  }
+
+  function escapeHtml(text) {
+    if (!text) return "";
+    return text.replace(/[&<>"']/g, (tag) => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;"
+    }[tag]));
+  }
+
+  function timeAgo(date) {
+    const d = new Date(date);
+    const diff = (Date.now() - d.getTime()) / 1000;
+
+    if (diff < 60) return "Just now";
+    if (diff < 3600) return Math.floor(diff / 60) + "m ago";
+    if (diff < 86400) return Math.floor(diff / 3600) + "h ago";
+    return Math.floor(diff / 86400) + "d ago";
+  }
+
+
+</script>

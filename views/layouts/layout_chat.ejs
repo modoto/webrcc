@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <%- include('../partials/head'); %>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+      body {
+        margin: 0;
+        background: #e5ddd5;
+        font-family: 'Segoe UI', Arial, sans-serif;
+      }
+
+      .wa-container {
+        display: flex;
+        height: 100vh;
+      }
+
+      /* SIDEBAR KIRI */
+      .wa-sidebar {
+        width: 28%;
+        background: #fff;
+        border-right: 1px solid #ddd;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .wa-sidebar-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px;
+        background: #ededed;
+        border-bottom: 1px solid #ddd;
+      }
+
+      .wa-profile .wa-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+      }
+
+      .wa-header-icons i {
+        margin-left: 15px;
+        font-size: 18px;
+        cursor: pointer;
+        color: #555;
+      }
+
+      .wa-search-box {
+        padding: 10px;
+        border-bottom: 1px solid #eee;
+      }
+
+      .wa-search-box input {
+        width: 100%;
+        padding: 8px 12px;
+        border-radius: 20px;
+        border: none;
+        background: #f0f0f0;
+        outline: none;
+      }
+
+      .wa-contact-list {
+        flex: 1;
+        overflow-y: auto;
+      }
+
+      .wa-contact-item {
+        display: flex;
+        align-items: center;
+        padding: 12px;
+        cursor: pointer;
+        border-bottom: 1px solid #f5f5f5;
+      }
+
+      .wa-contact-item:hover {
+        background: #f0f0f0;
+      }
+
+      .wa-contact-item .wa-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+      }
+
+      .wa-contact-info {
+        margin-left: 12px;
+      }
+
+      .wa-contact-name {
+        font-weight: bold;
+        font-size: 15px;
+      }
+
+      .wa-contact-last-msg {
+        font-size: 13px;
+        color: #888;
+        margin-top: 3px;
+      }
+
+      /* AREA CHAT KANAN */
+      .wa-chat-area {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        background: #e5ddd5;
+      }
+
+      .wa-chat-header {
+        display: flex;
+        align-items: center;
+        padding: 12px;
+        background: #ededed;
+        border-bottom: 1px solid #ddd;
+      }
+
+      .wa-chat-header .wa-avatar {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        margin-right: 12px;
+      }
+
+      .wa-chat-name {
+        font-weight: bold;
+      }
+
+      .wa-chat-status {
+        font-size: 12px;
+        color: #888;
+      }
+
+      .wa-chat-body {
+        flex: 1;
+        overflow-y: auto;
+        padding: 20px;
+        background-image: url("../../dist/img/8775453.jpg");
+        background-size: cover;
+      }
+
+      /* INPUT BOX */
+      .wa-chat-input {
+        padding: 10px;
+        background: #f0f0f0;
+        display: flex;
+        border-top: 1px solid #ddd;
+      }
+
+      .wa-chat-input input {
+        flex: 1;
+        padding: 10px 15px;
+        border-radius: 20px;
+        border: none;
+        outline: none;
+        background: #fff;
+      }
+
+      .wa-chat-input button {
+        margin-left: 12px;
+        padding: 10px 20px;
+        border-radius: 20px;
+        border: none;
+        background: #4caf50;
+        color: #fff;
+        cursor: pointer;
+      }
+
+      .active-contact {
+        background: #e9f5ff !important;
+      }
+
+
+
+      .hidden {
+        display: none !important;
+      }
+
+
+      .wa-dropdown {
+        position: absolute;
+        top: 55px;
+        right: 10px;
+        width: 180px;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+        z-index: 999;
+      }
+
+      .wa-dropdown.hidden {
+        display: none;
+      }
+
+      .wa-dropdown-item {
+        padding: 10px 15px;
+        cursor: pointer;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .wa-dropdown-item:hover {
+        background: #f5f5f5;
+      }
+
+      .wa-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.4);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .wa-modal-content {
+        background: #fff;
+        padding: 20px;
+        width: 300px;
+        border-radius: 10px;
+      }
+
+      .wa-user-search {
+        margin-bottom: 10px;
+      }
+
+      .wa-user-list {
+        max-height: 250px;
+        overflow-y: auto;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 5px;
+        background: #fff;
+      }
+
+      .wa-user-item {
+        display: flex;
+        align-items: center;
+        padding: 8px;
+        cursor: pointer;
+        border-radius: 6px;
+      }
+
+      .wa-user-item:hover {
+        background: #f5f5f5;
+      }
+
+      .wa-user-avatar {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        margin-right: 10px;
+      }
+
+      .wa-selected-list {
+        margin-top: 10px;
+        padding: 5px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .wa-chip {
+        background: #e1f5fe;
+        color: #0277bd;
+        padding: 5px 10px;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .wa-chip-remove {
+        cursor: pointer;
+        font-weight: bold;
+      }
+    </style>
+    <style>
+      /* Container bubble */
+      .chat-row {
+        display: flex;
+        margin-bottom: 12px;
+      }
+
+      /* Foto user */
+      .chat-avatar {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        margin-right: 10px;
+      }
+
+      .chat-avatar-right {
+        margin-left: 10px;
+        margin-right: 0;
+      }
+
+      /* Bubble pesan */
+      .chat-bubble {
+        max-width: 65%;
+        padding: 10px 14px;
+        border-radius: 16px;
+        position: relative;
+        word-wrap: break-word;
+        font-size: 15px;
+        line-height: 1.4;
+      }
+
+      /* Bubble kiri (orang lain) */
+      .chat-left .chat-bubble {
+        background: #ffffff;
+        border: 1px solid #ddd;
+      }
+
+      /* Bubble kanan (milik kita sendiri) */
+      .chat-right {
+        justify-content: flex-end;
+      }
+
+      .chat-right .chat-bubble {
+        background: #dcf8c6;
+        /* warna WhatsApp */
+        border: 1px solid #cdebb4;
+      }
+
+      /* Nama pengirim */
+      .chat-name {
+        font-weight: bold;
+        margin-bottom: 3px;
+        font-size: 13px;
+      }
+
+      /* Timestamp kecil */
+      .chat-time {
+        font-size: 11px;
+        text-align: right;
+        opacity: 0.6;
+        margin-top: 4px;
+      }
+
+      .tick {
+        font-size: 12px;
+        margin-left: 4px;
+        color: #888;
+      }
+
+      .tick-blue {
+        color: #0bb2ff;
+      }
+
+      .wa-unread-badge {
+        background: #25d366;
+        color: white;
+        font-size: 12px;
+        min-width: 20px;
+        height: 20px;
+        padding: 0 6px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-left: auto;
+      }
+
+      .chat-date-separator {
+        text-align: center;
+        margin: 12px 0;
+      }
+
+      .chat-date-separator span {
+        background: #e5e5e5;
+        padding: 4px 12px;
+        border-radius: 8px;
+        font-size: 12px;
+        color: #555;
+      }
+    </style>
+
+
+</head>
+
+<body class="hold-transition sidebar-mini layout-fixed">
+  <div class="wrapper">
+
+    <%- include('../partials/navbar'); %>
+      <%- include('../partials/sidebar'); %>
+
+        <div class="content-wrapper">
+          <%- body %>
+        </div>
+
+        <%- include('../partials/footer'); %>
+
+  </div>
+
+  <%- include('../partials/scripts_chat'); %>
+</body>
+
+</html>

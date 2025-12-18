@@ -1,0 +1,73 @@
+<section class="content-header">
+  <div class="container-fluid">
+    <h1>Add Users</h1>
+  </div>
+</section>
+
+<section class="content">
+  <div class="container-fluid mt-3">
+    <div class="card">
+      <div class="card-header">
+        <h4>UserForm</h4>
+      </div>
+
+      <div class="card-body">
+        <form method="POST" action="/users/create">
+          <div class="row">
+
+            <!-- LEFT SIDE -->
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>User Id</label>
+                <input type="text" class="form-control" name="user_id">
+              </div>
+
+              <div class="form-group">
+                <label> Username</label>
+                <input type="text" class="form-control" name="username">
+              </div>
+              <div class="form-group">
+                <label>Dysplay Name</label>
+                <input type="text" class="form-control" name="display_name">
+              </div>
+
+              <div class="form-group">
+                <label>Email</label>
+                <input type="email" class="form-control" name="email">
+              </div>
+
+              <div class="form-group">
+                <label>Roles</label>
+                <input type="text" class="form-control" name="roles">
+              </div>
+
+              <div class="form-group">
+                <label>Password</label>
+                <input type="password" class="form-control" name="password">
+              </div>
+
+              <div class="form-group">
+                <label>Status</label>
+                <select class="form-control" name="status">
+                  <option value="1">Active</option>
+                  <option value="0">Inactive</option>
+                </select>
+              </div>
+
+              <input type="hidden" name="created_by" value="USR001">
+
+            </div>
+
+            <!-- RIGHT -->
+            <div class="col-md-6">
+
+            </div>
+          </div>
+
+          <button class="btn btn-success" type="submit">Save</button>
+          <a href="/users" class="btn btn-secondary">Back</a>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>

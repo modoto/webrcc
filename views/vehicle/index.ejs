@@ -1,0 +1,101 @@
+<section class="content-header">
+  <h1>Vehicle List</h1>
+</section>
+
+<section class="content">
+  <div class="container-fluid mt-3">
+
+    <div class="card">
+      <div class="card-header">
+        <a href="/vehicle/create" class="btn btn-primary btn-sm">
+          <i class="fas fa-plus"></i> Add Vehicle
+        </a>
+
+        <div class="card-tools">
+          <button type="button" class="btn btn-tool" data-card-widget="collapse">
+            <i class="fas fa-minus"></i>
+          </button>
+          <button type="button" class="btn btn-tool" data-card-widget="remove">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="card-body table-responsive">
+        <table id="example2" class="table table-bordered table-hover">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Vehicle ID</th>
+              <th>Police Number</th>
+              <th>Brand</th>
+              <th>Model</th>
+              <th>Assembly Year</th>
+              <th>Color</th>
+              <th>Fuel</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <% if (data.length===0) { %>
+              <tr>
+                <td colspan="10" class="text-center">No data</td>
+              </tr>
+              <% } %>
+
+                <% data.forEach((row, index)=> { %>
+                  <tr>
+                    <td>
+                      <%= index + 1 %>
+                    </td>
+                    <td>
+                      <%= row.vehicle_id %>
+                    </td>
+                    <td>
+                      <%= row.police_number %>
+                    </td>
+                    <td>
+                      <%= row.brand %>
+                    </td>
+                    <td>
+                      <%= row.model %>
+                    </td>
+                    <td>
+                      <%= row.assembly_year %>
+                    </td>
+                    <td>
+                      <%= row.color %>
+                    </td>
+                    <td>
+                      <%= row.fuel %>
+                    </td>
+                    <td>
+                      <% if(row.status==1){ %>
+                        <span class="badge badge-success">Active</span>
+                        <% } else { %>
+                          <span class="badge badge-danger">Inactive</span>
+                          <% } %>
+                    </td>
+
+                    <td width="130">
+                      <a href="/vehicle/edit/<%= row.id %>" class="btn btn-warning btn-sm">
+                        <i class="fas fa-edit"></i>
+                      </a>
+
+                      <a href="/vehicle/delete/<%= row.id %>" onclick="return confirm('Delete this vehicle?')"
+                        class="btn btn-danger btn-sm">
+                        <i class="fas fa-trash"></i>
+                      </a>
+                    </td>
+                  </tr>
+                  <% }) %>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+
+  </div>
+</section>

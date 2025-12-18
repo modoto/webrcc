@@ -1,0 +1,586 @@
+
+
+<!-- Content Header (Page header) -->
+      <section class="content-header">
+        <!-- <div class="container-fluid">
+          <div class="row mb-2">
+            <div class="col-sm-6">
+              <h1>Fixed Layout</h1>
+            </div>
+            <div class="col-sm-6">
+              <ol class="breadcrumb float-sm-right">
+                <li class="breadcrumb-item"><a href="#">Home</a></li>
+                <li class="breadcrumb-item"><a href="#">Layout</a></li>
+                <li class="breadcrumb-item active">Fixed Layout</li>
+              </ol>
+            </div>
+          </div>
+        </div> -->
+        <!-- /.container-fluid -->
+      </section>
+
+      <!-- Main content -->
+      <section class="content">
+
+        <div class="container-fluid">
+
+          <div class="row mb-4">
+            <div class="col-lg-4">
+              <!-- Default box -->
+              <div class="card h-100">
+                <div class="card-header">
+                  <h3 class="card-title">CAM-01</h3>
+
+                  <div class="card-tools">
+                    <button type="button" class="btn btn-tool" style='font-size:24px;' title="Mute">
+                      <i class="fas fa-volume-mute"></i>
+                    </button>
+                    <button type="button" onclick="toggleRecording('videoCanvas1')" id="recordBtn1" class="btn btn-tool"
+                      style='font-size:24px;' title="Record">
+                      <i class="fas fa-video"></i>
+                    </button>
+
+                    <button type="button" onclick="rotateCanvas('videoCanvas1', 'left')" class="btn btn-tool"
+                      style='font-size:24px;' title="Rotate Left">
+                      <i class="fas fa-undo"></i>
+                    </button>
+                    <button type="button" onclick="rotateCanvas('videoCanvas1', 'right')" class="btn btn-tool"
+                      style='font-size:24px;' title="Rotate Right">
+                      <i class="fas fa-redo"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" onclick="expandCanvasFullscreen('videoCanvas1')"
+                      style='font-size:24px' title="Expand">
+                      <i class="fas fa-expand-arrows-alt"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="card-body" style="padding: 0;">
+                  <div class="canvas-wrapper" style="position: relative;">
+                    <canvas id="videoCanvas1" class="img-fluid"></canvas>
+                    <div id="recordIndicator1" class="record-indicator">● REC</div>
+                  </div>
+                </div>
+                <!-- /.card-body -->
+                
+              </div>
+              <!-- /.card -->
+            </div>
+
+            <div class="col-lg-4">
+              <!-- Default box -->
+              <div class="card h-100">
+                <div class="card-header">
+                  <h3 class="card-title">CAM-02</h3>
+
+                  <div class="card-tools">
+                    <button type="button" class="btn btn-tool" style='font-size:24px;' title="Mute">
+                      <i class="fas fa-volume-mute"></i>
+                    </button>
+                    <button type="button" onclick="toggleRecording('videoCanvas2')" id="recordBtn2" class="btn btn-tool" style='font-size:24px;' title="Record">
+                      <i class="fas fa-video"></i>
+                    </button>
+                    <button type="button" onclick="rotateLiveCanvas('videoCanvas2', 'left')" class="btn btn-tool"
+                      style='font-size:24px;' title="Rotate Left">
+                      <i class="fas fa-undo"></i>
+                    </button>
+                    <button type="button" onclick="rotateLiveCanvas('videoCanvas2', 'right')" class="btn btn-tool"
+                      style='font-size:24px;' title="Rotate Right">
+                      <i class="fas fa-redo"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" onclick="expandCanvasFullscreen('videoCanvas2')"
+                      style='font-size:24px' title="Expand">
+                      <i class="fas fa-expand-arrows-alt"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="card-body" style="padding: 0;">
+                  <div class="canvas-wrapper" style="position: relative;">
+                    <canvas id="videoCanvas2" class="img-fluid"></canvas>
+                    <div id="recordIndicator2" class="record-indicator">● REC</div>
+                  </div>
+                </div>
+                <!-- /.card-body -->
+              
+              </div>
+              <!-- /.card -->
+            </div>
+
+            <div class="col-lg-4">
+              <!-- Default box -->
+              <div class="card h-100">
+                <div class="card-header">
+                  <h3 class="card-title">CAM-03</h3>
+
+                  <div class="card-tools">
+                    <button type="button" class="btn btn-tool" style='font-size:24px;' title="Mute">
+                      <i class="fas fa-volume-mute"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" style='font-size:24px;' title="Record">
+                      <i class="fas fa-video"></i>
+                    </button>
+                    <button type="button" onclick="rotateCanvas('videoCanvas3', 'left')" class="btn btn-tool"
+                      style='font-size:24px;' title="Rotate Left">
+                      <i class="fas fa-undo"></i>
+                    </button>
+                    <button type="button" onclick="rotateCanvas('videoCanvas3', 'right')" class="btn btn-tool"
+                      style='font-size:24px;' title="Rotate Right">
+                      <i class="fas fa-redo"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" onclick="expandCanvasFullscreen('videoCanvas3')"
+                      style='font-size:24px' title="Expand">
+                      <i class="fas fa-expand-arrows-alt"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="card-body" style="padding: 0;">
+                  <canvas class="img-fluid" id="videoCanvas3"></canvas>
+                </div>
+                <!-- /.card-body -->
+                
+              </div>
+              <!-- /.card -->
+            </div>
+          </div>
+
+          <div class="row mb-4">
+            <div class="col-lg-4">
+              <!-- Default box -->
+              <div class="card h-100">
+                <div class="card-header">
+                  <h3 class="card-title">CAM-04</h3>
+
+                  <div class="card-tools">
+                    <button type="button" class="btn btn-tool" style='font-size:24px;' title="Mute">
+                      <i class="fas fa-volume-mute"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" style='font-size:24px;' title="Record">
+                      <i class="fas fa-video"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" style='font-size:24px;' title="Rotate Left">
+                      <i class="fas fa-undo"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" style='font-size:24px;' title="Rotate Right">
+                      <i class="fas fa-redo"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" style='font-size:24px' title="Expand">
+                      <i class="fas fa-expand-arrows-alt"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="card-body" style="padding: 0;">
+                  <img class="img-fluid" src="../../dist/img/photo1.png" alt="Photo">
+                </div>
+                <!-- /.card-body -->
+                <div class="card-footer">
+
+                </div>
+                <!-- /.card-footer-->
+              </div>
+              <!-- /.card -->
+            </div>
+
+            <div class="col-lg-4">
+              <!-- Default box -->
+              <div class="card h-100">
+                <div class="card-header">
+                  <h3 class="card-title">CAM-05</h3>
+
+                  <div class="card-tools">
+                    <button type="button" class="btn btn-tool" style='font-size:24px;' title="Mute">
+                      <i class="fas fa-volume-mute"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" style='font-size:24px;' title="Record">
+                      <i class="fas fa-video"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" style='font-size:24px;' title="Rotate Left">
+                      <i class="fas fa-undo"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" style='font-size:24px;' title="Rotate Right">
+                      <i class="fas fa-redo"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" style='font-size:24px' title="Expand">
+                      <i class="fas fa-expand-arrows-alt"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="card-body" style="padding: 0;">
+                  <img class="img-fluid" src="../../dist/img/photo1.png" alt="Photo">
+                </div>
+                <!-- /.card-body -->
+                <div class="card-footer">
+
+                </div>
+                <!-- /.card-footer-->
+              </div>
+              <!-- /.card -->
+            </div>
+
+            <div class="col-lg-4">
+              <!-- Default box -->
+              <div class="card h-100">
+                <div class="card-header">
+                  <h3 class="card-title">CAM-06</h3>
+
+                  <div class="card-tools">
+                    <button type="button" class="btn btn-tool" style='font-size:24px;' title="Mute">
+                      <i class="fas fa-volume-mute"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" style='font-size:24px;' title="Record">
+                      <i class="fas fa-video"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" style='font-size:24px;' title="Rotate Left">
+                      <i class="fas fa-undo"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" style='font-size:24px;' title="Rotate Right">
+                      <i class="fas fa-redo"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" style='font-size:24px' title="Expand">
+                      <i class="fas fa-expand-arrows-alt"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="card-body" style="padding: 0;">
+                  <img class="img-fluid" src="../../dist/img/photo1.png" alt="Photo">
+                </div>
+                <!-- /.card-body -->
+                <div class="card-footer">
+
+                </div>
+                <!-- /.card-footer-->
+              </div>
+              <!-- /.card -->
+            </div>
+          </div>
+
+          <div class="row mb-4">
+            <div class="col-lg-4">
+              <!-- Default box -->
+              <div class="card h-100">
+                <div class="card-header">
+                  <h3 class="card-title">CAM-07</h3>
+
+                  <div class="card-tools">
+                    <button type="button" class="btn btn-tool" style='font-size:24px;' title="Mute">
+                      <i class="fas fa-volume-mute"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" style='font-size:24px;' title="Record">
+                      <i class="fas fa-video"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" style='font-size:24px;' title="Rotate Left">
+                      <i class="fas fa-undo"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" style='font-size:24px;' title="Rotate Right">
+                      <i class="fas fa-redo"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" style='font-size:24px' title="Expand">
+                      <i class="fas fa-expand-arrows-alt"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="card-body" style="padding: 0;">
+                  <img class="img-fluid" src="../../dist/img/photo1.png" alt="Photo">
+                </div>
+                <!-- /.card-body -->
+                <div class="card-footer">
+
+                </div>
+                <!-- /.card-footer-->
+              </div>
+              <!-- /.card -->
+            </div>
+
+            <div class="col-lg-4">
+              <!-- Default box -->
+              <div class="card h-100">
+                <div class="card-header">
+                  <h3 class="card-title">CAM-08</h3>
+
+                  <div class="card-tools">
+                    <button type="button" class="btn btn-tool" style='font-size:24px;' title="Mute">
+                      <i class="fas fa-volume-mute"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" style='font-size:24px;' title="Record">
+                      <i class="fas fa-video"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" style='font-size:24px;' title="Rotate Left">
+                      <i class="fas fa-undo"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" style='font-size:24px;' title="Rotate Right">
+                      <i class="fas fa-redo"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" style='font-size:24px' title="Expand">
+                      <i class="fas fa-expand-arrows-alt"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="card-body" style="padding: 0;">
+                  <img class="img-fluid" src="../../dist/img/photo1.png" alt="Photo">
+                </div>
+                <!-- /.card-body -->
+                <div class="card-footer">
+
+                </div>
+                <!-- /.card-footer-->
+              </div>
+              <!-- /.card -->
+            </div>
+
+            <div class="col-lg-4">
+              <!-- Default box -->
+              <div class="card h-100">
+                <div class="card-header">
+                  <h3 class="card-title">CAM-09</h3>
+
+                  <div class="card-tools">
+                    <button type="button" class="btn btn-tool" style='font-size:24px;' title="Mute">
+                      <i class="fas fa-volume-mute"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" style='font-size:24px;' title="Record">
+                      <i class="fas fa-video"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" style='font-size:24px;' title="Rotate Left">
+                      <i class="fas fa-undo"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" style='font-size:24px;' title="Rotate Right">
+                      <i class="fas fa-redo"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" style='font-size:24px' title="Expand">
+                      <i class="fas fa-expand-arrows-alt"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="card-body" style="padding: 0;">
+                  <img class="img-fluid" src="../../dist/img/photo1.png" alt="Photo">
+                </div>
+                <!-- /.card-body -->
+                <div class="card-footer">
+
+                </div>
+                <!-- /.card-footer-->
+              </div>
+              <!-- /.card -->
+            </div>
+          </div>
+
+          <div class="row mb-4">
+            <div class="col-lg-4">
+              <!-- Default box -->
+              <div class="card h-100">
+                <div class="card-header">
+                  <h3 class="card-title">CAM-10</h3>
+
+                  <div class="card-tools">
+                    <button type="button" class="btn btn-tool" style='font-size:24px;' title="Mute">
+                      <i class="fas fa-volume-mute"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" style='font-size:24px;' title="Record">
+                      <i class="fas fa-video"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" style='font-size:24px;' title="Rotate Left">
+                      <i class="fas fa-undo"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" style='font-size:24px;' title="Rotate Right">
+                      <i class="fas fa-redo"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" style='font-size:24px' title="Expand">
+                      <i class="fas fa-expand-arrows-alt"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="card-body" style="padding: 0;">
+                  <img class="img-fluid" src="../../dist/img/photo1.png" alt="Photo">
+                </div>
+                <!-- /.card-body -->
+                <div class="card-footer">
+
+                </div>
+                <!-- /.card-footer-->
+              </div>
+              <!-- /.card -->
+            </div>
+
+            <div class="col-lg-4">
+              <!-- Default box -->
+              <div class="card h-100">
+                <div class="card-header">
+                  <h3 class="card-title">CAM-11</h3>
+
+                  <div class="card-tools">
+                    <button type="button" class="btn btn-tool" style='font-size:24px;' title="Mute">
+                      <i class="fas fa-volume-mute"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" style='font-size:24px;' title="Record">
+                      <i class="fas fa-video"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" style='font-size:24px;' title="Rotate Left">
+                      <i class="fas fa-undo"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" style='font-size:24px;' title="Rotate Right">
+                      <i class="fas fa-redo"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" style='font-size:24px' title="Expand">
+                      <i class="fas fa-expand-arrows-alt"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="card-body" style="padding: 0;">
+                  <img class="img-fluid" src="../../dist/img/photo1.png" alt="Photo">
+                </div>
+                <!-- /.card-body -->
+                <div class="card-footer">
+
+                </div>
+                <!-- /.card-footer-->
+              </div>
+              <!-- /.card -->
+            </div>
+
+            <div class="col-lg-4">
+              <!-- Default box -->
+              <div class="card h-100">
+                <div class="card-header">
+                  <h3 class="card-title">CAM-12</h3>
+
+                  <div class="card-tools">
+                    <button type="button" class="btn btn-tool" style='font-size:24px;' title="Mute">
+                      <i class="fas fa-volume-mute"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" style='font-size:24px;' title="Record">
+                      <i class="fas fa-video"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" style='font-size:24px;' title="Rotate Left">
+                      <i class="fas fa-undo"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" style='font-size:24px;' title="Rotate Right">
+                      <i class="fas fa-redo"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" style='font-size:24px' title="Expand">
+                      <i class="fas fa-expand-arrows-alt"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="card-body" style="padding: 0;">
+                  <img class="img-fluid" src="../../dist/img/photo1.png" alt="Photo">
+                </div>
+                <!-- /.card-body -->
+                <div class="card-footer">
+
+                </div>
+                <!-- /.card-footer-->
+              </div>
+              <!-- /.card -->
+            </div>
+          </div>
+
+          <div class="row mb-4">
+            <div class="col-lg-4">
+              <!-- Default box -->
+              <div class="card h-100">
+                <div class="card-header">
+                  <h3 class="card-title">CAM-13</h3>
+
+                  <div class="card-tools">
+                    <button type="button" class="btn btn-tool" style='font-size:24px;' title="Mute">
+                      <i class="fas fa-volume-mute"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" style='font-size:24px;' title="Record">
+                      <i class="fas fa-video"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" style='font-size:24px;' title="Rotate Left">
+                      <i class="fas fa-undo"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" style='font-size:24px;' title="Rotate Right">
+                      <i class="fas fa-redo"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" style='font-size:24px' title="Expand">
+                      <i class="fas fa-expand-arrows-alt"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="card-body" style="padding: 0;">
+                  <img class="img-fluid" src="../../dist/img/photo1.png" alt="Photo">
+                </div>
+                <!-- /.card-body -->
+                <div class="card-footer">
+
+                </div>
+                <!-- /.card-footer-->
+              </div>
+              <!-- /.card -->
+            </div>
+
+            <div class="col-lg-4">
+              <!-- Default box -->
+              <div class="card h-100">
+                <div class="card-header">
+                  <h3 class="card-title">CAM-14</h3>
+
+                  <div class="card-tools">
+                    <button type="button" class="btn btn-tool" style='font-size:24px;' title="Mute">
+                      <i class="fas fa-volume-mute"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" style='font-size:24px;' title="Record">
+                      <i class="fas fa-video"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" style='font-size:24px;' title="Rotate Left">
+                      <i class="fas fa-undo"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" style='font-size:24px;' title="Rotate Right">
+                      <i class="fas fa-redo"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" style='font-size:24px' title="Expand">
+                      <i class="fas fa-expand-arrows-alt"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="card-body" style="padding: 0;">
+                  <img class="img-fluid" src="../../dist/img/photo1.png" alt="Photo">
+                </div>
+                <!-- /.card-body -->
+                <div class="card-footer">
+
+                </div>
+                <!-- /.card-footer-->
+              </div>
+              <!-- /.card -->
+            </div>
+
+            <div class="col-lg-4">
+              <!-- Default box -->
+              <div class="card h-100">
+                <div class="card-header">
+                  <h3 class="card-title">CAM-15</h3>
+
+                  <div class="card-tools">
+                    <button type="button" class="btn btn-tool" style='font-size:24px;' title="Mute">
+                      <i class="fas fa-volume-mute"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" style='font-size:24px;' title="Record">
+                      <i class="fas fa-video"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" style='font-size:24px;' title="Rotate Left">
+                      <i class="fas fa-undo"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" style='font-size:24px;' title="Rotate Right">
+                      <i class="fas fa-redo"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" style='font-size:24px' title="Expand">
+                      <i class="fas fa-expand-arrows-alt"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="card-body" style="padding: 0;">
+                  <img class="img-fluid" src="../../dist/img/photo1.png" alt="Photo">
+                </div>
+                <!-- /.card-body -->
+                <div class="card-footer">
+
+                </div>
+                <!-- /.card-footer-->
+              </div>
+              <!-- /.card -->
+            </div>
+          </div>
+
+      </section>
+      <!-- /.content -->

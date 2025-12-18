@@ -1,0 +1,89 @@
+<section class="content-header">
+  <div class="container-fluid">
+    <div class="row mb-2">
+      <div class="col-sm-6">
+        <h1>Unit List</h1>
+      </div>
+      <div class="col-sm-6">
+        <ol class="breadcrumb float-sm-right">
+          <li class="breadcrumb-item"><a href="#">Home</a></li>
+          <li class="breadcrumb-item active">Unit</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="content">
+  <div class="container-fluid mt-3">
+    <div class="card">
+      <div class="card-header">
+        <a class="btn btn-primary btn-sm" href="/unit/create">
+          <i class="fas fa-plus"></i> Add Unit
+        </a>
+      </div>
+
+      <div class="card-body table-responsive">
+        <table id="example2" class="table table-bordered table-hover">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Unit ID</th>
+              <th>Vehicle</th>
+              <th>Router</th>
+              <th>MT Cam</th>
+              <th>BW Cam</th>
+              <th>Tab</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% rows.forEach(row=> { %>
+              <tr>
+                <td>
+                  <%= row.id %>
+                </td>
+                <td>
+                  <%= row.unit_id %>
+                </td>
+                <td>
+                  <%= row.vehicle_id %>
+                </td>
+                <td>
+                  <%= row.router_id %>
+                </td>
+                <td>
+                  <%= row.mtcam_id %>
+                </td>
+                <td>
+                  <%= row.bwcam_id %>
+                </td>
+                <td>
+                  <%= row.tab_id %>
+                </td>
+                <td>
+                  <% if(row.status==1){ %>
+                    <span class="badge badge-success">Active</span>
+                    <% } else { %>
+                      <span class="badge badge-danger">Inactive</span>
+                      <% } %>
+                </td>
+                <td width="130">
+                  <a href="/unit/edit/<%= row.id %>" class="btn btn-warning btn-sm">
+                    <i class="fas fa-edit"></i>
+                  </a>
+
+                  <a href="/unit/delete/<%= row.id %>" onclick="return confirm('Delete this vehicle?')"
+                    class="btn btn-danger btn-sm">
+                    <i class="fas fa-trash"></i>
+                  </a>
+                </td>
+              </tr>
+              <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>

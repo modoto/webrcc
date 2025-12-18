@@ -1,0 +1,107 @@
+<section class="content-header">
+  <div class="container-fluid"><h1>Edit Unit</h1></div>
+</section>
+
+<section class="content">
+  <div class="container-fluid mt-3">
+    <div class="card">
+      <div class="card-header"><h4>Unit Form</h4></div>
+
+      <div class="card-body">
+        <form method="POST" action="/unit/edit/<%= row.id %>">
+          <div class="row">
+            <div class="col-md-6">
+
+              <div class="form-group">
+                <label>Unit ID</label>
+                <input type="text" class="form-control" name="unit_id" value="<%= row.unit_id %>">
+              </div>
+
+              <div class="form-group">
+                <label>Vehicle ID</label>
+                <select class="form-control" name="vehicle_id">
+                <% vehicle.forEach(u=> { %>
+                  <% if(u.vehicle_id == row.vehicle_id){ %>
+                    <option value="<%= u.vehicle_id %>" selected><%= u.vehicle_id %> - <%= u.police_number %></option>
+                  <% } else { %>
+                    <option value="<%= u.vehicle_id %>"><%= u.vehicle_id %> - <%= u.police_number %></option>
+                  <% } %>
+                <% }) %>
+               </select>
+              </div>
+
+              <div class="form-group">
+                <label>Router</label>
+                <select class="form-control" name="router_id">
+                <% routers.forEach(u=> { %>
+                  <% if(u.router_id == row.router_id){ %>
+                    <option value="<%= u.router_id %>" selected><%= u.router_id %> - <%= u.device_name %></option>
+                  <% } else { %>
+                    <option value="<%= u.router_id %>"><%= u.router_id %> - <%= u.device_name %></option>
+                  <% } %>
+                <% }) %>
+               </select>
+              </div>
+
+              <div class="form-group">
+                <label>Motor Cam</label>
+                <select class="form-control" name="mtcam_id">
+                <% mtcams.forEach(u=> { %>
+                  <% if(u.mtcam_id == row.mtcam_id){ %>
+                    <option value="<%= u.mtcam_id %>" selected><%= u.mtcam_id %> - <%= u.device_name %></option>
+                  <% } else { %>
+                    <option value="<%= u.mtcam_id %>"><%= u.mtcam_id %> - <%= u.device_name %></option>
+                  <% } %>
+                <% }) %>
+               </select>
+              </div>
+
+            </div>
+            <div class="col-md-6">
+
+              <div class="form-group">
+                <label>BW Cam</label>
+                <select class="form-control" name="bwcam_id">
+                <% bwcams.forEach(u=> { %>
+                  <% if(u.bwcam_id == row.bwcam_id){ %>
+                    <option value="<%= u.bwcam_id %>" selected><%= u.bwcam_id %> - <%= u.device_name %></option>
+                  <% } else { %>
+                    <option value="<%= u.bwcam_id %>"><%= u.bwcam_id %> - <%= u.device_name %></option>
+                  <% } %>
+                <% }) %>
+               </select>
+              </div>
+
+              <div class="form-group">
+                <label>Tablet</label>
+                <select class="form-control" name="tab_id">
+                <% tablet.forEach(u=> { %>
+                  <% if(u.tab_id == row.tab_id){ %>
+                    <option value="<%= u.tab_id %>" selected><%= u.tab_id %> - <%= u.device_name %></option>
+                  <% } else { %>
+                    <option value="<%= u.tab_id %>"><%= u.tab_id %> - <%= u.device_name %></option>
+                  <% } %>
+                <% }) %>
+               </select>
+              </div>
+
+              <div class="form-group">
+                <label>Status</label>
+                <select class="form-control" name="status">
+                  <option value="1" <%= row.status == 1 ? "selected" : "" %>>Active</option>
+                  <option value="0" <%= row.status == 0 ? "selected" : "" %>>Inactive</option>
+                </select>
+              </div>
+
+              <input type="hidden" name="user_id" value="USR001">
+
+            </div>
+          </div>
+
+          <button class="btn btn-success">Save</button>
+          <a href="/unit" class="btn btn-secondary">Back</a>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <%- include('../partials/head'); %>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+      #map {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+      }
+
+      .card,
+      .card-body,
+      #map {
+        height: 82vh;
+        /* atau 100% jika dalam layout tertentu */
+        width: 100%;
+      }
+    </style>
+    <style>
+      /* Container bubble */
+      .chat-row {
+        display: flex;
+        margin-bottom: 12px;
+      }
+
+      /* Foto user */
+      .chat-avatar {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        margin-right: 10px;
+      }
+
+      .chat-avatar-right {
+        margin-left: 10px;
+        margin-right: 0;
+      }
+
+      /* Bubble pesan */
+      .chat-bubble {
+        max-width: 65%;
+        padding: 10px 14px;
+        border-radius: 16px;
+        position: relative;
+        word-wrap: break-word;
+        font-size: 15px;
+        line-height: 1.4;
+      }
+
+      /* Bubble kiri (orang lain) */
+      .chat-left .chat-bubble {
+        background: #ffffff;
+        border: 1px solid #ddd;
+      }
+
+      /* Bubble kanan (milik kita sendiri) */
+      .chat-right {
+        justify-content: flex-end;
+      }
+
+      .chat-right .chat-bubble {
+        background: #dcf8c6;
+        /* warna WhatsApp */
+        border: 1px solid #cdebb4;
+      }
+
+      /* Nama pengirim */
+      .chat-name {
+        font-weight: bold;
+        margin-bottom: 3px;
+        font-size: 13px;
+      }
+
+      /* Timestamp kecil */
+      .chat-time {
+        font-size: 11px;
+        text-align: right;
+        opacity: 0.6;
+        margin-top: 4px;
+      }
+    </style>
+
+</head>
+
+<body class="hold-transition sidebar-mini layout-fixed">
+  <div class="wrapper">
+
+    <%- include('../partials/navbar'); %>
+      <%- include('../partials/sidebar'); %>
+
+        <div class="content-wrapper">
+          <%- body %>
+        </div>
+
+        <%- include('../partials/footer'); %>
+
+  </div>
+
+  <%- include('../partials/scripts_chat'); %>
+</body>
+
+</html>

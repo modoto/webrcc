@@ -1,0 +1,185 @@
+<section class="content-header">
+  <div class="container-fluid">
+    <h1>Edit Schedule</h1>
+  </div>
+</section>
+
+<section class="content">
+  <div class="container-fluid mt-3">
+
+    <!-- HEADER FORM -->
+    <div class="card card-default">
+      <div class="card-header">
+        <h4>Form Schedule</h4>
+      </div>
+
+      <div class="card-body">
+        <form method="POST" action="/activity/edit/<%= row.id %>">
+
+          <div class="row">
+
+            <div class="col-md-6">
+
+              <div class="form-group">
+                <label>Schedule ID</label>
+                <input type="text" class="form-control" name="activity_id" value="<%= row.activity_id %>">
+              </div>
+
+              <div class="form-group">
+                <label>Start Date</label>
+                <input type="datetime-local" class="form-control" name="start_date"
+                  value="<%= row.start_date.toISOString().slice(0,16) %>">
+              </div>
+
+              <div class="form-group">
+                <label>Room ID</label>
+                <input type="text" class="form-control" name="room_id" value="<%= row.room_id %>">
+              </div>
+
+
+              <div class="form-group">
+                <label>Description</label>
+                <input type="text" class="form-control" name="description" value="<%= row.description %>">
+              </div>
+
+            </div>
+
+            <div class="col-md-6">
+
+              <div class="form-group">
+                <label>Schedule Name</label>
+                <input type="text" class="form-control" name="activity_name" value="<%= row.activity_name %>">
+              </div>
+
+              <div class="form-group">
+                <label>End Date</label>
+                <input type="datetime-local" class="form-control" name="end_date"
+                  value="<%= row.end_date.toISOString().slice(0,16) %>">
+              </div>
+
+
+              <div class="form-group">
+                <label>Chat ID</label>
+                <input type="text" class="form-control" name="chat_id" value="<%= row.chat_id %>">
+              </div>
+
+              <div class="form-group">
+                <label>Status</label>
+                <select class="form-control" name="status">
+                  <option value="1" <%=row.status==1 ? "selected" : "" %>>Active</option>
+                  <option value="0" <%=row.status==0 ? "selected" : "" %>>Inactive</option>
+                </select>
+              </div>
+
+              <input type="hidden" name="user_id" value="USR001">
+
+            </div>
+
+          </div>
+
+          <button type="submit" class="btn btn-success">Save</button>
+          <a href="/activity" class="btn btn-secondary">Back</a>
+
+        </form>
+      </div>
+    </div>
+
+    <!-- DETAIL LIST -->
+    <div class="card mt-4">
+      <div class="card-header">
+        <h4>Detail Schedule (Units)</h4>
+      </div>
+
+      <div class="card-body">
+
+        <!-- ADD DETAIL FORM -->
+        <form method="POST" action="/activity/detail/add" class="mb-4">
+
+          <input type="hidden" name="activity_id" value="<%= row.activity_id %>">
+          <input type="hidden" name="header_id" value="<%= row.id %>">
+          <input type="hidden" name="chat_id" value="<%= row.chat_id %>">
+          <input type="hidden" name="user_id" value="USR001">
+
+          <div class="row">
+
+            <div class="col-md-2">
+              <label>Unit</label>
+              <select class="form-control" name="unit_id">
+                <% units.forEach(u=> { %>
+                  <option value="<%= u.unit_id %>">
+                    <%= u.unit_id %> - <%= u.vehicle_id %>
+                  </option>
+                  <% }) %>
+              </select>
+            </div>
+
+            <div class="col-md-2">
+              <label>NRP</label>
+              <input type="text" class="form-control" name="nrp">
+            </div>
+
+            <div class="col-md-3">
+              <label>Driver</label>
+              <input type="text" class="form-control" name="driver">
+            </div>
+
+
+            <div class="col-md-3">
+              <label>Status</label>
+              <select class="form-control" name="status">
+                <option value="1">Active</option>
+                <option value="0">Inactive</option>
+              </select>
+            </div>
+
+            <div class="col-md-2 d-flex align-items-end">
+              <button class="btn btn-primary w-100">Add</button>
+            </div>
+
+          </div>
+        </form>
+
+        <!-- TABLE DETAIL -->
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th>Unit ID</th>
+              <th>NRP</th>
+              <th>Driver</th>
+              <th>Status</th>
+              <th>#</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% details.forEach(d=> { %>
+              <tr>
+                <td>
+                  <%= d.unit_id %>
+                </td>
+                <td>
+                  <%= d.nrp %>
+                </td>
+                <td>
+                  <%= d.driver %>
+                </td>
+                <td>
+                <% if(d.status==1){ %>
+                  <span class="badge badge-success">Active</span>
+                  <% } else { %>
+                    <span class="badge badge-danger">Inactive</span>
+                    <% } %>
+              </td>
+                <td>
+                  <a href="/activity/detail/delete/<%= d.id %>?activity_id=<%= row.id %>"
+                    class="btn btn-danger btn-sm" onclick="return confirm('Delete?')">Delete</a>
+                </td>
+              </tr>
+              <% }) %>
+          </tbody>
+        </table>
+
+      </div>
+    </div>
+
+  </div>
+</section>

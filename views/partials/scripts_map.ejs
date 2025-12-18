@@ -1,0 +1,67 @@
+  <!-- jQuery -->
+  <script src="/plugins/jquery/jquery.min.js"></script>
+  <!-- Bootstrap 4 -->
+  <script src="/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <!-- overlayScrollbars -->
+  <script src="/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
+  <!-- AdminLTE App -->
+  <script src="/dist/js/adminlte.min.js"></script>
+  <!-- AdminLTE for demo purposes -->
+
+  <script>
+    const key = 'xETUuAVe5RphO86wCqU2';
+    const map = L.map('map').setView([-6.173082026019618, 106.82676857318508], 14); // starting position
+
+    const carIcon = L.icon({
+      iconUrl: '/images/Top POV.png',
+      iconSize: [45, 66],
+      iconAnchor: [22.5, 60],
+      popupAnchor: [0, -62]
+    });
+
+    L.tileLayer(`https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=${key}`, {
+      tileSize: 512,
+      zoomOffset: -1,
+      minZoom: 1,
+      attribution: '<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>',
+      crossOrigin: true
+    }).addTo(map);
+
+    // 🧭 Tambahkan 3 marker
+    const markers = [
+      {
+        coords: [-6.171516247202544, 106.82312970643173],
+        popup: "📍 B 6765 CN"
+      },
+      {
+        coords: [-6.179973771612609, 106.82299589012723],
+        popup: "📍 B 6767 CN"
+      },
+      {
+        coords: [-6.174158050232767, 106.82815737615795],
+        popup: "📍 B 6769 CN"
+      },
+      {
+        coords: [-6.182598365147171, 106.83349467538],
+        popup: "📍 B 6770 CN"
+      },
+      {
+        coords: [-6.178406898611164, 106.84206142100724],
+        popup: "📍 B 6771 CN"
+      },
+      {
+        coords: [-6.1729663107937105, 106.80603408764755],
+        popup: "📍 B 6772 CN"
+      },
+      {
+        coords: [-6.195473755959882, 106.82299195493019],
+        popup: "📍 B 6773 CN"
+      }
+    ];
+
+    markers.forEach(marker => {
+      L.marker(marker.coords, { icon: carIcon }).addTo(map)
+        .bindPopup(marker.popup)
+        .openPopup(); // opsional: buka popup langsung
+    });
+  </script>

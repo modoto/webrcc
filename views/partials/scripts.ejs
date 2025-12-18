@@ -1,0 +1,267 @@
+<!-- jQuery -->
+<script src="/plugins/jquery/jquery.min.js"></script>
+<!-- Bootstrap 4 -->
+<script src="/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- overlayScrollbars -->
+<script src="/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
+
+<!-- DataTables  & Plugins -->
+<script src="/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+<script src="/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+<script src="/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+<script src="/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
+<script src="/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+<script src="/plugins/jszip/jszip.min.js"></script>
+<script src="/plugins/pdfmake/pdfmake.min.js"></script>
+<script src="/plugins/pdfmake/vfs_fonts.js"></script>
+<script src="/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
+<script src="/plugins/datatables-buttons/js/buttons.print.min.js"></script>
+<script src="/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
+
+<!-- AdminLTE App -->
+<script src="/dist/js/adminlte.min.js"></script>
+<!-- AdminLTE for demo purposes -->
+<!-- <script src="/dist/js/demo.js"></script>-->
+
+<script src="/dist/jsmpeg/jsmpeg.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mp4box@2.2.0/dist/mp4box.all.min.js"></script>
+<script src="https://unpkg.com/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js"></script>
+
+<script>
+  $(function () {
+    $("#example1").DataTable({
+      "responsive": true, "lengthChange": false, "autoWidth": false,
+      "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
+    }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+    $('#example2').DataTable({
+      "paging": true,
+      "lengthChange": true,
+      "searching": true,
+      "ordering": true,
+      "info": true,
+      "autoWidth": false,
+      "responsive": true,
+    });
+    
+  });
+</script>
+
+<script>
+  //import * as MP4Box from './mp4box.all.js';
+
+  function resizeCanvasToFitCard(canvasId, videoWidth, videoHeight, maxHeight = 250) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+
+    // Hitung rasio video
+    const aspectRatio = videoWidth / videoHeight;
+
+    // Tentukan tinggi canvas maksimum
+    const height = Math.min(videoHeight, maxHeight);
+    const width = height * aspectRatio;
+
+    // Set ukuran canvas
+    canvas.width = width;
+    canvas.height = height;
+
+    // Terapkan style agar responsif
+    canvas.style.width = `${width}px`;
+    canvas.style.height = `${height}px`;
+  }
+
+  function expandCanvasFullscreen(canvasId) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+
+    if (canvas.requestFullscreen) {
+      canvas.requestFullscreen();
+    } else if (canvas.webkitRequestFullscreen) {
+      canvas.webkitRequestFullscreen();
+    } else if (canvas.msRequestFullscreen) {
+      canvas.msRequestFullscreen();
+    }
+  }
+
+
+  const canvasRotationMap = {};
+
+  function drawRotatedFrame(video, canvasId) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas || !video) return;
+
+    const ctx = canvas.getContext('2d');
+    const angle = (canvasRotationMap[canvasId] || 0) * Math.PI / 180;
+
+    const vw = video.videoWidth;
+    const vh = video.videoHeight;
+
+    // Atur ukuran canvas sesuai rotasi
+    if (angle % Math.PI === 0) {
+      canvas.width = vw;
+      canvas.height = vh;
+    } else {
+      canvas.width = vh;
+      canvas.height = vw;
+    }
+
+    ctx.save();
+    ctx.translate(canvas.width / 2, canvas.height / 2);
+    ctx.rotate(angle);
+    ctx.drawImage(video, -vw / 2, -vh / 2, vw, vh);
+    ctx.restore();
+  }
+
+  function rotateLiveCanvas(canvasId, direction = 'right') {
+    const current = canvasRotationMap[canvasId] || 0;
+    const newAngle = direction === 'right'
+      ? (current + 90) % 360
+      : (current + 270) % 360;
+
+    canvasRotationMap[canvasId] = newAngle;
+  }
+
+  function rotateCanvas(canvasId, direction = 'right') {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    const tempCanvas = document.createElement('canvas');
+    const tempCtx = tempCanvas.getContext('2d');
+
+    // Ambil rotasi saat ini
+    const currentRotation = canvasRotationMap[canvasId] || 0;
+    const newRotation = direction === 'right'
+      ? (currentRotation + 90) % 360
+      : (currentRotation + 270) % 360;
+
+    canvasRotationMap[canvasId] = newRotation;
+
+    // Simpan ukuran asli
+    const originalWidth = canvas.width;
+    const originalHeight = canvas.height;
+
+    // Salin isi canvas ke sementara
+    tempCanvas.width = originalWidth;
+    tempCanvas.height = originalHeight;
+    tempCtx.drawImage(canvas, 0, 0);
+
+    // Atur ukuran canvas baru
+    if (newRotation % 180 === 0) {
+      canvas.width = originalWidth;
+      canvas.height = originalHeight;
+    } else {
+      canvas.width = originalHeight;
+      canvas.height = originalWidth;
+    }
+
+    // Gambar ulang dengan rotasi
+    ctx.save();
+    ctx.translate(canvas.width / 2, canvas.height / 2);
+    ctx.rotate((newRotation * Math.PI) / 180);
+    ctx.drawImage(tempCanvas, -originalWidth / 2, -originalHeight / 2);
+    ctx.restore();
+  }
+
+  // Recording
+
+  const recorders = {};
+  const { createFFmpeg, fetchFile } = FFmpeg;
+  const ffmpeg = createFFmpeg({ log: true });
+
+  async function toggleRecording(canvasId) {
+    const canvas = document.getElementById(canvasId);
+    const indicator = document.getElementById(`recordIndicator${canvasId.replace('videoCanvas', '')}`);
+    if (!canvas || !indicator) return;
+
+    if (!recorders[canvasId]) {
+      const stream = canvas.captureStream(30);
+      const chunks = [];
+      const recorder = new MediaRecorder(stream, { mimeType: 'video/webm;codecs=vp9' });
+
+      recorder.ondataavailable = e => {
+        if (e.data.size > 0) chunks.push(e.data);
+      };
+
+      recorder.onstop = async () => {
+        indicator.style.display = 'none';
+        const blob = new Blob(chunks, { type: 'video/webm' });
+        console.log(blob);
+        console.log('Blob size:', blob.size);
+
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${canvasId}_${Date.now()}.webm`;
+        a.click();
+
+
+        //(async () => {
+        // await convertWebMtoMP4(blob, `${canvasId}_${Date.now()}.mp4`);
+        //})();
+
+        delete recorders[canvasId];
+      };
+
+      recorder.start();
+      indicator.style.display = 'block';
+      recorders[canvasId] = { recorder, chunks };
+    } else {
+      recorders[canvasId].recorder.stop();
+    }
+  }
+
+  async function convertWebMtoMP4(blob, filename) {
+    console.log('start convertWebMtoMP4 ----------');
+    try {
+
+      console.log('start convertWebMtoMP4');
+      await ffmpeg.load();
+      ffmpeg.FS('writeFile', 'input.webm', await fetchFile(blob));
+      await ffmpeg.run('-i', 'input.webm', '-c:v', 'libx264', '-preset', 'fast', 'output.mp4');
+      const data = ffmpeg.FS('readFile', 'output.mp4');
+
+      const mp4Blob = new Blob([data.buffer], { type: 'video/mp4' });
+      const url = URL.createObjectURL(mp4Blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+      console.log('stop convertWebMtoMP4');
+    } catch (err) {
+      console.error('Conversion failed:', err);
+    }
+
+  }
+
+
+
+  function startRenderLoop(video, canvasId) {
+    function loop() {
+      drawRotatedFrame(video, canvasId); // dari helper sebelumnya
+      requestAnimationFrame(loop);
+    }
+    video.addEventListener('play', loop);
+  }
+
+
+  const canvas1 = document.getElementById('videoCanvas1');
+  const canvas2 = document.getElementById('videoCanvas2');
+  const canvas3 = document.getElementById('videoCanvas3');
+
+
+  //resizeCanvasToFitCard('videoCanvas1', 1280, 720);
+  //resizeCanvasToFitCard('videoCanvas2', 1280, 720);
+  //resizeCanvasToFitCard('videoCanvas3', 1280, 720);
+
+  const url1 = 'ws://192.167.0.2:9999';
+  const player1 = new JSMpeg.Player(url1, { canvas: canvas1 });
+
+  const url2 = 'ws://192.167.0.2:9998';
+  const player2 = new JSMpeg.Player(url2, { canvas: canvas2 });
+
+  const player3 = new JSMpeg.Player(url1, { canvas: canvas3 });
+
+</script>
+

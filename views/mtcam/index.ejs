@@ -1,0 +1,93 @@
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>MT Camera List</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Home</a></li>
+                    <li class="breadcrumb-item active">MT Camera</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="content">
+    <div class="container-fluid mt-3">
+        <div class="card card-default">
+            <div class="card-header">
+                <a href="/mtcam/create" class="btn btn-primary btn-sm">
+                    <i class="fas fa-plus"></i> Add MT Camera
+                </a>
+
+                <div class="card-tools">
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" data-card-widget="remove">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="card-body table-responsive">
+                <table id="example2" class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>MTCam ID</th>
+                            <th>Device</th>
+                            <th>Model</th>
+                            <th>IP Address</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <% rows.forEach(row=> { %>
+                            <tr>
+                                <td>
+                                    <%= row.id %>
+                                </td>
+                                <td>
+                                    <%= row.mtcam_id %>
+                                </td>
+                                <td>
+                                    <%= row.device_name %>
+                                </td>
+                                <td>
+                                    <%= row.model %>
+                                </td>
+                                <td>
+                                    <%= row.ip_address %>
+                                </td>
+                                <td>
+                                    <% if(row.status==1){ %>
+                                        <span class="badge badge-success">Active</span>
+                                        <% } else { %>
+                                            <span class="badge badge-danger">Inactive</span>
+                                            <% } %>
+                                </td>
+
+                                <td width="130">
+                                    <a href="/mtcam/edit/<%= row.id %>" class="btn btn-warning btn-sm">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+
+                                    <a href="/mtcam/delete/<%= row.id %>"
+                                        onclick="return confirm('Delete this vehicle?')" class="btn btn-danger btn-sm">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            <% }) %>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+</section>

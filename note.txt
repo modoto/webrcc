@@ -1,0 +1,288 @@
+select * from users
+
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    user_id VARCHAR(10) UNIQUE NOT NULL,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    display_name VARCHAR(100),
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password TEXT NOT NULL,
+    roles VARCHAR(100),
+    status integer,
+    created_at timestamp with time zone DEFAULT now(),
+    updated_at timestamp with time zone,
+    last_updated_at timestamp with time zone,
+    deleted_at timestamp with time zone,
+    created_by character varying(10)
+)
+
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    password TEXT NOT NULL,
+    display_name VARCHAR(100),
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE conversations (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100),
+    is_group BOOLEAN DEFAULT FALSE,
+    role VARCHAR(10) DEFAULT 'member',
+    avatar TEXT,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE conversation_users (
+    id SERIAL PRIMARY KEY,
+    conversation_id INT REFERENCES conversations(id),
+    user_id INT REFERENCES users(id),
+    UNIQUE(conversation_id, user_id)
+);
+
+CREATE TABLE messages (
+    id SERIAL PRIMARY KEY,
+    conversation_id INT REFERENCES conversations(id),
+    sender_id INT REFERENCES users(id),
+    content TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW(),
+    status VARCHAR(20)
+);
+
+
+DROP TABLE if exists users cascade;
+
+DROP TABLE if exists conversations cascade;
+DROP TABLE if exists conversation_users cascade;
+DROP TABLE if exists messages cascade;
+
+DELETE FROM conversations;
+SELECT SETVAL('conversations_id_seq', (SELECT MAX(id) FROM conversations));
+
+DELETE FROM conversation_users;
+SELECT SETVAL('conversation_users_id_seq', (SELECT MAX(id) FROM conversation_users));
+
+DELETE FROM messages;
+SELECT SETVAL('messages_id_seq', (SELECT MAX(id) FROM messages));
+
+SELECT * FROM conversations;
+SELECT * FROM conversation_users;
+SELECT * FROM messages;
+
+TRUNCATE TABLE conversations RESTART IDENTITY CASCADE;
+TRUNCATE TABLE conversation_users RESTART IDENTITY CASCADE;
+TRUNCATE TABLE messages RESTART IDENTITY CASCADE;
+
+$.ajax(
+    {
+      url: "http://localhost:3001/auth/login",
+      method: "POST",
+      contentType: "application/json",
+      dataType: "json",
+      data: JSON.stringify({
+        username: 'Modotz',
+        password: 'P@ssw0rd'
+      }),
+      success: function (data) {
+        console.log('login success:', data.token);
+        token = data.token;
+      },
+      error: function (jqXHR, errorThrown) {
+        //Handel connection error
+        console.log('login error');
+      }
+  });
+
+
+
+login
+POST
+http://192.168.100.5:3001/login
+{
+    "username":"Modotz",
+    "password":"P@ssw0rd"
+}
+
+get chat message
+http://192.168.100.5:3001/messages/2?limit=20
+
+// =============================
+//  INIT SOCKET.IO
+// =============================
+const socket = io("http://localhost:3001", { auth: { token } });
+
+socket.on("connect", () => console.log("Socket Connected:", socket.id));
+
+socket.on("new_message", (msg) => {
+  
+   // kalau bukan conversation aktif → reload sidebar
+  if (msg.conversation_id != activeConversationId) {
+    loadContactList();
+    return;
+  }
+
+  appendChatWhatsApp(msg, false);
+
+});
+
+// =============================
+//  CONTACT CLICK HANDLER
+// =============================
+document.getElementById("contact-list").addEventListener("click", async (e) => {
+    const item = e.target.closest(".wa-contact-item");
+    if (!item) return;
+
+    const targetUserId = item.dataset.userid;
+    const name   = item.dataset.name;
+    const avatar = item.dataset.avatar;
+    const status = item.dataset.status;
+    activeUserId = targetUserId;
+    updateChatHeader(name, avatar, status);
+
+    // CARI / BUAT CONVERSATION
+    const conversationId = await getOrCreateConversation(targetUserId);
+    activeConversationId = conversationId;
+
+    console.log('conversationId:',conversationId);
+
+    // JOIN ROOM DI SOCKET.IO
+    socket.emit("join_room", conversationId);
+
+    // tandai semua pesan sebagai read
+    socket.emit("message_read", { conversationId: conversationId });
+
+    // reload sidebar (badge hilang)
+    loadContactList();
+
+    // LOAD MESSAGE
+    await loadMessages(conversationId);
+
+    // HIGHLIGHT CONTACT
+    document.querySelectorAll(".wa-contact-item")
+      .forEach(i => i.classList.remove("active-contact"));
+
+    item.classList.add("active-contact");
+});
+
+// =============================
+//  SEND MESSAGE
+// =============================
+document.getElementById("sendMessage").onclick = () => {
+  const content = document.getElementById("msg").value;
+  if (!content.trim()) return;
+
+  socket.emit("send_message", {
+    conversationId: activeConversationId,
+    senderId: myUserId,
+    username: myUsername,
+    content
+  });
+
+  appendChatWhatsApp(
+    {
+      username: myUsername,
+      content,
+      created_at: new Date(),
+      avatar: `https://ui-avatars.com/api/?name=${myUsername}`
+    },
+    true
+  );
+
+  document.getElementById("msg").value = "";
+};
+
+
+
+
+-- =========================
+-- 1️⃣ CONVERSATIONS (sudah ada)
+-- =========================
+SELECT 
+  c.id AS conversation_id,
+  u2.id AS user_id,               -- 👈 INI TAMBAHAN PENTING
+  c.is_group,
+
+  CASE 
+    WHEN c.is_group = false THEN u2.username
+    ELSE c.name
+  END AS display_name,
+
+  CASE 
+    WHEN c.is_group = false THEN 
+      'https://ui-avatars.com/api/?name=' || u2.username
+    ELSE 
+      'https://ui-avatars.com/api/?name=' || c.name
+  END AS display_avatar,
+
+  (
+    SELECT content
+    FROM messages m
+    WHERE m.conversation_id = c.id
+    ORDER BY created_at DESC
+    LIMIT 1
+  ) AS last_message,
+
+  (
+    SELECT created_at
+    FROM messages m
+    WHERE m.conversation_id = c.id
+    ORDER BY created_at DESC
+    LIMIT 1
+  ) AS last_time,
+
+  (
+    SELECT COUNT(*)
+    FROM messages m
+    WHERE m.conversation_id = c.id
+      AND m.sender_id != 1
+      AND m.status != 'read'
+  ) AS unread_count
+
+FROM conversations c
+JOIN conversation_users cu1 
+  ON cu1.conversation_id = c.id AND cu1.user_id = 1
+LEFT JOIN conversation_users cu2 
+  ON cu2.conversation_id = c.id AND cu2.user_id != 1
+LEFT JOIN users u2 
+  ON u2.id = cu2.user_id
+
+-- =========================
+-- 2️⃣ USERS (belum ada conversation)
+-- =========================
+UNION ALL
+
+SELECT
+  NULL AS conversation_id,
+  u.id AS user_id,                -- 👈 INI JUGA
+  false AS is_group,
+  u.username AS display_name,
+  'https://ui-avatars.com/api/?name=' || u.username AS display_avatar,
+  NULL AS last_message,
+  NULL AS last_time,
+  0 AS unread_count
+
+FROM users u
+WHERE u.id != 1
+AND u.id NOT IN (
+  SELECT cu2.user_id
+  FROM conversation_users cu1
+  JOIN conversation_users cu2 
+    ON cu1.conversation_id = cu2.conversation_id
+  WHERE cu1.user_id = 1
+)
+
+ORDER BY last_time DESC NULLS LAST;
+
+…or create a new repository on the command line
+echo "# webrcc" >> README.md
+git init
+git add README.md
+git commit -m "first commit"
+git branch -M main
+git remote add origin https://github.com/modoto/webrcc.git
+git push -u origin main
+
+…or push an existing repository from the command line
+git remote add origin https://github.com/modoto/webrcc.git
+git branch -M main
+git push -u origin main

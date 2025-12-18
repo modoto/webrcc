@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('../partials/head'); %>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    #map {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+    }
+
+    .card,
+    .card-body,
+    #map {
+      height: 82vh;
+      /* atau 100% jika dalam layout tertentu */
+      width: 100%;
+    }
+  </style>
+</head>
+<body class="hold-transition sidebar-mini layout-fixed">
+<div class="wrapper">
+
+  <%- include('../partials/navbar'); %>
+  <%- include('../partials/sidebar'); %>
+
+  <div class="content-wrapper">
+     <%- body %>
+  </div>
+
+  <%- include('../partials/footer'); %>
+
+</div>
+
+<%- include('../partials/scripts_map'); %>
+</body>
+</html>

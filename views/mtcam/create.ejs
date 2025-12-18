@@ -1,0 +1,123 @@
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>Create MT Camera</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Home</a></li>
+                    <li class="breadcrumb-item active">Create MT Camera</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="content">
+    <div class="container-fluid mt-3">
+        <div class="card card-default">
+            <div class="card-header">
+                <h4>MT Camera Form</h4>
+            </div>
+
+            <div class="card-body">
+                <form method="POST" action="/mtcam/create">
+                    <div class="row">
+
+                        <div class="col-md-6">
+
+                            <div class="form-group">
+                                <label>MTCam ID</label>
+                                <input type="text" class="form-control" name="mtcam_id" value="MTC-1">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Device Name</label>
+                                <input type="text" class="form-control" name="device_name" value="Reolink">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Model</label>
+                                <input type="text" class="form-control" name="model" value="Reolink Duo 3 PoE">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Item No</label>
+                                <input type="text" class="form-control" name="item_no" value="P750">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Serial Number</label>
+                                <input type="text" class="form-control" name="serial_number" value="WCBE553A000013">
+                            </div>
+
+                            <div class="form-group">
+                                <label>IP Address</label>
+                                <input type="text" class="form-control" name="ip_address">
+                            </div>
+                            <div class="form-group">
+                                <label>MAC Address</label>
+                                <input type="text" class="form-control" name="mac_address">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Power</label>
+                                <input type="text" class="form-control" name="power" value="12 V / 2A">
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Username</label>
+                                <input type="text" class="form-control" name="username" value="admin">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Password</label>
+                                <input type="text" class="form-control" name="password" value="P@ssw0rd">
+                            </div>
+
+                            <div class="form-group">
+                                <label>RTSP URL</label>
+                                <input type="text" class="form-control" name="rtsp_url"
+                                    value="rtsp://admin:spmkawal123%23@192.167.0.3:554/">
+                            </div>
+
+                            <div class="form-group">
+                                <label>RTSP Port</label>
+                                <input type="number" class="form-control" name="rtsp_port" value="554">
+                            </div>
+
+                            <div class="form-group">
+                                <label>RTSP Username</label>
+                                <input type="text" class="form-control" name="rtsp_username" value="admin">
+                            </div>
+
+                            <div class="form-group">
+                                <label>RTSP Password</label>
+                                <input type="text" class="form-control" name="rtsp_password" value="spmkawal123#">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Status</label>
+                                <select class="form-control" name="status">
+                                    <option value="1">Active</option>
+                                    <option value="0">Inactive</option>
+                                </select>
+                            </div>
+
+                            <input type="hidden" name="user_id" value="USR001">
+
+                        </div>
+
+                    </div>
+
+                    <button type="submit" class="btn btn-success">Save</button>
+                    <a href="/mtcam" class="btn btn-secondary">Back</a>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</section>

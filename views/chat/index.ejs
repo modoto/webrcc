@@ -1,0 +1,124 @@
+<section class="content mt-3">
+  <div class="container-fluid">
+    <div class="wa-container">
+
+      <!-- SIDEBAR KIRI -->
+      <div class="wa-sidebar">
+        <input type="hidden" id="user_id" value="<%= user_id %>" />
+        <input type="hidden" id="username" value="<%= username %>" />
+        <input type="hidden" id="token" value="<%= token %>" />
+        <input type="hidden" id="conversationId" value="" />
+
+        <div class="wa-sidebar-header">
+          <div class="wa-profile">
+            <!-- <img src="../../dist/img/user8-128x128.jpg" class="wa-avatar"> -->
+            <img src="https://ui-avatars.com/api/?name=<%= username %>" class="wa-avatar">
+          </div>
+          <div class="wa-header-icons">
+            <i class="fas fa-comment-alt"></i>
+            <i class="fas fa-ellipsis-v" id="sidebarMenuBtn"></i>
+          </div>
+
+          <div id="sidebarMenuDropdown" class="wa-dropdown hidden">
+            <div class="wa-dropdown-item" id="openCreateGroup">
+              <i class="fas fa-users"></i> Create Group
+            </div>
+            <div class="wa-dropdown-item">
+              <i class="fas fa-user-cog"></i> Profile
+            </div>
+            <div class="wa-dropdown-item">
+              <i class="fas fa-cog"></i> Settings
+            </div>
+            <div class="wa-dropdown-item">
+              <i class="fas fa-moon"></i> Dark Mode
+            </div>
+            <div class="wa-dropdown-item">
+              <i class="fas fa-sign-out-alt"></i> Logout
+            </div>
+          </div>
+
+
+        </div>
+
+        <div class="wa-search-box">
+          <input type="text" placeholder="Search or start new chat">
+        </div>
+
+        <div class="wa-contact-list" id="contact-list">
+
+          <!-- Contoh kontak -->
+          <% rows.forEach(row=> { %>
+            <div class="wa-contact-item" data-userid=" <%= row.id %>" data-name="<%= row.username %>"
+              data-avatar="https://ui-avatars.com/api/?name=<%= row.username %>" data-status="online">
+
+              <img src="https://ui-avatars.com/api/?name=<%= row.username %>" class="wa-avatar">
+              <div class="wa-contact-info">
+                <div class="wa-contact-name">
+                  <%= row.username %>
+                </div>
+                <div class="wa-contact-last-msg">See you tomorrow!</div>
+              </div>
+            </div>
+            <% }) %>
+        </div>
+
+      </div>
+
+      <!-- AREA CHAT KANAN -->
+      <div class="wa-chat-area">
+        <div class="wa-chat-header" id="chat-header">
+          <img id="chat-header-avatar" src="https://ui-avatars.com/api/?name=" class="wa-avatar">
+          <div>
+            <div id="chat-header-name" class="wa-chat-name"></div>
+            <div id="chat-header-status" class="wa-chat-status"></div>
+          </div>
+        </div>
+
+
+        <div class="wa-chat-body" id="chat-container">
+          <!-- Pesan WhatsApp-style akan append di sini -->
+        </div>
+
+        <div class="wa-chat-input">
+          <input id="msg" type="text" placeholder="Type a message">
+          <button id="sendMessage">Send</button>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</section>
+
+<div id="createGroupModal" class="wa-modal hidden">
+  <div class="wa-modal-content">
+
+    <div class="wa-modal-header">
+      <h3>Create Group</h3>
+      <span class="wa-modal-close" id="closeCreateGroup">&times;</span>
+    </div>
+
+    <input id="groupName" class="wa-input" placeholder="Group Name">
+
+    <input id="groupAvatar" class="wa-input" placeholder="Avatar URL (optional)">
+
+    <div class="wa-user-search">
+      <input id="searchUser" type="text" placeholder="Search user..." class="wa-input">
+    </div>
+
+    <div id="memberList" class="wa-user-list">
+      <!-- user list will be inserted here -->
+    </div>
+
+    <div id="selectedUsers" class="wa-selected-list hidden">
+      <!-- selected chips -->
+    </div>
+
+
+    <div class="wa-modal-footer">
+      <button id="btnCreateGroup" class="wa-btn">Create</button>
+      <button id="btnCancelGroup" class="wa-btn-cancel">Cancel</button>
+    </div>
+
+  </div>
+</div>
