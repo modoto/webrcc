@@ -26,7 +26,7 @@ exports.createHeader = async (data) => {
     await pool.query(
         `INSERT INTO conversation_users (conversation_id, user_id, role)
                     VALUES ($1, $2, $3)`,
-        [conversationId, null,'admin']
+        [conversationId, '1','admin']
     );
 
     const q = `
@@ -97,10 +97,14 @@ exports.addDetail = async (data) => {
         data.user_id
     ]);
 
+    const q2 = `SELECT * FROM users WHERE user_id = $1`;
+    const { rows } = await pool.query(q2, [data.unit_id]);
+    const user_id = rows[0].id;
+
      await pool.query(
         `INSERT INTO conversation_users (conversation_id, user_id, role)
                     VALUES ($1, $2, $3)`,
-        [data.chat_id, null,'member']
+        [data.chat_id, user_id,'member']
     );
 };
 

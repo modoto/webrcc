@@ -13,6 +13,9 @@
 
       <div class="card-body">
         <form method="POST" action="/activity/create">
+          <input type="hidden" class="form-control" name="room_id">
+          <input type="hidden" class="form-control" name="chat_id">
+
           <div class="row">
 
             <div class="col-md-6">
@@ -24,11 +27,6 @@
               <div class="form-group">
                 <label>Start Date</label>
                 <input type="datetime-local" class="form-control" name="start_date">
-              </div>
-
-              <div class="form-group">
-                <label>Room ID</label>
-                <input type="text" class="form-control" name="room_id">
               </div>
 
               <div class="form-group">
@@ -48,11 +46,6 @@
               <div class="form-group">
                 <label>End Date</label>
                 <input type="datetime-local" class="form-control" name="end_date">
-              </div>
-
-              <div class="form-group">
-                <label>Chat ID</label>
-                <input type="text" class="form-control" name="chat_id">
               </div>
 
               <div class="form-group">

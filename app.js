@@ -10,8 +10,7 @@ const http = require("http");
 const { Server } = require("socket.io");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
-const { Pool } = require("pg");
-
+const pool = require('./config/db');
 
 // ====================================================
 //  EXPRESS INITIALIZATION
@@ -32,24 +31,6 @@ app.use(session({
   resave: false,
   saveUninitialized: true
 }));
-
-
-// ====================================================
-//  DATABASE POOL
-// ====================================================
-const pool = new Pool({
-  // host: process.env.DB_HOST || "localhost",
-  // user: process.env.DB_USER || "postgres",
-  // password: process.env.DB_PASS || "p@ssword",
-  // database: process.env.DB_NAME || "dbcomando",
-  // port: process.env.DB_PORT || 5432,
-  host: "localhost",
-  user: "postgres",
-  password: "P@ssword",
-  database: "dbcomando",
-  port: 5432,
-});
-
 
 // ====================================================
 //  SOCKET.IO SETUP
