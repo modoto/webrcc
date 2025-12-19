@@ -68,10 +68,15 @@ SELECT SETVAL('messages_id_seq', (SELECT MAX(id) FROM messages));
 SELECT * FROM conversations;
 SELECT * FROM conversation_users;
 SELECT * FROM messages;
+SELECT * FROM hd_activity ha ;
+SELECT * FROM dt_activity da ;
 
 TRUNCATE TABLE conversations RESTART IDENTITY CASCADE;
 TRUNCATE TABLE conversation_users RESTART IDENTITY CASCADE;
 TRUNCATE TABLE messages RESTART IDENTITY CASCADE;
+TRUNCATE TABLE hd_activity RESTART IDENTITY CASCADE;
+TRUNCATE TABLE dt_activity RESTART IDENTITY CASCADE;
+
 
 $.ajax(
     {
