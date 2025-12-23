@@ -41,7 +41,7 @@ function clearTokenSession(req) {
 
 function authMiddleware(req, res, next) {
     const auth = req.headers.authorization;
-    if (!auth) return res.status(401).json({ error: "Missing token" });
+    if (!auth) return res.status(401).json({ code : 401, status: false, message : "Missing token" });
 
     const token = auth.split(" ")[1];
 
@@ -50,7 +50,7 @@ function authMiddleware(req, res, next) {
         req.userId = decoded.userId;
         next();
     } catch (e) {
-        return res.status(401).json({ error: "Invalid token" });
+        return res.status(401).json({ code : 401, status: false, message : "Missing token" });
     }
 }
 

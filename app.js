@@ -188,6 +188,7 @@ app.use("/users", require("./routes/users"));
 app.use("/chat", require("./routes/chat"));
 app.use("/conversations", require("./routes/conversations"));
 app.use("/messages", require("./routes/messages"));
+app.use("/gps", require("./routes/gps"));
 
 // DASHBOARD PAGE
 app.get("/dashboard", (req, res) => {
