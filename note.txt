@@ -68,6 +68,8 @@ CREATE TABLE gps_log (
     created_at timestamp with time zone DEFAULT now(),
 )
 
+sudo -u postgres psql
+ALTER USER postgres WITH PASSWORD 'password_baru';
 
 DROP TABLE if exists users cascade;
 

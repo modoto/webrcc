@@ -1,0 +1,72 @@
+<!-- jQuery -->
+<script src="/plugins/jquery/jquery.min.js"></script>
+<!-- Bootstrap 4 -->
+<script src="/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- overlayScrollbars -->
+<script src="/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
+<!-- AdminLTE App -->
+<script src="/dist/js/adminlte.min.js"></script>
+<!-- AdminLTE for demo purposes -->
+
+<script>
+  const token = document.getElementById("token").value;
+  console.log('token:', token);
+  getLocation();
+
+  async function getLocation() {
+    const id = document.getElementById("id").value;
+    const type = document.getElementById("type").value;
+
+    let data;
+    if (type == "all") {
+      console.log('getLocation');
+      const res = await fetch(`/gps/getMaps`, {
+        headers: { Authorization: "Bearer " + token }
+      });
+      data = await res.json();
+    } else if (type == "individu") {
+      console.log('getLocation');
+      const res = await fetch(`/gps/getMaps`, {
+        headers: { Authorization: "Bearer " + token }
+      });
+      data = await res.json();
+    } else if (type == "groups") {
+      console.log('getLocation');
+      const res = await fetch(`/gps/getMapGroups/`+ id, {
+        headers: { Authorization: "Bearer " + token }
+      });
+      data = await res.json();
+    }
+
+    console.log('getLocation:', data);
+
+    const key = 'xETUuAVe5RphO86wCqU2';
+    const map = L.map('map').setView([-6.173082026019618, 106.82676857318508], 14); // starting position
+
+    const carIcon = L.icon({
+      iconUrl: '/images/Top POV.png',
+      iconSize: [45, 66],
+      iconAnchor: [22.5, 60],
+      popupAnchor: [0, -62]
+    });
+
+    L.tileLayer(`https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=${key}`, {
+      tileSize: 512,
+      zoomOffset: -1,
+      minZoom: 1,
+      attribution: '<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>',
+      crossOrigin: true
+    }).addTo(map);
+
+    // 🧭 Tambahkan 3 marker
+    const markers = data.data;
+
+    markers.forEach(marker => {
+      L.marker(marker.coords, { icon: carIcon }).addTo(map)
+        .bindPopup(marker.popup)
+        .openPopup(); // opsional: buka popup langsung
+    });
+
+  }
+
+</script>

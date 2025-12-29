@@ -12,6 +12,36 @@ class BwcamController {
         }
     }
 
+    static async getMaps(req, res) {
+        try {
+            const result = await GpsModel.getMaps();
+            const markers = result.map(row => ({
+                    coords: [row.latitute, row.longitude],
+                    popup: `📍 ${row.device_id}`
+                }));
+
+            res.json({ code: 200, status: true, message: 'Success', data: markers });
+        } catch (error) {
+            console.error(error);
+            res.json({ code: 500, status: false, message: error });
+        }
+    }
+
+    static async getMapGroups(req, res) {
+        try {
+            const result = await GpsModel.getMapGroups(req.params.id);
+            const markers = result.map(row => ({
+                    coords: [row.latitute, row.longitude],
+                    popup: `📍 ${row.driver}`
+                }));
+
+            res.json({ code: 200, status: true, message: 'Success', data: markers });
+        } catch (error) {
+            console.error(error);
+            res.json({ code: 500, status: false, message: error });
+        }
+    }
+
     static async device(req, res) {
         try {
             const rows = await GpsModel.getByDeviceId(req.params.id);

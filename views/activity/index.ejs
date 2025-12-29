@@ -55,7 +55,13 @@
                     <span class="badge badge-danger">Inactive</span>
                   <% } %>
               </td>
-              <td width="130">
+              <td width="200" class="text-center">
+                <a target="_blank" rel="noopener noreferrer" href="/maps/groups/<%= row.activity_id %>" class="btn btn-success btn-sm">
+                  <i class="fas fa-map"></i>
+                </a>
+                <a href="/maps/activity/<%= row.id %>" class="btn btn-info btn-sm">
+                  <i class="fas fa-video"></i>
+                </a>
                 <a href="/activity/edit/<%= row.id %>" class="btn btn-warning btn-sm">
                   <i class="fas fa-edit"></i>
                 </a>

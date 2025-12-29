@@ -9,6 +9,23 @@ class GpsModel {
         return result.rows;
     }
 
+    static async getMaps() {
+        const result = await db.query(
+            "SELECT device_id, latitute, longitude FROM gps"
+        );
+        return result.rows;
+    }
+
+    static async getMapGroups(id) {
+        console.log('activity_id:', id)
+        const result = await db.query(
+            "SELECT unit_id, driver, g.latitute, g.longitude FROM dt_activity da LEFT JOIN gps g on g.device_id=da.unit_id WHERE da.activity_id=$1",
+            [id]
+        );
+        return result.rows;
+    }
+
+
     static async getByDeviceId(id) {
         const result = await db.query("SELECT device_id, latlon, latitute, longitude, to_char(created_at AT TIME ZONE 'Asia/Jakarta', 'YYYY-MM-DD HH24:MI:SS') as created_at FROM gps WHERE device_id=$1", [id]);
         return result.rows[0];
