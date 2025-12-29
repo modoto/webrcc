@@ -4,8 +4,10 @@ const GpsController = require("../controllers/GpsController");
 const { authMiddleware } = require("../helpers/sessionHelper");
 
 router.get("/", authMiddleware, GpsController.index);
+router.get("/getMaps", GpsController.getMaps);
+router.get("/getMapGroups/:id", GpsController.getMapGroups);
 router.get("/device/:id", authMiddleware, GpsController.device);
 
 router.post("/create", authMiddleware, GpsController.create);
 
-module.exports = router;
+module.exports = router; 

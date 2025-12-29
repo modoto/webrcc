@@ -5,47 +5,14 @@
 <!-- overlayScrollbars -->
 <script src="/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
 
-<!-- DataTables  & Plugins -->
-<script src="/plugins/datatables/jquery.dataTables.min.js"></script>
-<script src="/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
-<script src="/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
-<script src="/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
-<script src="/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
-<script src="/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
-<script src="/plugins/jszip/jszip.min.js"></script>
-<script src="/plugins/pdfmake/pdfmake.min.js"></script>
-<script src="/plugins/pdfmake/vfs_fonts.js"></script>
-<script src="/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
-<script src="/plugins/datatables-buttons/js/buttons.print.min.js"></script>
-<script src="/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
-
 <!-- AdminLTE App -->
 <script src="/dist/js/adminlte.min.js"></script>
 <!-- AdminLTE for demo purposes -->
 <!-- <script src="/dist/js/demo.js"></script>-->
 
-<script src="/dist/jsmpeg/jsmpeg.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/mp4box@2.2.0/dist/mp4box.all.min.js"></script>
+<!-- <script src="/dist/jsmpeg/jsmpeg.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mp4box@2.2.0/dist/mp4box.all.min.js"></script>-->
 <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js"></script>
-
-<script>
-  $(function () {
-    $("#example1").DataTable({
-      "responsive": true, "lengthChange": false, "autoWidth": false,
-      "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
-    }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
-    $('#example2').DataTable({
-      "paging": true,
-      "lengthChange": true,
-      "searching": true,
-      "ordering": true,
-      "info": true,
-      "autoWidth": false,
-      "responsive": true,
-    });
-    
-  });
-</script>
 
 <script>
   //import * as MP4Box from './mp4box.all.js';
@@ -255,12 +222,74 @@
   //resizeCanvasToFitCard('videoCanvas2', 1280, 720);
   //resizeCanvasToFitCard('videoCanvas3', 1280, 720);
 
-  const url1 = 'ws://192.167.0.2:9999';
-  const player1 = new JSMpeg.Player(url1, { canvas: canvas1 });
+  //const url1 = 'ws://192.167.0.2:9999';
+  //const player1 = new JSMpeg.Player(url1, { canvas: canvas1 });
 
-  const url2 = 'ws://192.167.0.2:9998';
-  const player2 = new JSMpeg.Player(url2, { canvas: canvas2 });
-  const player3 = new JSMpeg.Player(url1, { canvas: canvas3 });
+  //const url2 = 'ws://192.167.0.2:9998';
+  //const player2 = new JSMpeg.Player(url2, { canvas: canvas2 });
+  //const player3 = new JSMpeg.Player(url1, { canvas: canvas3 });
 
 </script>
 
+<script>
+  const token = document.getElementById("token").value;
+  console.log('token:', token);
+  getLocation();
+
+  async function getLocation() {
+    const id = document.getElementById("id").value;
+    const type = document.getElementById("type").value;
+
+    let data;
+    if (type == "all") {
+      console.log('getLocation');
+      const res = await fetch(`/gps/getMaps`, {
+        headers: { Authorization: "Bearer " + token }
+      });
+      data = await res.json();
+    } else if (type == "individu") {
+      console.log('getLocation');
+      const res = await fetch(`/gps/getMaps`, {
+        headers: { Authorization: "Bearer " + token }
+      });
+      data = await res.json();
+    } else if (type == "groups") {
+      console.log('getLocation');
+      const res = await fetch(`/gps/getMapGroups/`+ id, {
+        headers: { Authorization: "Bearer " + token }
+      });
+      data = await res.json();
+    }
+
+    console.log('getLocation:', data);
+
+    const key = 'xETUuAVe5RphO86wCqU2';
+    const map = L.map('map').setView([-6.173082026019618, 106.82676857318508], 14); // starting position
+
+    const carIcon = L.icon({
+      iconUrl: '/images/Top POV.png',
+      iconSize: [45, 66],
+      iconAnchor: [22.5, 60],
+      popupAnchor: [0, -62]
+    });
+
+    L.tileLayer(`https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=${key}`, {
+      tileSize: 512,
+      zoomOffset: -1,
+      minZoom: 1,
+      attribution: '<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>',
+      crossOrigin: true
+    }).addTo(map);
+
+    // 🧭 Tambahkan 3 marker
+    const markers = data.data;
+
+    markers.forEach(marker => {
+      L.marker(marker.coords, { icon: carIcon }).addTo(map)
+        .bindPopup(marker.popup)
+        .openPopup(); // opsional: buka popup langsung
+    });
+
+  }
+
+</script>

@@ -177,6 +177,7 @@ app.use(express.static(path.join(__dirname, "public")));
 //  ROUTES
 // ====================================================
 app.use("/", require("./routes/auth"));
+app.use("/dashboard", require("./routes/dashboard"));
 app.use("/vehicle", require("./routes/vehicle"));
 app.use("/router", require("./routes/router"));
 app.use("/mtcam", require("./routes/mtcam"));
@@ -186,34 +187,25 @@ app.use("/unit", require("./routes/unit"));
 app.use("/activity", require("./routes/activity"));
 app.use("/users", require("./routes/users"));
 app.use("/chat", require("./routes/chat"));
+app.use("/cctv", require("./routes/cctv"));
+app.use("/maps", require("./routes/maps"));
 app.use("/conversations", require("./routes/conversations"));
 app.use("/messages", require("./routes/messages"));
 app.use("/gps", require("./routes/gps"));
 
 // DASHBOARD PAGE
-app.get("/dashboard", (req, res) => {
-  res.render("pages/dashboard", {
-    title: "RCC Dashboard",
-    layout: "layouts/camera"
-  });
+// app.get("/dashboard", (req, res) => {
+//   res.render("dashboard/dashboard1", {
+//     title: "RCC Dashboard",
+//     layout: "layouts/layout_camera"
+//   });
+// });
+
+app.use((req, res, next) => {
+  res.locals.baseUrl = process.env.BASE_URL || `${req.protocol}://${req.get("host")}`;
+  next();
 });
 
-// CHAT PAGE
-app.get("/chat", (req, res) => {
-  res.render("pages/chat", {
-    title: "RCC Chat",
-    layout: "layouts/chat"
-  });
-});
-
-
-// MAP PAGE
-app.get("/maps", (req, res) => {
-  res.render("pages/maps", {
-    title: "RCC Map",
-    layout: "layouts/map"
-  });
-});
 
 
 // ====================================================
