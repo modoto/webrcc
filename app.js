@@ -45,7 +45,7 @@ const JWT_SECRET = process.env.JWT_SECRET || "rahasia_super_aman";
 io.use((socket, next) => {
   try {
     const token = socket.handshake.auth?.token;
-    console.log("token:", token);
+    //console.log("token:", token);
     if (!token) return next(new Error("Unauthorized"));
 
     // decode jwt

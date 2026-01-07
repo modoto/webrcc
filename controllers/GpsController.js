@@ -15,12 +15,14 @@ class BwcamController {
     static async getMaps(req, res) {
         try {
             const result = await GpsModel.getMaps();
+            const rowSP = result[0];
+            const startingPosition = [rowSP.latitute, rowSP.longitude];
             const markers = result.map(row => ({
                     coords: [row.latitute, row.longitude],
                     popup: `📍 ${row.device_id}`
                 }));
 
-            res.json({ code: 200, status: true, message: 'Success', data: markers });
+            res.json({ code: 200, status: true, message: 'Success', starting_position : startingPosition, data: markers });
         } catch (error) {
             console.error(error);
             res.json({ code: 500, status: false, message: error });
@@ -30,12 +32,17 @@ class BwcamController {
     static async getMapGroups(req, res) {
         try {
             const result = await GpsModel.getMapGroups(req.params.id);
+            const rowSP = result[0];
+            const startingPosition = [rowSP.latitute, rowSP.longitude];
             const markers = result.map(row => ({
+                    id: row.id,
                     coords: [row.latitute, row.longitude],
+                    unit_id: row.unit_id,
+                    driver: row.driver,
                     popup: `📍 ${row.driver}`
                 }));
 
-            res.json({ code: 200, status: true, message: 'Success', data: markers });
+            res.json({ code: 200, status: true, message: 'Success', starting_position : startingPosition, data: markers });
         } catch (error) {
             console.error(error);
             res.json({ code: 500, status: false, message: error });

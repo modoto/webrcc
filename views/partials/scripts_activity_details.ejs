@@ -1,0 +1,769 @@
+<!-- jQuery -->
+<script src="/plugins/jquery/jquery.min.js"></script>
+<!-- Bootstrap 4 -->
+<script src="/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- overlayScrollbars -->
+<script src="/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
+<!-- AdminLTE App -->
+<script src="/dist/js/adminlte.min.js"></script>
+<!-- AdminLTE for demo purposes -->
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+<script src="https://unpkg.com/leaflet-rotatedmarker/leaflet.rotatedMarker.js"></script>
+
+<script src="/dist/jsmpeg/jsmpeg.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mp4box@2.2.0/dist/mp4box.all.min.js"></script>
+<script src="https://unpkg.com/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js"></script>
+
+<script>
+  const token = document.getElementById("token").value;
+  console.log('token:', token);
+
+  let map = null;
+  let markersLayer = {};
+
+  async function getLocation() {
+    try {
+      const id = document.getElementById("id").value;
+      const type = document.getElementById("type").value;
+
+      console.log('getLocation tick');
+
+      const res = await fetch(`/gps/getMapGroups/` + id, {
+        headers: { Authorization: "Bearer " + token }
+      });
+      let result = await res.json();
+      const starting_position = result.starting_position;
+      const data = result.data;
+      //console.log('Data:', data);
+
+      // =============================
+      // 1️⃣ INIT MAP (HANYA SEKALI)
+      // =============================
+      if (!map) {
+        const key = 'xETUuAVe5RphO86wCqU2';
+
+        map = L.map('map').setView(starting_position, 14);
+
+        L.tileLayer(
+          `https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=${key}`,
+          {
+            tileSize: 512,
+            zoomOffset: -1,
+            minZoom: 1,
+            attribution:
+              '&copy; MapTiler &copy; OpenStreetMap contributors',
+            crossOrigin: true
+          }
+        ).addTo(map);
+      }
+      // =============================
+      // 2️⃣ ICON (BISA GLOBAL JUGA)
+      // =============================
+      const carIcon = L.icon({
+        iconUrl: '/images/Top POV.png',
+        iconSize: [45, 66],
+        iconAnchor: [22.5, 60],
+        popupAnchor: [0, -62]
+      });
+
+      // =============================
+      // 3️⃣ UPDATE / CREATE MARKER
+      // =============================
+      data.forEach(item => {
+        const id = item.id;              // 🔑 marker unique id
+        const coords = item.coords;      // [lat, lng]
+        const popup = item.popup;
+
+        if (markersLayer[id]) {
+          // 🟢 UPDATE posisi
+          markersLayer[id].setLatLng(coords);
+        } else {
+          // 🟢 CREATE marker pertama kali
+          markersLayer[id] = L.marker(coords, { icon: carIcon })
+            .addTo(map)
+            .bindPopup(popup);
+        }
+      });
+
+    } catch (err) {
+      console.error("getLocation error:", err);
+    }
+  }
+
+  async function getUsers() {
+    const id = document.getElementById("id").value;
+    const type = document.getElementById("type").value;
+
+    console.log('getLocation');
+    const res = await fetch(`/gps/getMapGroups/` + id, {
+      headers: { Authorization: "Bearer " + token }
+    });
+    let data = await res.json();
+
+    // 🧭 Tambahkan 3 marker
+    const users = data.data;
+
+    const overlay = document.getElementById("user-overlay");
+    //if (!overlay) return;
+
+    overlay.innerHTML = "";
+
+    users.forEach(u => {
+      const div = document.createElement("div");
+      div.className = "user-card";
+      div.innerHTML = `
+            <img src="${u.avatar ?? '/images/Top POV.png'}" class="user-avatar">
+            <div class="user-info">
+                <div class="user-name">${u.unit_id}</div>
+                <div class="user-id">${u.driver}</div>
+            </div>
+        `;
+      overlay.appendChild(div);
+    });
+
+  }
+
+  function toggleChat() {
+    const chatForm = document.getElementById("chatForm");
+    if (chatForm.style.display === "block") {
+      chatForm.style.display = "none";
+    } else {
+      chatForm.style.display = "block";
+    }
+  }
+
+</script>
+
+<script>
+  // =============================
+  //  GLOBAL STATE
+  // =============================
+  console.log("========START=========");
+
+  let activeConversationId = null;
+  let activeUserId = null;
+  let isLoadingMessages = false;
+
+  const myUserId = document.getElementById("user_id").value;
+  const myUsername = document.getElementById("username").value;
+  const chatId = document.getElementById("chat_id").value;
+
+  let lastRenderedDate = null;
+
+  console.log("token:", token);
+
+  // =============================
+  //  INIT SOCKET.IO
+  // =============================
+  const socket = io("http://localhost:3001", { auth: { token } });
+
+  socket.on("connect", () => console.log("Socket Connected:", socket.id));
+
+  LoadConversation();
+
+  socket.on("new_message", (msg) => {
+    if (msg.conversation_id != activeConversationId) {
+      LoadConversation();
+      return;
+    }
+    appendChatWhatsApp(msg, false);
+
+  });
+
+
+  // =============================
+  //  CONTACT CLICK HANDLER
+  // =============================
+  async function LoadConversation() {
+    console.log('LoadConversation');
+
+    let conversationId = document.getElementById('chat_id').value;
+    const targetUserId = null;
+    const name = document.getElementById('chat_name').value;
+    const status = 'online';
+    const isGroup = true;
+    activeUserId = targetUserId;
+
+    console.log('conversationId :', conversationId);
+    console.log('targetUserId :', targetUserId);
+    console.log('name :', name);
+    console.log('status :', status);
+    console.log('isGroup :', isGroup);
+    console.log('activeUserId :', activeUserId);
+
+    activeConversationId = conversationId;
+
+    console.log('conversationId:', conversationId);
+
+    // JOIN ROOM DI SOCKET.IO
+    socket.emit("join_room", conversationId);
+
+    // tandai semua pesan sebagai read
+    socket.emit("message_read", { conversationId: conversationId });
+
+    // LOAD MESSAGE
+    await loadMessages(conversationId);
+
+    // HIGHLIGHT CONTACT
+    document.querySelectorAll(".wa-contact-item")
+      .forEach(i => i.classList.remove("active-contact"));
+
+  };
+
+
+  // =============================
+  //  API: GET / CREATE CONVERSATION
+  // =============================
+  async function getOrCreateConversation(targetUserId) {
+    console.log('getOrCreateConversation:', targetUserId);
+    const res = await fetch(`/conversations/find-or-create/${targetUserId}`, {
+      headers: { Authorization: "Bearer " + token }
+    });
+
+    const data = await res.json();
+    return data.conversationId;
+  }
+
+
+  // =============================
+  //  API: LOAD MESSAGES (With Pagination)
+  // =============================
+  async function loadMessages(conversationId, before = null) {
+    if (isLoadingMessages) return;
+    isLoadingMessages = true;
+
+    console.log('loadMessages:', conversationId);
+
+    let url = `/messages/${conversationId}?limit=20`;
+    if (before) url += `&before=${before}`;
+    console.log('url:', url);
+
+    const res = await fetch(url, {
+      headers: { Authorization: "Bearer " + token }
+    });
+
+    const messages = await res.json();
+
+    // Jika bukan paginasi, kosongkan
+    if (!before) {
+      document.getElementById("chat-container").innerHTML = "";
+      lastRenderedDate = null; // 🔴 WAJIB RESET
+    }
+
+    // Urutkan lama → baru
+    messages.reverse().forEach(m => {
+      appendChatWhatsApp(
+        {
+          username: m.username,
+          content: m.content,
+          created_at: m.created_at,
+          avatar: `https://ui-avatars.com/api/?name=${m.username}`,
+          status: m.status
+        },
+        m.sender_id == myUserId
+      );
+    });
+
+    isLoadingMessages = false;
+  }
+
+
+  // =============================
+  //  UI: UPDATE HEADER CHAT KANAN
+  // =============================
+  function updateChatHeader(conversationId, name, avatar, status, isGroup) {
+    document.getElementById("chat-header-name").innerText = name;
+    document.getElementById("chat-header-status").innerText = status;
+    document.getElementById("chat-header-avatar").src = avatar;
+  }
+
+
+  // =============================
+  //  SEND MESSAGE
+  // =============================
+  document.getElementById("sendMessage").onclick = () => {
+    const conversationId = document.getElementById("chat_id").value;
+    const content = document.getElementById("msg").value;
+    if (!content.trim()) return;
+
+    socket.emit("send_message", {
+      conversationId: conversationId,
+      senderId: myUserId,
+      username: myUsername,
+      content
+    });
+
+    appendChatWhatsApp(
+      {
+        username: myUsername,
+        content,
+        created_at: new Date(),
+        avatar: `https://ui-avatars.com/api/?name=${myUsername}`,
+        status: 'sent'
+      },
+      true
+    );
+
+    document.getElementById("msg").value = "";
+  };
+
+
+  // =============================
+  //  SCROLL PAGINATION
+  // =============================
+  const chatBody = document.getElementById("chat-container");
+
+  chatBody.addEventListener("scroll", async () => {
+    if (chatBody.scrollTop !== 0 || isLoadingMessages) return;
+
+    const first = chatBody.querySelector(".chat-row");
+    const firstTimestamp = first?.dataset.timestamp;
+
+    if (firstTimestamp) {
+      await loadMessages(activeConversationId, firstTimestamp);
+    }
+  });
+
+
+  // =============================
+  //  TYPING INDICATOR
+  // =============================
+  let typingTimeout;
+  document.getElementById("msg").addEventListener("input", () => {
+    socket.emit("typing", { conversationId: activeConversationId, isTyping: true });
+    clearTimeout(typingTimeout);
+    typingTimeout = setTimeout(() => {
+      socket.emit("typing", { conversationId: activeConversationId, isTyping: false });
+    }, 800);
+  });
+
+
+  // =============================
+  //  UI: APPEND CHAT WHATSAPP STYLE
+  // =============================
+  function appendChatWhatsApp(msg, isMe = false) {
+    const container = document.getElementById("chat-container");
+
+    const senderName = msg.username;
+    const avatar = `https://ui-avatars.com/api/?name=${senderName}`;
+    const time = timeAgo(msg.created_at);
+
+    const messageDate = new Date(msg.created_at);
+    const currentDateKey = messageDate.toDateString(); // unik per hari
+    const dateLabel = formatDateSeparator(messageDate);
+
+    // ✅ HANYA tambah separator JIKA HARI BERUBAH
+    if (lastRenderedDate !== currentDateKey) {
+      lastRenderedDate = currentDateKey;
+
+      container.insertAdjacentHTML("beforeend", `
+      <div class="chat-date-separator">
+        <span>${dateLabel}</span>
+      </div>
+    `);
+    }
+
+    const html = `
+    <div class="chat-row ${isMe ? "chat-right" : "chat-left"}">
+      
+      <div class="chat-bubble">
+        ${!isMe ? `<div class="chat-name">${senderName}</div>` : ""}
+        <div>${escapeHtml(msg.content)}</div>
+        <div class="chat-time">
+          ${time}
+          ${isMe ? `<span class="msg-status">${getCheckIcon(msg.status)}</span>` : ""}
+        </div>
+      </div>
+
+    </div>
+  `;
+
+    container.insertAdjacentHTML("beforeend", html);
+    container.scrollTop = container.scrollHeight;
+  }
+
+
+  function getCheckIcon(status) {
+    if (status === "sent") return `<span class="tick">✔</span>`;
+    if (status === "delivered") return `<span class="tick">✔✔</span>`;
+    if (status === "read") return `<span class="tick tick-blue">✔✔</span>`;
+    return "";
+  }
+
+  function formatDateSeparator(date) {
+    const d = new Date(date);
+    const today = new Date();
+    const yesterday = new Date();
+    yesterday.setDate(today.getDate() - 1);
+
+    const isSameDay = (a, b) =>
+      a.getFullYear() === b.getFullYear() &&
+      a.getMonth() === b.getMonth() &&
+      a.getDate() === b.getDate();
+
+    if (isSameDay(d, today)) return "Today";
+    if (isSameDay(d, yesterday)) return "Yesterday";
+
+    return d.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric"
+    });
+  }
+
+
+  function shouldAddDateSeparator(container, date) {
+    const lastSeparator = container.querySelector(".chat-date-separator:last-of-type");
+    if (!lastSeparator) return true;
+
+    return lastSeparator.dataset.date !== formatDateSeparator(date);
+  }
+
+
+
+
+
+  // =============================
+  //  LOAD USERS
+  // =============================
+
+  let allUsers = [];
+  let selectedUsers = new Set();
+
+  async function loadAllUsers() {
+    const res = await fetch("/users/list", {
+      headers: { Authorization: "Bearer " + token }
+    });
+    allUsers = await res.json();
+    renderUserList(allUsers);
+  }
+
+  function renderUserList(users) {
+    const list = document.getElementById("memberList");
+    list.innerHTML = "";
+
+    users.forEach(u => {
+      const checked = selectedUsers.has(u.id) ? "checked" : "";
+
+      const html = `
+            <div class="wa-user-item" data-id="${u.id}">
+                <img src="https://ui-avatars.com/api/?name=${u.username}" class="wa-user-avatar">
+                <div class="wa-user-info">
+                    <div><strong>${u.username}</strong></div>
+                </div>
+                <input type="checkbox" class="wa-user-check" ${checked} style="margin-left:auto;">
+            </div>
+        `;
+
+      list.insertAdjacentHTML("beforeend", html);
+    });
+
+    activateUserClickEvent();
+  }
+
+  function activateUserClickEvent() {
+    document.querySelectorAll(".wa-user-item").forEach(item => {
+      item.addEventListener("click", () => {
+        const userId = Number(item.dataset.id);
+
+        if (selectedUsers.has(userId)) {
+          selectedUsers.delete(userId);
+        } else {
+          selectedUsers.add(userId);
+        }
+
+        renderUserList(allUsers);
+        renderSelectedChips();
+      });
+    });
+  }
+
+  function renderSelectedChips() {
+    const box = document.getElementById("selectedUsers");
+
+    if (selectedUsers.size === 0) {
+      box.classList.add("hidden");
+      box.innerHTML = "";
+      return;
+    }
+
+    box.classList.remove("hidden");
+    box.innerHTML = "";
+
+    selectedUsers.forEach(id => {
+      const user = allUsers.find(u => u.id === id);
+
+      box.insertAdjacentHTML("beforeend", `
+        <div class="wa-chip">
+            ${user.username}
+            <span class="wa-chip-remove" data-id="${id}">×</span>
+        </div>
+        `);
+    });
+
+    // remove chip
+    document.querySelectorAll(".wa-chip-remove").forEach(btn => {
+      btn.addEventListener("click", () => {
+        selectedUsers.delete(Number(btn.dataset.id));
+        renderUserList(allUsers);
+        renderSelectedChips();
+      });
+    });
+  }
+
+
+  // =============================
+  //  HELPERS
+  // =============================
+  function escapeHtml(txt) {
+    return txt.replace(/[&<>"']/g, t => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+    }[t]));
+  }
+
+  function timeAgo(date) {
+    const d = new Date(date);
+    const diff = (Date.now() - d.getTime()) / 1000;
+    if (diff < 60) return "Just now";
+    if (diff < 3600) return Math.floor(diff / 60) + "m ago";
+    if (diff < 86400) return Math.floor(diff / 3600) + "h ago";
+    return Math.floor(diff / 86400) + "d ago";
+  }
+
+  let timer1 = null;
+  function getLocationTimer() {
+    if (timer1) return; // cegah dobel timer
+    timer1 = setInterval(() => {
+      getLocation();
+    }, 2000);
+  }
+
+  $(document).ready(function () {
+    console.log('Hello World');
+    getLocation();      // initial call
+    getUsers();         // initial call
+    getLocationTimer(); // start timer
+  });
+
+</script>
+
+<script>
+  //import * as MP4Box from './mp4box.all.js';
+
+  function resizeCanvasToFitCard(canvasId, videoWidth, videoHeight, maxHeight = 250) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+
+    // Hitung rasio video
+    const aspectRatio = videoWidth / videoHeight;
+
+    // Tentukan tinggi canvas maksimum
+    const height = Math.min(videoHeight, maxHeight);
+    const width = height * aspectRatio;
+
+    // Set ukuran canvas
+    canvas.width = width;
+    canvas.height = height;
+
+    // Terapkan style agar responsif
+    canvas.style.width = `${width}px`;
+    canvas.style.height = `${height}px`;
+  }
+
+  function expandCanvasFullscreen(canvasId) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+
+    if (canvas.requestFullscreen) {
+      canvas.requestFullscreen();
+    } else if (canvas.webkitRequestFullscreen) {
+      canvas.webkitRequestFullscreen();
+    } else if (canvas.msRequestFullscreen) {
+      canvas.msRequestFullscreen();
+    }
+  }
+
+
+  const canvasRotationMap = {};
+
+  function drawRotatedFrame(video, canvasId) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas || !video) return;
+
+    const ctx = canvas.getContext('2d');
+    const angle = (canvasRotationMap[canvasId] || 0) * Math.PI / 180;
+
+    const vw = video.videoWidth;
+    const vh = video.videoHeight;
+
+    // Atur ukuran canvas sesuai rotasi
+    if (angle % Math.PI === 0) {
+      canvas.width = vw;
+      canvas.height = vh;
+    } else {
+      canvas.width = vh;
+      canvas.height = vw;
+    }
+
+    ctx.save();
+    ctx.translate(canvas.width / 2, canvas.height / 2);
+    ctx.rotate(angle);
+    ctx.drawImage(video, -vw / 2, -vh / 2, vw, vh);
+    ctx.restore();
+  }
+
+  function rotateLiveCanvas(canvasId, direction = 'right') {
+    const current = canvasRotationMap[canvasId] || 0;
+    const newAngle = direction === 'right'
+      ? (current + 90) % 360
+      : (current + 270) % 360;
+
+    canvasRotationMap[canvasId] = newAngle;
+  }
+
+  function rotateCanvas(canvasId, direction = 'right') {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    const tempCanvas = document.createElement('canvas');
+    const tempCtx = tempCanvas.getContext('2d');
+
+    // Ambil rotasi saat ini
+    const currentRotation = canvasRotationMap[canvasId] || 0;
+    const newRotation = direction === 'right'
+      ? (currentRotation + 90) % 360
+      : (currentRotation + 270) % 360;
+
+    canvasRotationMap[canvasId] = newRotation;
+
+    // Simpan ukuran asli
+    const originalWidth = canvas.width;
+    const originalHeight = canvas.height;
+
+    // Salin isi canvas ke sementara
+    tempCanvas.width = originalWidth;
+    tempCanvas.height = originalHeight;
+    tempCtx.drawImage(canvas, 0, 0);
+
+    // Atur ukuran canvas baru
+    if (newRotation % 180 === 0) {
+      canvas.width = originalWidth;
+      canvas.height = originalHeight;
+    } else {
+      canvas.width = originalHeight;
+      canvas.height = originalWidth;
+    }
+
+    // Gambar ulang dengan rotasi
+    ctx.save();
+    ctx.translate(canvas.width / 2, canvas.height / 2);
+    ctx.rotate((newRotation * Math.PI) / 180);
+    ctx.drawImage(tempCanvas, -originalWidth / 2, -originalHeight / 2);
+    ctx.restore();
+  }
+
+  // Recording
+
+  const recorders = {};
+  const { createFFmpeg, fetchFile } = FFmpeg;
+  const ffmpeg = createFFmpeg({ log: true });
+
+  async function toggleRecording(canvasId) {
+    const canvas = document.getElementById(canvasId);
+    const indicator = document.getElementById(`recordIndicator${canvasId.replace('videoCanvas', '')}`);
+    if (!canvas || !indicator) return;
+
+    if (!recorders[canvasId]) {
+      const stream = canvas.captureStream(30);
+      const chunks = [];
+      const recorder = new MediaRecorder(stream, { mimeType: 'video/webm;codecs=vp9' });
+
+      recorder.ondataavailable = e => {
+        if (e.data.size > 0) chunks.push(e.data);
+      };
+
+      recorder.onstop = async () => {
+        indicator.style.display = 'none';
+        const blob = new Blob(chunks, { type: 'video/webm' });
+        console.log(blob);
+        console.log('Blob size:', blob.size);
+
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${canvasId}_${Date.now()}.webm`;
+        a.click();
+
+
+        //(async () => {
+        // await convertWebMtoMP4(blob, `${canvasId}_${Date.now()}.mp4`);
+        //})();
+
+        delete recorders[canvasId];
+      };
+
+      recorder.start();
+      indicator.style.display = 'block';
+      recorders[canvasId] = { recorder, chunks };
+    } else {
+      recorders[canvasId].recorder.stop();
+    }
+  }
+
+  async function convertWebMtoMP4(blob, filename) {
+    console.log('start convertWebMtoMP4 ----------');
+    try {
+
+      console.log('start convertWebMtoMP4');
+      await ffmpeg.load();
+      ffmpeg.FS('writeFile', 'input.webm', await fetchFile(blob));
+      await ffmpeg.run('-i', 'input.webm', '-c:v', 'libx264', '-preset', 'fast', 'output.mp4');
+      const data = ffmpeg.FS('readFile', 'output.mp4');
+
+      const mp4Blob = new Blob([data.buffer], { type: 'video/mp4' });
+      const url = URL.createObjectURL(mp4Blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+      console.log('stop convertWebMtoMP4');
+    } catch (err) {
+      console.error('Conversion failed:', err);
+    }
+
+  }
+
+
+
+  function startRenderLoop(video, canvasId) {
+    function loop() {
+      drawRotatedFrame(video, canvasId); // dari helper sebelumnya
+      requestAnimationFrame(loop);
+    }
+    video.addEventListener('play', loop);
+  }
+
+
+  const canvas1 = document.getElementById('videoCanvas1');
+  const canvas2 = document.getElementById('videoCanvas2');
+  const canvas3 = document.getElementById('videoCanvas3');
+
+
+  //resizeCanvasToFitCard('videoCanvas1', 1280, 720);
+  //resizeCanvasToFitCard('videoCanvas2', 1280, 720);
+  //resizeCanvasToFitCard('videoCanvas3', 1280, 720);
+
+  //const url1 = 'ws://192.167.0.2:9999';
+  //const player1 = new JSMpeg.Player(url1, { canvas: canvas1 });
+
+  //const url2 = 'ws://192.167.0.2:9998';
+  //const player2 = new JSMpeg.Player(url2, { canvas: canvas2 });
+  //const player3 = new JSMpeg.Player(url1, { canvas: canvas3 });
+
+  // for test esp32
+  const url1 = 'ws://192.168.100.5:9999'; 
+  const player1 = new JSMpeg.Player(url1, { canvas: canvas1 });
+
+</script>

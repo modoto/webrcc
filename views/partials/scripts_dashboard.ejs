@@ -263,9 +263,10 @@
 
     console.log('getLocation:', data);
 
+    const starting_position = data.starting_position;
     const key = 'xETUuAVe5RphO86wCqU2';
-    const map = L.map('map').setView([-6.173082026019618, 106.82676857318508], 14); // starting position
-
+    const map = L.map('map').setView(starting_position, 14); // starting position
+    
     const carIcon = L.icon({
       iconUrl: '/images/Top POV.png',
       iconSize: [45, 66],

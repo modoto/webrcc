@@ -455,7 +455,7 @@ class ConversationsController {
         try {
             const userId = req.userId;
             console.log('getUserConversations');
-            console.log('userId:', userId);
+            console.log('userId ok:', userId);
 
             const q = await pool.query(`
             WITH user_conversations AS (
