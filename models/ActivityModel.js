@@ -2,13 +2,25 @@ const pool = require('../config/db');
 
 // HEADER (hd_activity)
 exports.getAllHeader = async () => {
-    const q = `SELECT * FROM hd_activity WHERE deleted_at IS NULL ORDER BY id DESC`;
+    const q = `SELECT hd.id, hd.activity_id, hd.activity_name,
+            to_char(hd.start_date AT TIME ZONE 'Asia/Jakarta', 'YYYY-MM-DD HH24:MI:SS') as start_date,
+            to_char(hd.end_date AT TIME ZONE 'Asia/Jakarta', 'YYYY-MM-DD HH24:MI:SS') as end_date,
+            dt.personnel, hd.status FROM hd_activity hd
+            left join (select activity_id, count(id) as personnel from dt_activity group by activity_id) dt
+            on hd.activity_id = dt.activity_id 
+            WHERE hd.deleted_at IS NULL ORDER BY id DESC`;
     const { rows } = await pool.query(q);
     return rows;
 };
 
 exports.getHeaderById = async (id) => {
     const q = `SELECT * FROM hd_activity WHERE id = $1`;
+    const { rows } = await pool.query(q, [id]);
+    return rows[0];
+};
+
+exports.getHeaderByActivityId = async (id) => {
+    const q = `SELECT * FROM hd_activity WHERE activity_id = $1`;
     const { rows } = await pool.query(q, [id]);
     return rows[0];
 };

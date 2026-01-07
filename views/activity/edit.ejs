@@ -1,6 +1,6 @@
 <section class="content-header">
   <div class="container-fluid">
-    <h1>Edit Schedule</h1>
+    <h1>Edit Activity</h1>
   </div>
 </section>
 
@@ -10,7 +10,7 @@
     <!-- HEADER FORM -->
     <div class="card card-default">
       <div class="card-header">
-        <h4>Form Schedule</h4>
+        <h4>Form Activity</h4>
       </div>
 
       <div class="card-body">
@@ -23,30 +23,25 @@
             <div class="col-md-6">
 
               <div class="form-group">
-                <label>Schedule ID</label>
+                <label>Activity ID</label>
                 <input type="text" class="form-control" name="activity_id" value="<%= row.activity_id %>">
               </div>
+              <div class="form-group">
+                <label>Schedule Name</label>
+                <input type="text" class="form-control" name="activity_name" value="<%= row.activity_name %>">
+              </div>
+              <div class="form-group">
+                <label>Description</label>
+                <textarea rows="5" class="form-control" name="description"><%= row.description %></textarea>
+              </div>
+            </div>
 
+            <div class="col-md-6">
               <div class="form-group">
                 <label>Start Date</label>
                 <input type="datetime-local" class="form-control" name="start_date"
                   value="<%= row.start_date.toISOString().slice(0,16) %>">
               </div>
-
-              <div class="form-group">
-                <label>Description</label>
-                <input type="text" class="form-control" name="description" value="<%= row.description %>">
-              </div>
-
-            </div>
-
-            <div class="col-md-6">
-
-              <div class="form-group">
-                <label>Schedule Name</label>
-                <input type="text" class="form-control" name="activity_name" value="<%= row.activity_name %>">
-              </div>
-
               <div class="form-group">
                 <label>End Date</label>
                 <input type="datetime-local" class="form-control" name="end_date"
@@ -77,7 +72,7 @@
     <!-- DETAIL LIST -->
     <div class="card mt-4">
       <div class="card-header">
-        <h4>Detail Schedule (Units)</h4>
+        <h4>Member (Units)</h4>
       </div>
 
       <div class="card-body">

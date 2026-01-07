@@ -4,6 +4,8 @@ const ActivityController = require("../controllers/ActivityController");
 
 // HEADER
 router.get("/", ActivityController.index);
+router.get("/details/:id", ActivityController.details);
+
 router.get("/create", ActivityController.createForm);
 router.post("/create", ActivityController.create);
 

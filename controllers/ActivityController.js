@@ -1,10 +1,30 @@
 const Activity = require('../models/ActivityModel');
 const Unit = require('../models/UnitModel');
+const { getUserIdSession, getUserSession, getTokenSession } = require('../helpers/sessionHelper');
 
 // LIST HEADER
 exports.index = async (req, res) => {
     const rows = await Activity.getAllHeader();
     res.render("activity/index", {title: "Activity List", rows });
+};
+
+exports.details = async (req, res) => {
+    const row = await Activity.getHeaderByActivityId(req.params.id);
+    const id = req.params.id
+    const user_id = getUserIdSession(req);
+    const user = getUserSession(req);
+    const token = getTokenSession(req);
+    console.log(user_id);
+    res.render("activity/details", {
+      title: "Maps",
+      layout: "layouts/layout_maps_details",
+      id: id,
+      type: "groups",
+      user_id: user_id,
+      username: user,
+      token: token,
+      row: row
+    });
 };
 
 // CREATE HEADER FORM

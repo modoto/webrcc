@@ -10,7 +10,7 @@ class CctvController {
     const token = getTokenSession(req);
     const rows = await Users.getByNotMe(user_id);
     console.log(user_id);
-    console.log(rows);
+    //console.log(rows);
     res.render("cctv/index", {
       title: "Chat List",
       layout: "layouts/layout_camera",

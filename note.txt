@@ -77,14 +77,39 @@ DROP TABLE if exists conversations cascade;
 DROP TABLE if exists conversation_users cascade;
 DROP TABLE if exists messages cascade;
 
+
+
+DELETE FROM users;
+ALTER SEQUENCE users_id_seq restart with 1;
+
+SELECT SETVAL('users_id_seq', (SELECT MAX(id) FROM users));
+
 DELETE FROM conversations;
+ALTER SEQUENCE conversations_id_seq restart with 1;
+
 SELECT SETVAL('conversations_id_seq', (SELECT MAX(id) FROM conversations));
 
 DELETE FROM conversation_users;
+ALTER SEQUENCE conversation_users_id_seq restart with 1;
+
 SELECT SETVAL('conversation_users_id_seq', (SELECT MAX(id) FROM conversation_users));
 
 DELETE FROM messages;
+ALTER SEQUENCE messages_id_seq restart with 1;
+
 SELECT SETVAL('messages_id_seq', (SELECT MAX(id) FROM messages));
+
+DELETE FROM hd_activity;
+ALTER SEQUENCE hd_activity_id_seq restart with 1;
+
+SELECT SETVAL('hd_activity_id_seq', (SELECT MAX(id) FROM hd_activity));
+
+DELETE FROM dt_activity;
+ALTER SEQUENCE dt_activity_id_seq restart with 1;
+
+SELECT SETVAL('dt_activity_id_seq', (SELECT MAX(id) FROM dt_activity));
+
+
 
 SELECT * FROM conversations;
 SELECT * FROM conversation_users;
