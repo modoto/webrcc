@@ -22,7 +22,7 @@
 
     <div class="container-fluid">
         <div class="row">
-            <div class="col-md-3  mb-4">
+            <div class="col-md-3 mb-2">
                 <div class="card h-100" style="background-color: #18261C;">
                     <div class="card-header">
                         <h5 class="text-white">#<%= row.activity_id %> - <%= row.activity_name %>
@@ -31,13 +31,40 @@
                     <div class="card-body scrollable-card-body">
                         <div class="row">
                             <div class="col-sm-6">
-                                <div class="canvas-wrapper" style="position: relative;">
+                                <div class="canvas-wrapper" style="position: relative; width: 100%;">
+                                    <button type="button" onclick="toggleRecording('videoCanvas1')" id="recordBtn1"
+                                        class="btn btn-tool" style='font-size:24px;' title="Record">
+                                        <i class="fas fa-video"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-tool"
+                                        onclick="expandCanvasFullscreen('videoCanvas1')" style='font-size:24px'
+                                        title="Expand">
+                                        <i class="fas fa-expand-arrows-alt"></i>
+                                    </button>
                                     <canvas id="videoCanvas1" class="img-fluid"></canvas>
                                     <div id="recordIndicator1" class="record-indicator">● REC</div>
                                 </div>
                             </div>
-                            <!-- /.col -->
                             <div class="col-sm-6">
+                                <div class="canvas-wrapper" style="position: relative;">
+                                    <canvas id="videoCanvas2" class="img-fluid"></canvas>
+                                    <div id="recordIndicator2" class="record-indicator">● REC</div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="canvas-wrapper" style="position: relative;">
+                                    <canvas id="videoCanvas3" class="img-fluid"></canvas>
+                                    <div id="recordIndicator3" class="record-indicator">● REC</div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="canvas-wrapper" style="position: relative;">
+                                    <canvas id="videoCanvas4" class="img-fluid"></canvas>
+                                    <div id="recordIndicator4" class="record-indicator">● REC</div>
+                                </div>
+                            </div>
+
+                            <!-- <div class="col-sm-6">
                                 <img class="img-fluid mb-3" src="../../dist/img/patwal2.png" alt="Photo">
                             </div>
                             <div class="col-sm-6">
@@ -45,8 +72,7 @@
                             </div>
                             <div class="col-sm-6">
                                 <img class="img-fluid mb-3" src="../../dist/img/patwal4.png" alt="Photo">
-                            </div>
-                            <!-- /.col -->
+                            </div> -->
                         </div>
                         <input type="hidden" id="chat_id" value="<%= row.chat_id %>" />
                         <input type="hidden" id="chat_name" value="<%= row.activity_name %>" />
@@ -54,7 +80,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-6  mb-4">
+            <div class="col-md-7  mb-2">
                 <div class="card h-100" style="background-color: #18261C;">
                     <div class="card-body" style="padding: 0;">
                         <input type="hidden" id="id" value="<%= id %>" />
@@ -92,47 +118,31 @@
                         </div>
 
 
-                        <!-- Tombol untuk membuka chat -->
-                        <button class="chat-btn" onclick="toggleChat()">💬 Chat</button>
 
-                        <!-- Wadah Popup Chat -->
-                        <div class="chat-popup" id="chatForm">
-                            <div class="chat-header">
-                                <span>Live Chat</span>
-                                <button class="close-btn" onclick="toggleChat()">×</button>
-                            </div>
-                            <div class="chat-body" id="chat-container">
-                                <p>Halo! Ada yang bisa kami bantu?</p>
-                            </div>
-                            <div class="chat-footer">
-                                <form action="#" method="post">
-                                    <div class="input-group">
-                                        <input type="text" name="msg" id="msg" placeholder="Type Message ..."
-                                            class="form-control">
-                                        <span class="input-group-append">
-                                            <button type="button" id="sendMessage" class="btn btn-primary">Send</button>
-                                        </span>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
                     </div>
                     <!-- /.card-body -->
-                    <div class="card-footer">
+                    <!-- <div class="card-footer">
 
-                    </div>
+                    </div> -->
                     <!-- /.card-footer-->
                 </div>
             </div>
-            <div class="col-md-3  mb-4">
+            <div class="col-md-2  mb-2">
                 <div class="card h-100" style="background-color: #18261C;">
                     <div class="card-header">
                         <h5 class="text-white">Live Chat</h5>
                     </div>
                     <div class="card-body scrollable-card-body">
-                        
+                        <div class="wa-chat-body" id="chat-container">
+                            <!-- Pesan WhatsApp-style akan append di sini -->
+                        </div>
 
                     </div>
+                    <div class="wa-chat-input">
+                        <input id="msg" type="text" placeholder="Type a message">
+                        <button id="sendMessage">Send</button>
+                    </div>
+
                 </div>
             </div>
         </div>
