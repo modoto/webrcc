@@ -6,7 +6,7 @@ const { getUserIdSession, getUserSession, getTokenSession } = require('../helper
 // LIST HEADER
 exports.index = async (req, res) => {
     const rows = await Activity.getAllHeader();
-    res.render("activity/index", {title: "Activity List", rows });
+    res.render("activity/index", { title: "Activity List", rows });
 };
 
 exports.details = async (req, res) => {
@@ -17,19 +17,19 @@ exports.details = async (req, res) => {
     const user_id = getUserIdSession(req);
     const user = getUserSession(req);
     const token = getTokenSession(req);
-    console.log(user_id);
     res.render("activity/details", {
-      title: "Maps",
-      layout: "layouts/layout_maps_details",
-      id: id,
-      type: "groups",
-      user_id: user_id,
-      username: user,
-      token: token,
-      socket_url: SOCKET_URL,
-      row: row
+        title: "Maps",
+        layout: "layouts/layout_maps_details",
+        id: id,
+        type: "groups",
+        user_id: user_id,
+        username: user,
+        token: token,
+        socket_url: SOCKET_URL,
+        row: row
     });
 };
+
 
 // CREATE HEADER FORM
 exports.createForm = (req, res) => {
@@ -54,7 +54,7 @@ exports.editForm = async (req, res) => {
 exports.update = async (req, res) => {
     await Activity.updateHeader(req.params.id, req.body);
     res.redirect("/activity");
-    
+
 };
 
 // DELETE HEADER

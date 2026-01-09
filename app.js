@@ -194,6 +194,7 @@ app.use("/maps", require("./routes/maps"));
 app.use("/conversations", require("./routes/conversations"));
 app.use("/messages", require("./routes/messages"));
 app.use("/gps", require("./routes/gps"));
+app.use("/mobile", require("./routes/mobile"));
 
 // DASHBOARD PAGE
 // app.get("/dashboard", (req, res) => {

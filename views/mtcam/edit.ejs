@@ -77,13 +77,7 @@
                 value="<%= row.power %>">
               </div>
 
-            </div>
-
-            <div class="col-md-6">
-
-              
-
-              <div class="form-group">
+               <div class="form-group">
                 <label>Username</label>
                 <input type="text" class="form-control" name="username" 
                 value="<%= row.username %>">
@@ -94,6 +88,10 @@
                 <input type="text" class="form-control" name="password" 
                 value="<%= row.password %>">
               </div>
+
+            </div>
+
+            <div class="col-md-6">
 
               <div class="form-group">
                 <label>RTSP URL</label>
@@ -117,6 +115,31 @@
                 <label>RTSP Password</label>
                 <input type="text" class="form-control" name="rtsp_password" 
                 value="<%= row.rtsp_password %>">
+              </div>
+
+              <div class="form-group">
+                <label>FFMPEG Options</label>
+                <textarea rows="15" class="form-control" name="ffmpeg_options"><%= row.ffmpeg_options %></textarea> 
+              </div>
+              <div class="form-group">
+                <label>Max Retries</label>
+                <input type="number" class="form-control" name="max_retries" 
+                value="<%= row.max_retries %>">
+              </div>
+              <div class="form-group">
+                <label>Retry delay</label>
+                <input type="number" class="form-control" name="retry_delay" 
+                value="<%= row.retry_delay %>">
+              </div>
+              <div class="form-group">
+                <label>Watchdog Timeout</label>
+                <input type="number" class="form-control" name="watchdog_timeout" 
+                value="<%= row.watchdog_timeout %>">
+              </div>
+              <div class="form-group">
+                <label>Watchdog Check Interval</label>
+                <input type="number" class="form-control" name="watchdog_check_interval" 
+                value="<%= row.watchdog_check_interval %>">
               </div>
 
               <div class="form-group">
