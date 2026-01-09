@@ -32,7 +32,7 @@
                         <div class="row">
                             <div class="col-sm-6">
                                 <div class="canvas-wrapper" style="position: relative; width: 100%;">
-                                    <button type="button" onclick="toggleRecording('videoCanvas1')" id="recordBtn1"
+                                    <!-- <button type="button" onclick="toggleRecording('videoCanvas1')" id="recordBtn1"
                                         class="btn btn-tool" style='font-size:24px;' title="Record">
                                         <i class="fas fa-video"></i>
                                     </button>
@@ -40,8 +40,8 @@
                                         onclick="expandCanvasFullscreen('videoCanvas1')" style='font-size:24px'
                                         title="Expand">
                                         <i class="fas fa-expand-arrows-alt"></i>
-                                    </button>
-                                    <canvas id="videoCanvas1" class="img-fluid"></canvas>
+                                    </button> -->
+                                    <canvas id="videoCanvas1" class="img-fluid" onclick="expandCanvasFullscreen('videoCanvas1')"></canvas>
                                     <div id="recordIndicator1" class="record-indicator">● REC</div>
                                 </div>
                             </div>
@@ -88,8 +88,7 @@
                         <input type="hidden" id="user_id" value="<%= user_id %>" />
                         <input type="hidden" id="username" value="<%= username %>" />
                         <input type="hidden" id="token" value="<%= token %>" />
-
-
+                        <input type="hidden" id="socket_url" value="<%= socket_url %>" />
 
                         <div id="map">
                             <a href="https://www.maptiler.com"

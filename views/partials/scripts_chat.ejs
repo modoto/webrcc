@@ -23,16 +23,16 @@
   const token = document.getElementById("token").value;
   const myUserId = document.getElementById("user_id").value;
   const myUsername = document.getElementById("username").value;
+  const socketUrl = document.getElementById("socket_url").value;
 
   let lastRenderedDate = null;
 
-  console.log("token:", token);
   loadContactList();
 
   // =============================
   //  INIT SOCKET.IO
   // =============================
-  const socket = io("http://localhost:3001", { auth: { token } });
+  const socket = io(socketUrl, { auth: { token } });
 
   socket.on("connect", () => console.log("Socket Connected:", socket.id));
 
@@ -57,7 +57,7 @@
   //  CONTACT CLICK HANDLER
   // =============================
   document.getElementById("contact-list").addEventListener("click", async (e) => {
-    console.log('CONTACT CLICK HANDLER');
+    //console.log('CONTACT CLICK HANDLER');
     const item = e.target.closest(".wa-contact-item");
     if (!item) return;
 
@@ -69,12 +69,12 @@
     const isGroup = item.dataset.isgroup === "true";
     activeUserId = targetUserId;
 
-    console.log('conversationId :', conversationId);
-    console.log('targetUserId :', targetUserId);
-    console.log('name :', name);
-    console.log('status :', status);
-    console.log('isGroup :', isGroup);
-    console.log('activeUserId :', activeUserId);
+    //console.log('conversationId :', conversationId);
+    //console.log('targetUserId :', targetUserId);
+    //console.log('name :', name);
+    //console.log('status :', status);
+    //console.log('isGroup :', isGroup);
+    //console.log('activeUserId :', activeUserId);
 
     updateChatHeader(conversationId, name, avatar, status, isGroup);
 
@@ -92,7 +92,7 @@
 
    
 
-    console.log('conversationId:', conversationId);
+    //console.log('conversationId:', conversationId);
 
     // JOIN ROOM DI SOCKET.IO
     socket.emit("join_room", conversationId);
@@ -118,7 +118,7 @@
   //  API: GET / CREATE CONVERSATION
   // =============================
   async function getOrCreateConversation(targetUserId) {
-    console.log('getOrCreateConversation:', targetUserId);
+    //console.log('getOrCreateConversation:', targetUserId);
     const res = await fetch(`/conversations/find-or-create/${targetUserId}`, {
       headers: { Authorization: "Bearer " + token }
     });
@@ -135,11 +135,11 @@
     if (isLoadingMessages) return;
     isLoadingMessages = true;
 
-    console.log('loadMessages:', conversationId);
+    //console.log('loadMessages:', conversationId);
 
     let url = `/messages/${conversationId}?limit=20`;
     if (before) url += `&before=${before}`;
-    console.log('url:', url);
+    //console.log('url:', url);
 
     const res = await fetch(url, {
       headers: { Authorization: "Bearer " + token }
@@ -364,7 +364,7 @@
     });
 
     const data = await res.json();
-    console.log("Group created:", data);
+    //console.log("Group created:", data);
 
     // Tutup modal
     document.getElementById("createGroupModal").classList.add("hidden");
@@ -479,7 +479,7 @@
   function renderContactList(conversations) {
     const container = document.getElementById("contact-list");
     container.innerHTML = "";
-    console.log(conversations);
+    //console.log(conversations);
     conversations.forEach(conv => {
 
       const unread = Number(conv.unread_count);
