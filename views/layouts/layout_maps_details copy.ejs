@@ -242,6 +242,85 @@
         color: #555;
       }
     </style>
+
+    <style>
+      /* Canvas video */
+      .canvas-wrapper canvas {
+        width: 100%;
+        height: auto;
+        display: block;
+        z-index: 1;
+      }
+
+      /* ============================= */
+      /* BUTTON OVERLAY */
+      /* ============================= */
+
+      .canvas-wrapper .btn.btn-tool {
+        position: absolute;
+        top: 10px;
+        z-index: 10;
+        background: rgba(0, 0, 0, 0.55);
+        color: #fff;
+        border-radius: 6px;
+        padding: 6px 10px;
+      }
+
+      /* Tombol record (kiri atas) */
+      #recordBtn1 {
+        left: 10px;
+      }
+
+      /* Tombol fullscreen (kanan atas) */
+      .canvas-wrapper .btn[onclick*="expandCanvasFullscreen"] {
+        right: 10px;
+      }
+
+      /* Hover effect */
+      .canvas-wrapper .btn.btn-tool:hover {
+        background: rgba(0, 0, 0, 0.8);
+      }
+
+      /* ============================= */
+      /* RECORD INDICATOR */
+      /* ============================= */
+
+      .record-indicator {
+        position: absolute;
+        bottom: 10px;
+        left: 10px;
+        z-index: 12;
+        color: #ff3b3b;
+        font-weight: bold;
+        font-size: 14px;
+        background: rgba(0, 0, 0, 0.6);
+        padding: 4px 10px;
+        border-radius: 4px;
+        display: none;
+        /* default hidden */
+        animation: blink 1s infinite;
+      }
+
+      /* Animasi kedip */
+      @keyframes blink {
+        0% {
+          opacity: 1;
+        }
+
+        50% {
+          opacity: 0.3;
+        }
+
+        100% {
+          opacity: 1;
+        }
+      }
+
+      /* Aktif saat recording */
+      .record-indicator.active {
+        display: block;
+      }
+    </style>
 </head>
 
 <body class="hold-transition sidebar-mini sidebar-collapse">

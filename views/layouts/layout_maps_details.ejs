@@ -28,7 +28,7 @@
       .card,
       .card-body,
       #map {
-        height: 82vh;
+        height: 75vh;
         /* atau 100% jika dalam layout tertentu */
         width: 100%;
       }
@@ -126,7 +126,7 @@
       }
 
       .chat-body {
-        height: 200px;
+        height: 82vh;
         padding: 15px;
         overflow-y: auto;
       }
@@ -241,10 +241,37 @@
         font-size: 12px;
         color: #555;
       }
+
+      /* INPUT BOX */
+      .wa-chat-input {
+        padding: 10px;
+        background: #f0f0f0;
+        display: flex;
+        border-top: 1px solid #ddd;
+      }
+
+      .wa-chat-input input {
+        flex: 1;
+        padding: 10px 15px;
+        border-radius: 20px;
+        border: none;
+        outline: none;
+        background: #fff;
+      }
+
+      .wa-chat-input button {
+        margin-left: 12px;
+        padding: 10px 20px;
+        border-radius: 20px;
+        border: none;
+        background: #4caf50;
+        color: #fff;
+        cursor: pointer;
+      }
     </style>
 </head>
 
-<body class="hold-transition sidebar-mini sidebar-collapse">
+<body class="layout-fixed sidebar-mini sidebar-collapse" style="height: auto;">
   <div class="wrapper">
 
     <%- include('../partials/navbar'); %>

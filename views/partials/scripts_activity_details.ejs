@@ -8,7 +8,6 @@
 <script src="/dist/js/adminlte.min.js"></script>
 <!-- AdminLTE for demo purposes -->
 <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-<script src="https://unpkg.com/leaflet-rotatedmarker/leaflet.rotatedMarker.js"></script>
 
 <script src="/dist/jsmpeg/jsmpeg.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mp4box@2.2.0/dist/mp4box.all.min.js"></script>
@@ -155,7 +154,7 @@
   // =============================
   //  INIT SOCKET.IO
   // =============================
-  const socket = io("http://localhost:3001", { auth: { token } });
+  const socket = io("http://192.167.0.3:3001", { auth: { token } });
 
   socket.on("connect", () => console.log("Socket Connected:", socket.id));
 
@@ -749,7 +748,7 @@
   const canvas1 = document.getElementById('videoCanvas1');
   const canvas2 = document.getElementById('videoCanvas2');
   const canvas3 = document.getElementById('videoCanvas3');
-
+  const canvas4 = document.getElementById('videoCanvas4');
 
   //resizeCanvasToFitCard('videoCanvas1', 1280, 720);
   //resizeCanvasToFitCard('videoCanvas2', 1280, 720);
@@ -758,12 +757,14 @@
   //const url1 = 'ws://192.167.0.2:9999';
   //const player1 = new JSMpeg.Player(url1, { canvas: canvas1 });
 
-  //const url2 = 'ws://192.167.0.2:9998';
-  //const player2 = new JSMpeg.Player(url2, { canvas: canvas2 });
-  //const player3 = new JSMpeg.Player(url1, { canvas: canvas3 });
+  const url2 = 'ws://192.167.0.3:9998';
+  const player1 = new JSMpeg.Player(url2, { canvas: canvas1 });
+  const player2 = new JSMpeg.Player(url2, { canvas: canvas2 });
+  const player3 = new JSMpeg.Player(url2, { canvas: canvas3 });
+  const player4 = new JSMpeg.Player(url2, { canvas: canvas4 });
 
   // for test esp32
-  const url1 = 'ws://192.168.100.5:9999'; 
-  const player1 = new JSMpeg.Player(url1, { canvas: canvas1 });
+  // const url1 = 'ws://192.168.100.5:9999'; 
+  // const player1 = new JSMpeg.Player(url1, { canvas: canvas1 });
 
 </script>

@@ -124,6 +124,45 @@ TRUNCATE TABLE hd_activity RESTART IDENTITY CASCADE;
 TRUNCATE TABLE dt_activity RESTART IDENTITY CASCADE;
 
 
+ALTER TABLE bwcam
+ADD COLUMN stream_url TEXT;
+
+ALTER TABLE bwcam
+ADD COLUMN ffmpeg_options JSONB;
+
+ALTER TABLE bwcam
+ADD column max_retries INTEGER DEFAULT 10;
+
+ALTER TABLE bwcam
+ADD column retry_delay INTEGER DEFAULT 5000;
+
+ALTER TABLE bwcam
+ADD column watchdog_timeout INTEGER DEFAULT 10000;
+
+ALTER TABLE bwcam
+ADD column watchdog_check_interval INTEGER DEFAULT 3000;
+
+
+
+ALTER TABLE mtcam
+ADD COLUMN stream_url TEXT;
+
+ALTER TABLE mtcam
+ADD COLUMN ffmpeg_options JSONB;
+
+ALTER TABLE mtcam
+ADD column max_retries INTEGER DEFAULT 10;
+
+ALTER TABLE mtcam
+ADD column retry_delay INTEGER DEFAULT 5000;
+
+ALTER TABLE mtcam
+ADD column watchdog_timeout INTEGER DEFAULT 10000;
+
+ALTER TABLE mtcam
+ADD column watchdog_check_interval INTEGER DEFAULT 3000;
+
+
 $.ajax(
     {
       url: "http://localhost:3001/auth/login",
