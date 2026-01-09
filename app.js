@@ -7,6 +7,7 @@ const session = require("express-session");
 const path = require("path");
 const expressLayouts = require("express-ejs-layouts");
 const http = require("http");
+require('dotenv').config(); // Loads variables from .env file into process.env
 const { Server } = require("socket.io");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
@@ -38,8 +39,9 @@ app.use(session({
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: "*" } });
 
-const JWT_SECRET = process.env.JWT_SECRET || "rahasia_super_aman";
-
+const JWT_SECRET = process.env.JWT_SECRET;
+const SOCKET_URL = process.env.SOCKET_URL;
+console.log('SOCKET_URL:', SOCKET_URL);
 
 // ===================== SOCKET AUTH ===================
 io.use((socket, next) => {

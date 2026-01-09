@@ -146,15 +146,16 @@
   const myUserId = document.getElementById("user_id").value;
   const myUsername = document.getElementById("username").value;
   const chatId = document.getElementById("chat_id").value;
+  const socketUrl = document.getElementById("socket_url").value;
 
   let lastRenderedDate = null;
 
   console.log("token:", token);
-
+  console.log("socketUrl:", socketUrl);
   // =============================
   //  INIT SOCKET.IO
   // =============================
-  const socket = io("http://192.167.0.3:3001", { auth: { token } });
+  const socket = io(socketUrl, { auth: { token } });
 
   socket.on("connect", () => console.log("Socket Connected:", socket.id));
 
@@ -410,17 +411,12 @@
     });
   }
 
-
   function shouldAddDateSeparator(container, date) {
     const lastSeparator = container.querySelector(".chat-date-separator:last-of-type");
     if (!lastSeparator) return true;
 
     return lastSeparator.dataset.date !== formatDateSeparator(date);
   }
-
-
-
-
 
   // =============================
   //  LOAD USERS

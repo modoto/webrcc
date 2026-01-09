@@ -1,5 +1,7 @@
 const jwt = require("jsonwebtoken");
-const JWT_SECRET = process.env.JWT_SECRET || "rahasia_super_aman";
+require('dotenv').config(); // Loads variables from .env file into process.env
+
+const JWT_SECRET = process.env.JWT_SECRET;
 
 function setUserIdSession(req, user_id) {
     req.session.user_id = user_id;

@@ -1,3 +1,4 @@
+require('dotenv').config(); // Loads variables from .env file into process.env
 const Activity = require('../models/ActivityModel');
 const Unit = require('../models/UnitModel');
 const { getUserIdSession, getUserSession, getTokenSession } = require('../helpers/sessionHelper');
@@ -9,6 +10,8 @@ exports.index = async (req, res) => {
 };
 
 exports.details = async (req, res) => {
+    const SOCKET_URL = process.env.SOCKET_URL;
+
     const row = await Activity.getHeaderByActivityId(req.params.id);
     const id = req.params.id
     const user_id = getUserIdSession(req);
@@ -23,6 +26,7 @@ exports.details = async (req, res) => {
       user_id: user_id,
       username: user,
       token: token,
+      socket_url: SOCKET_URL,
       row: row
     });
 };
