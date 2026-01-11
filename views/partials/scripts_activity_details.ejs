@@ -22,12 +22,12 @@
 
   async function getLocation() {
     try {
-      const id = document.getElementById("id").value;
+      const activityId = document.getElementById("id").value;
       const type = document.getElementById("type").value;
 
       console.log('getLocation tick');
 
-      const res = await fetch(`/gps/getMapGroups/` + id, {
+      const res = await fetch(`/gps/getMapGroups/` + activityId, {
         headers: { Authorization: "Bearer " + token }
       });
       let result = await res.json();
@@ -317,9 +317,6 @@
 
     document.getElementById("msg").value = "";
   };
-
-
-
 
   // =============================
   //  SCROLL PAGINATION
@@ -682,6 +679,8 @@
   async function toggleRecording(canvasId) {
     const canvas = document.getElementById(canvasId);
     const indicator = document.getElementById(`recordIndicator${canvasId.replace('videoCanvas', '')}`);
+    indicator.classList.toggle("d-none");
+
     if (!canvas || !indicator) return;
 
     if (!recorders[canvasId]) {
@@ -745,8 +744,6 @@
 
   }
 
-
-
   function startRenderLoop(video, canvasId) {
     function loop() {
       drawRotatedFrame(video, canvasId); // dari helper sebelumnya
@@ -755,6 +752,86 @@
     video.addEventListener('play', loop);
   }
 
+  async function loadCCTV() {
+    try {
+      const activityId = document.getElementById("id").value;
+      const type = document.getElementById("type").value;
+
+      console.log('loadCCTV');
+
+      const res = await fetch(`/activity/getCamera/` + activityId, {
+        headers: { Authorization: "Bearer " + token }
+      });
+      let result = await res.json();
+      const starting_position = result.starting_position;
+      const cameras = result.data;
+
+      console.log('cameras:', cameras);
+
+      const container = document.getElementById("container-cctv");
+      container.innerHTML = ""; // kosongkan dulu
+
+      cameras.forEach((cam, index) => {
+        const col = document.createElement("div");
+        col.className = "col-sm-6";
+
+        col.innerHTML = `
+        <div class="canvas-wrapper" style="position: relative; width: 100%;">
+          <div id="camera${cam.mtcam_id}" class="camera-name">MTC ${cam.unit_id}</div>
+          <div class="camera-expand">
+            <a href="#" onclick="toggleRecording('videoCanvas${cam.mtcam_id}');return false;">
+              <i class="fas fa-video text-white mr-2"></i>
+            </a>
+            <a href="#" onclick="expandCanvasFullscreen('videoCanvas${cam.mtcam_id}');return false;">
+              <i class="fas fa-expand-arrows-alt text-white"></i>
+            </a>
+          </div>
+          <canvas id="videoCanvas${cam.mtcam_id}" class="img-fluid"></canvas>
+          <div id="recordIndicator${cam.mtcam_id}" class="record-indicator d-none">● REC</div>
+        </div>
+        `;
+
+      const col2 = document.createElement("div");
+        col2.className = "col-sm-6";
+
+        col2.innerHTML = `
+        <div class="canvas-wrapper" style="position: relative; width: 100%;">
+          <div id="camera${cam.id}" class="camera-name">BWC ${cam.unit_id}</div>
+          <div class="camera-expand">
+            <a href="#" onclick="toggleRecording('videoCanvas${cam.bwcam_id}');return false;">
+              <i class="fas fa-video text-white mr-2"></i>
+            </a>
+            <a href="#" onclick="expandCanvasFullscreen('videoCanvas${cam.bwcam_id}');return false;">
+              <i class="fas fa-expand-arrows-alt text-white"></i>
+            </a>
+          </div>
+          <canvas id="videoCanvas${cam.bwcam_id}" class="img-fluid"></canvas>
+          <div id="recordIndicator${cam.bwcam_id}" class="record-indicator d-none">● REC</div>
+        </div>
+        `;
+
+        container.appendChild(col);
+        container.appendChild(col2);
+
+        const mtcam_id = 'videoCanvas'+ cam.mtcam_id;
+        const canvasMtc = document.getElementById(mtcam_id);
+        new JSMpeg.Player(cam.ws_mtcam, { canvas: canvasMtc });
+
+        const bwcam_id = 'videoCanvas'+ cam.bwcam_id;
+        const canvasBwc = document.getElementById(bwcam_id);
+        new JSMpeg.Player(cam.ws_bwcam, { canvas: canvasBwc });
+
+      });
+    } catch (err) {
+      console.error("loadCCTV error:", err);
+    }
+  }
+
+  // buka ini jika mau dari api
+  //document.addEventListener("DOMContentLoaded", loadCCTV);
+
+
+  // ini untuk manual
 
   const canvas1 = document.getElementById('videoCanvas1');
   const canvas2 = document.getElementById('videoCanvas2');
@@ -779,9 +856,6 @@
   const player4 = new JSMpeg.Player(url2, { canvas: canvas4 });
   const player5 = new JSMpeg.Player(url2, { canvas: canvas5 });
   const player6 = new JSMpeg.Player(url2, { canvas: canvas6 });
-
-
-
 
   // for test esp32
   // const url1 = 'ws://192.168.100.5:9999';

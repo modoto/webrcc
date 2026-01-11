@@ -304,6 +304,67 @@
         cursor: pointer;
       }
     </style>
+    <style>
+      .canvas-wrapper {
+        position: relative;
+        /* sudah ada */
+      }
+
+      .camera-name {
+        position: absolute;
+        top: 10px;
+        /* jarak dari atas */
+        left: 10px;
+        /* jarak dari kanan */
+        background: rgba(3, 3, 3, 0.8);
+        /* biar kelihatan */
+        color: white;
+        font-weight: bold;
+        padding: 4px 8px;
+        border-radius: 4px;
+        z-index: 10;
+        /* pastikan di atas canvas */
+      }
+
+      .camera-expand {
+        position: absolute;
+        top: 10px;
+        /* jarak dari atas */
+        right: 10px;
+        /* jarak dari kanan */
+        background: rgba(3, 3, 3, 0.8);
+        /* biar kelihatan */
+        color: white;
+        font-weight: bold;
+        padding: 4px 8px;
+        border-radius: 4px;
+        z-index: 10;
+        /* pastikan di atas canvas */
+      }
+
+      .record-indicator {
+        position: absolute;
+        bottom: 10px;
+        /* jarak dari atas */
+        left: 10px;
+        /* jarak dari kanan */
+        background: rgba(255, 0, 0, 0.8);
+        /* biar kelihatan */
+        color: white;
+        font-weight: bold;
+        padding: 4px 8px;
+        border-radius: 4px;
+        z-index: 10; /* pastikan di atas canvas */
+        animation: blink 1s infinite; /* bikin kedip */
+      }
+
+      @keyframes blink {
+        0%   { opacity: 1; }
+        50%  { opacity: 0.3; }
+        100% { opacity: 1; }
+      }
+
+    </style>
 </head>
 
 <body class="layout-fixed sidebar-mini sidebar-collapse" style="height: auto;">

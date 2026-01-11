@@ -1,20 +1,6 @@
 <!-- Content Header (Page header) -->
 <section class="content-header" style="background-color: #323232;">
-    <!-- <div class="container-fluid">
-          <div class="row mb-2">
-            <div class="col-sm-6">
-              <h1>Fixed Layout</h1>
-            </div>
-            <div class="col-sm-6">
-              <ol class="breadcrumb float-sm-right">
-                <li class="breadcrumb-item"><a href="#">Home</a></li>
-                <li class="breadcrumb-item"><a href="#">Layout</a></li>
-                <li class="breadcrumb-item active">Fixed Layout</li>
-              </ol>
-            </div>
-          </div>
-        </div> -->
-    <!-- /.container-fluid -->
+
 </section>
 
 <!-- Main content -->
@@ -29,69 +15,86 @@
                         </h5>
                     </div>
                     <div class="card-body scrollable-card-body">
-                        <div class="row">
+                        <div class="row" id="container-cctv">
                             <div class="col-sm-6">
                                 <div class="canvas-wrapper" style="position: relative; width: 100%;">
-                                    <!-- <button type="button" onclick="toggleRecording('videoCanvas1')" id="recordBtn1"
-                                        class="btn btn-tool" style='font-size:24px;' title="Record">
-                                        <i class="fas fa-video"></i>
-                                    </button>
-                                    <button type="button" class="btn btn-tool"
-                                        onclick="expandCanvasFullscreen('videoCanvas1')" style='font-size:24px'
-                                        title="Expand">
-                                        <i class="fas fa-expand-arrows-alt"></i>
-                                    </button> -->
-                                    <canvas id="videoCanvas1" class="img-fluid"
-                                        onclick="expandCanvasFullscreen('videoCanvas1')"></canvas>
-                                    <div id="recordIndicator1" class="record-indicator">● REC</div>
+                                    <div id="cameraMTC1" class="camera-name">UNIT-01 MTC</div>
+                                    <div class="camera-expand">
+                                        <a href="#" onclick="toggleRecording('videoCanvas1');return false;"><i
+                                                class="fas fa-video text-white mr-2"></i></a>
+                                        <a href="#" onclick="expandCanvasFullscreen('videoCanvas1');return false;"><i
+                                                class="fas fa-expand-arrows-alt text-white"></i></a>
+                                    </div>
+                                    <canvas id="videoCanvas1" class="img-fluid"></canvas>
+                                    <div id="recordIndicator1" class="record-indicator d-none">● REC</div>
                                 </div>
                             </div>
                             <div class="col-sm-6">
                                 <div class="canvas-wrapper" style="position: relative;">
-                                    <canvas id="videoCanvas2" class="img-fluid"
-                                        onclick="expandCanvasFullscreen('videoCanvas2')"></canvas>
-                                    <div id="recordIndicator2" class="record-indicator">● REC</div>
+                                    <div id="cameraBWC1" class="camera-name">UNIT-01 BWC</div>
+                                    <div class="camera-expand">
+                                        <a href="#" onclick="toggleRecording('videoCanvas2');return false;"><i
+                                                class="fas fa-video text-white mr-2"></i></a>
+                                        <a href="#" onclick="expandCanvasFullscreen('videoCanvas2');return false;"><i
+                                                class="fas fa-expand-arrows-alt text-white"></i></a>
+                                    </div>
+                                    <canvas id="videoCanvas2" class="img-fluid"></canvas>
+                                    <div id="recordIndicator2" class="record-indicator d-none">● REC</div>
                                 </div>
                             </div>
                             <div class="col-sm-6">
                                 <div class="canvas-wrapper" style="position: relative;">
-                                    <canvas id="videoCanvas3" class="img-fluid"
-                                        onclick="expandCanvasFullscreen('videoCanvas3')"></canvas>
-                                    <div id="recordIndicator3" class="record-indicator">● REC</div>
+                                    <div id="cameraMTC2" class="camera-name">UNIT-02 MTC</div>
+                                    <div class="camera-expand">
+                                        <a href="#" onclick="toggleRecording('videoCanvas3');return false;"><i
+                                                class="fas fa-video text-white mr-2"></i></a>
+                                        <a href="#" onclick="expandCanvasFullscreen('videoCanvas3');return false;"><i
+                                                class="fas fa-expand-arrows-alt text-white"></i></a>
+                                    </div>
+                                    <canvas id="videoCanvas3" class="img-fluid"></canvas>
+                                    <div id="recordIndicator3" class="record-indicator d-none">● REC</div>
                                 </div>
                             </div>
                             <div class="col-sm-6">
                                 <div class="canvas-wrapper" style="position: relative;">
-                                    <canvas id="videoCanvas4" class="img-fluid"
-                                        onclick="expandCanvasFullscreen('videoCanvas4')"></canvas>
-                                    <div id="recordIndicator4" class="record-indicator">● REC</div>
+                                    <div id="cameraBWC2" class="camera-name">UNIT-02 BWC</div>
+                                    <div class="camera-expand">
+                                        <a href="#" onclick="toggleRecording('videoCanvas4');return false;"><i
+                                                class="fas fa-video text-white mr-2"></i></a>
+                                        <a href="#" onclick="expandCanvasFullscreen('videoCanvas4');return false;"><i
+                                                class="fas fa-expand-arrows-alt text-white"></i></a>
+                                    </div>
+                                    <canvas id="videoCanvas4" class="img-fluid"></canvas>
+                                    <div id="recordIndicator4" class="record-indicator d-none">● REC</div>
                                 </div>
                             </div>
 
                             <div class="col-sm-6">
                                 <div class="canvas-wrapper" style="position: relative;">
-                                    <canvas id="videoCanvas5" class="img-fluid"
-                                        onclick="expandCanvasFullscreen('videoCanvas5')"></canvas>
-                                    <div id="recordIndicator5" class="record-indicator">● REC</div>
+                                    <div id="cameraMTC3" class="camera-name">UNIT-03 MTC</div>
+                                    <div class="camera-expand">
+                                        <a href="#" onclick="toggleRecording('videoCanvas5');return false;"><i
+                                                class="fas fa-video text-white mr-2"></i></a>
+                                        <a href="#" onclick="expandCanvasFullscreen('videoCanvas5');return false;"><i
+                                                class="fas fa-expand-arrows-alt text-white"></i></a>
+                                    </div>
+                                    <canvas id="videoCanvas5" class="img-fluid"></canvas>
+                                    <div id="recordIndicator5" class="record-indicator d-none">● REC</div>
                                 </div>
                             </div>
                             <div class="col-sm-6">
                                 <div class="canvas-wrapper" style="position: relative;">
-                                    <canvas id="videoCanvas6" class="img-fluid"
-                                        onclick="expandCanvasFullscreen('videoCanvas6')"></canvas>
-                                    <div id="recordIndicator6" class="record-indicator">● REC</div>
+                                    <div id="cameraBWC3" class="camera-name">UNIT-03 BWC</div>
+                                    <div class="camera-expand">
+                                        <a href="#" onclick="toggleRecording('videoCanvas6');return false;"><i
+                                                class="fas fa-video text-white mr-2"></i></a>
+                                        <a href="#" onclick="expandCanvasFullscreen('videoCanvas6');return false;"><i
+                                                class="fas fa-expand-arrows-alt text-white"></i></a>
+                                    </div>
+                                    <canvas id="videoCanvas6" class="img-fluid"></canvas>
+                                    <div id="recordIndicator6" class="record-indicator d-none">● REC</div>
                                 </div>
                             </div>
-
-                            <!-- <div class="col-sm-6">
-                                <img class="img-fluid mb-3" src="../../dist/img/patwal2.png" alt="Photo">
-                            </div>
-                            <div class="col-sm-6">
-                                <img class="img-fluid mb-3" src="../../dist/img/patwal3.png" alt="Photo">
-                            </div>
-                            <div class="col-sm-6">
-                                <img class="img-fluid mb-3" src="../../dist/img/patwal4.png" alt="Photo">
-                            </div> -->
                         </div>
                         <input type="hidden" id="chat_id" value="<%= row.chat_id %>" />
                         <input type="hidden" id="chat_name" value="<%= row.activity_name %>" />
@@ -139,9 +142,6 @@
                                 </div>
                             </div> -->
                         </div>
-
-
-
                     </div>
                     <!-- /.card-body -->
                     <div class="card-footer">
@@ -169,6 +169,6 @@
                 </div>
             </div>
         </div>
-
+    </div>
 </section>
 <!-- /.content -->

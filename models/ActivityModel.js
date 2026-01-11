@@ -25,6 +25,13 @@ exports.getHeaderByActivityId = async (id) => {
     return rows[0];
 };
 
+exports.getDetailsCamera = async (id) => {
+    const q = `SELECT da.id, da.activity_id, da.unit_id, u.mtcam_id , 'ws://192.167.0.2:9998' as ws_mtcam, u.bwcam_id, 'ws://192.167.0.2:9999' as ws_bwcam  FROM dt_activity da 
+    left join unit u on da.unit_id = u.unit_id  WHERE da.activity_id = $1`;
+    const { rows } = await pool.query(q, [id]);
+    return rows;
+};
+
 exports.createHeader = async (data) => {
 
     const conv = await pool.query(
