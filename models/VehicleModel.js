@@ -13,6 +13,11 @@ class VehicleModel {
     return result.rows[0];
   }
 
+   static async findByCode(id) {
+        const result = await db.query("SELECT * FROM vehicle WHERE vehicle_id=$1", [id]);
+        return result.rows[0];
+    }
+
   static async create(data) {
     const q = `
       INSERT INTO vehicle (

@@ -3,7 +3,7 @@ const db = require('../config/db');
 class UnitModel {
   static async getAll() {
     const res = await db.query(
-      "SELECT * FROM unit WHERE deleted_at IS NULL ORDER BY id DESC"
+      "SELECT * FROM unit WHERE deleted_at IS NULL ORDER BY id ASC"
     );
     return res.rows;
   }

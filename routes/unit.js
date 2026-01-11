@@ -3,6 +3,7 @@ const router = express.Router();
 const UnitController = require("../controllers/UnitController");
 
 router.get("/", UnitController.index);
+router.get("/details/:id", UnitController.details);
 
 router.get("/create", UnitController.createForm);
 router.post("/create", UnitController.create);

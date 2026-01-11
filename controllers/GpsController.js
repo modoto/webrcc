@@ -18,8 +18,10 @@ class BwcamController {
             const rowSP = result[0];
             const startingPosition = [rowSP.latitute, rowSP.longitude];
             const markers = result.map(row => ({
+                    id: row.id,
                     coords: [row.latitute, row.longitude],
-                    popup: `📍 ${row.device_id}`
+                    popup: `📍 ${row.device_id}`,
+                    is_online: true,
                 }));
 
             res.json({ code: 200, status: true, message: 'Success', starting_position : startingPosition, data: markers });
@@ -39,7 +41,8 @@ class BwcamController {
                     coords: [row.latitute, row.longitude],
                     unit_id: row.unit_id,
                     driver: row.driver,
-                    popup: `📍 ${row.driver}`
+                    popup: `📍 ${row.driver}`,
+                    is_online: true,
                 }));
 
             res.json({ code: 200, status: true, message: 'Success', starting_position : startingPosition, data: markers });
@@ -49,10 +52,19 @@ class BwcamController {
         }
     }
 
-    static async device(req, res) {
+    static async getDevice(req, res) {
         try {
-            const rows = await GpsModel.getByDeviceId(req.params.id);
-            res.json({ code: 200, status: true, message: 'success', data: rows });
+            const result = await GpsModel.getByDeviceId(req.params.id);
+            const rowSP = result[0];
+            const startingPosition = [rowSP.latitute, rowSP.longitude];
+            const markers = result.map(row => ({
+                    id: row.id,
+                    coords: [row.latitute, row.longitude],
+                    popup: `📍 ${row.device_id}`,
+                    is_online: true,
+                }));
+
+            res.json({ code: 200, status: true, message: 'Success', starting_position : startingPosition, data: markers });
         } catch (error) {
             console.error(error);
             res.json({ code: 500, status: false, message: error });

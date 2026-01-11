@@ -9,6 +9,11 @@ class MtcamModel {
         return db.query('SELECT * FROM mtcam WHERE id = $1', [id]);
     }
 
+    static async findByCode(id) {
+        const result = await db.query("SELECT * FROM mtcam WHERE mtcam_id=$1", [id]);
+        return result.rows[0];
+    }
+
     static async getReady() {
         const result = await db.query(
             "SELECT id, mtcam_id, device_name FROM mtcam WHERE deleted_at IS NULL ORDER BY id DESC"

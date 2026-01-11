@@ -13,6 +13,11 @@ class TabletModel {
     return result.rows[0];
   }
 
+   static async findByCode(id) {
+        const result = await db.query("SELECT * FROM tablet WHERE tab_id=$1", [id]);
+        return result.rows[0];
+    }
+
   static async getReady() {
     const result = await db.query(
       "SELECT id,tab_id, device_name FROM tablet WHERE deleted_at IS NULL ORDER BY id DESC"
