@@ -1,6 +1,8 @@
 require('dotenv').config(); // Loads variables from .env file into process.env
 const Activity = require('../models/ActivityModel');
 const Unit = require('../models/UnitModel');
+const Bwcam = require("../models/BwcamModel");
+const Mtcam = require('../models/MtcamModel');
 const { getUserIdSession, getUserSession, getTokenSession } = require('../helpers/sessionHelper');
 
 // LIST HEADER
@@ -30,6 +32,17 @@ exports.details = async (req, res) => {
     });
 };
 
+exports.getCamera = async (req, res) => {
+    try {
+        const row = await Activity.getHeaderByActivityId(req.params.id);
+        const details = await Activity.getDetailsCamera(row.activity_id);
+
+        res.json({ code: 200, status: true, message: 'Success', data: details });
+    } catch (error) {
+        console.error(error);
+        res.json({ code: 500, status: false, message: error });
+    }
+}
 
 // CREATE HEADER FORM
 exports.createForm = (req, res) => {

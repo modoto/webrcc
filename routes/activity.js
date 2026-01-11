@@ -21,6 +21,8 @@ router.get("/delete/:id", ActivityController.delete);
 router.post("/detail/add", ActivityController.addDetail);
 router.get("/detail/delete/:id", ActivityController.deleteDetail);
 
+router.get("/getCamera/:id", ActivityController.getCamera);
+
 // router.get("/detail/delete/:id", async (req, res) => {
 //     const id = req.params.id;
 //     const activityId = req.query.activity_id;  // <-- aman
