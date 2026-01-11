@@ -11,63 +11,125 @@
 <script>
   const token = document.getElementById("token").value;
   console.log('token:', token);
-  getLocation();
+
+  let deviceid;
+  let type;
+
+  let map = null;
+  let markersLayer = {};
+
+  async function setOption(newId, newType) {
+
+    // sebelum render, bersihkan marker lama sesuai type
+    Object.values(markersLayer).forEach(marker => map.removeLayer(marker));
+    markersLayer = {};   // reset storage
+
+    console.log('setOption');
+    console.log('deviceid:', newId);
+    console.log('type:', newType);
+    deviceid = newId;
+    type = newType;
+  }
 
   async function getLocation() {
-    const id = document.getElementById("id").value;
-    const type = document.getElementById("type").value;
+    try {
+      //console.log('deviceid:', deviceid);
+      //console.log('type:', type);
+      let result;
+      if (type == "all") {
+        console.log('getLocation');
+        const res = await fetch(`/gps/getMaps`, {
+          headers: { Authorization: "Bearer " + token }
+        });
+        result = await res.json();
+      } else if (type == "individu") {
+        console.log('getLocation');
+        const res = await fetch(`/gps/getDevice/` + deviceid, {
+          headers: { Authorization: "Bearer " + token }
+        });
+        result = await res.json();
+      } else if (type == "groups") {
+        console.log('getLocation');
+        const res = await fetch(`/gps/getMapGroups/` + deviceid, {
+          headers: { Authorization: "Bearer " + token }
+        });
+        result = await res.json();
+      }
 
-    let data;
-    if (type == "all") {
-      console.log('getLocation');
-      const res = await fetch(`/gps/getMaps`, {
-        headers: { Authorization: "Bearer " + token }
+      const starting_position = result.starting_position;
+      const data = result.data;
+      //console.log('Data:', data);
+
+      // =============================
+      // 1️⃣ INIT MAP (HANYA SEKALI)
+      // =============================
+      if (!map) {
+        const key = 'xETUuAVe5RphO86wCqU2';
+
+        map = L.map('map').setView(starting_position, 14);
+
+        L.tileLayer(
+          `https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=${key}`,
+          {
+            tileSize: 512,
+            zoomOffset: -1,
+            minZoom: 1,
+            attribution:
+              '&copy; MapTiler &copy; OpenStreetMap contributors',
+            crossOrigin: true
+          }
+        ).addTo(map);
+      }
+      // =============================
+      // 2️⃣ ICON (BISA GLOBAL JUGA)
+      // =============================
+      const carIcon = L.icon({
+        iconUrl: '/images/Top POV.png',
+        iconSize: [45, 66],
+        iconAnchor: [22.5, 60],
+        popupAnchor: [0, -62]
       });
-      data = await res.json();
-    } else if (type == "individu") {
-      console.log('getLocation');
-      const res = await fetch(`/gps/getMaps`, {
-        headers: { Authorization: "Bearer " + token }
+
+      // =============================
+      // 3️⃣ UPDATE / CREATE MARKER
+      // =============================
+
+      // bersihkan marker lama kalau type individu
+      //if (type === "individu") {
+      // Object.values(markersLayer).forEach(marker => map.removeLayer(marker));
+      // markersLayer = {};
+      //}
+
+      data.forEach(item => {
+        const id = item.id;
+        const coords = item.coords;
+        const popup = item.popup;
+
+        if (markersLayer[id]) {
+          markersLayer[id].setLatLng(coords);
+        } else {
+          markersLayer[id] = L.marker(coords, { icon: carIcon })
+            .addTo(map)
+            .bindPopup(popup)
+            .openPopup();
+        }
       });
-      data = await res.json();
-    } else if (type == "groups") {
-      console.log('getLocation');
-      const res = await fetch(`/gps/getMapGroups/`+ id, {
-        headers: { Authorization: "Bearer " + token }
-      });
-      data = await res.json();
+    } catch (err) {
+      console.error("getLocation error:", err);
     }
-
-    console.log('getLocation:', data);
-
-    const starting_position = data.starting_position;
-    const key = 'xETUuAVe5RphO86wCqU2';
-    const map = L.map('map').setView(starting_position, 14); // starting position
-
-    const carIcon = L.icon({
-      iconUrl: '/images/Top POV.png',
-      iconSize: [45, 66],
-      iconAnchor: [22.5, 60],
-      popupAnchor: [0, -62]
-    });
-
-    L.tileLayer(`https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=${key}`, {
-      tileSize: 512,
-      zoomOffset: -1,
-      minZoom: 1,
-      attribution: '<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>',
-      crossOrigin: true
-    }).addTo(map);
-
-    // 🧭 Tambahkan 3 marker
-    const markers = data.data;
-
-    markers.forEach(marker => {
-      L.marker(marker.coords, { icon: carIcon }).addTo(map)
-        .bindPopup(marker.popup)
-        .openPopup(); // opsional: buka popup langsung
-    });
-
   }
+
+  let timer1 = null;
+  async function getLocationTimer() {
+    if (timer1) return; // cegah dobel timer
+    timer1 = setInterval(async () => {
+      await getLocation();
+    }, 2000);
+  }
+
+  $(document).ready(async function () {
+    await setOption("0", "all");      // initial call
+    await getLocationTimer(); // start timer
+  });
 
 </script>

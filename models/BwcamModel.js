@@ -13,6 +13,11 @@ class BwcamModel {
     return result.rows[0];
   }
 
+  static async findByCode(id) {
+    const result = await db.query("SELECT * FROM bwcam WHERE bwcam_id=$1", [id]);
+    return result.rows[0];
+  }
+
   static async create(data) {
     const query = `
       INSERT INTO bwcam (

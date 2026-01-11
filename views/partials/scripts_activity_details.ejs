@@ -80,7 +80,8 @@
           // 🟢 CREATE marker pertama kali
           markersLayer[id] = L.marker(coords, { icon: carIcon })
             .addTo(map)
-            .bindPopup(popup);
+            .bindPopup(popup)
+            .openPopup();
         }
       });
 
@@ -113,13 +114,23 @@
       div.innerHTML = `
             <img src="${u.avatar ?? '/images/Top POV.png'}" class="user-avatar">
             <div class="user-info">
-                <div class="user-name">${u.unit_id}</div>
+                <div class="user-name">${u.unit_id}<span class="status-dot ${u.is_online ? 'online' : 'offline'}"></span></div>
                 <div class="user-id">${u.driver}</div>
             </div>
+            <button class="btn-open"
+                onclick="openUserMap('${u.id}')"
+                title="Open detail">
+                OPEN
+            </button>
         `;
       overlay.appendChild(div);
     });
 
+  }
+
+  function openUserMap(userId) {
+    const url = `/gps/map?unit_id=${encodeURIComponent(userId)}`;
+    window.open(url, '_blank');
   }
 
   function toggleChat() {
@@ -307,7 +318,7 @@
     document.getElementById("msg").value = "";
   };
 
-  
+
 
 
   // =============================
@@ -382,6 +393,8 @@
 
     container.insertAdjacentHTML("beforeend", html);
     container.scrollTop = container.scrollHeight;
+    const element = document.getElementById('card-body-chat');
+    element.scrollTop = element.scrollHeight;
   }
 
 
@@ -747,6 +760,8 @@
   const canvas2 = document.getElementById('videoCanvas2');
   const canvas3 = document.getElementById('videoCanvas3');
   const canvas4 = document.getElementById('videoCanvas4');
+  const canvas5 = document.getElementById('videoCanvas5');
+  const canvas6 = document.getElementById('videoCanvas6');
 
   //resizeCanvasToFitCard('videoCanvas1', 1280, 720);
   //resizeCanvasToFitCard('videoCanvas2', 1280, 720);
@@ -762,6 +777,8 @@
   const player2 = new JSMpeg.Player(url2, { canvas: canvas2 });
   const player3 = new JSMpeg.Player(url2, { canvas: canvas3 });
   const player4 = new JSMpeg.Player(url2, { canvas: canvas4 });
+  const player5 = new JSMpeg.Player(url2, { canvas: canvas5 });
+  const player6 = new JSMpeg.Player(url2, { canvas: canvas6 });
 
 
 

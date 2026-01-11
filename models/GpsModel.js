@@ -11,7 +11,7 @@ class GpsModel {
 
     static async getMaps() {
         const result = await db.query(
-            "SELECT device_id, latitute, longitude FROM gps"
+            "SELECT id, device_id, latitute, longitude FROM gps"
         );
         return result.rows;
     }
@@ -26,8 +26,8 @@ class GpsModel {
 
 
     static async getByDeviceId(id) {
-        const result = await db.query("SELECT device_id, latlon, latitute, longitude, to_char(created_at AT TIME ZONE 'Asia/Jakarta', 'YYYY-MM-DD HH24:MI:SS') as created_at FROM gps WHERE device_id=$1", [id]);
-        return result.rows[0];
+        const result = await db.query("SELECT id, device_id, latlon, latitute, longitude, to_char(created_at AT TIME ZONE 'Asia/Jakarta', 'YYYY-MM-DD HH24:MI:SS') as created_at FROM gps WHERE device_id=$1", [id]);
+        return result.rows;
     }
 
     static async create(data) {

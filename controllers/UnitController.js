@@ -11,6 +11,16 @@ class UnitController {
     res.render("unit/index", { title: "Unit List", rows });
   }
 
+  static async details(req, res) {
+    const unit = await Unit.getById(req.params.id);
+    const vehicle = await Vehicle.findByCode(unit.vehicle_id);
+    const bwcam = await Bwcam.findByCode(unit.bwcam_id);
+    const mtcam = await Mtcam.findByCode(unit.mtcam_id);
+    const tablet = await Tablet.findByCode(unit.tab_id);
+    const router = await Router.findByCode(unit.router_id);
+    res.render("unit/Details", { title: "Details Unit", unit, vehicle, bwcam, mtcam, tablet, router });
+  }
+
   static async createForm(req, res) {
     const vehicle = await Vehicle.getAll();
     const bwcams = await Bwcam.getAll();

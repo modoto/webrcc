@@ -28,7 +28,7 @@
       .card,
       .card-body,
       #map {
-        height: 75vh;
+        height: 82vh;
         /* atau 100% jika dalam layout tertentu */
         width: 100%;
       }
@@ -85,6 +85,41 @@
       .user-id {
         font-size: 12px;
         color: #666;
+      }
+
+      /* STATUS DOT */
+      .status-dot {
+        display: inline-block;
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        margin-left: 6px;
+      }
+
+      .status-dot.online {
+        background: #2ecc71;
+        box-shadow: 0 0 6px #2ecc71;
+      }
+
+      .status-dot.offline {
+        background: #e74c3c;
+        box-shadow: 0 0 6px #e74c3c;
+      }
+
+      /* OPEN BUTTON */
+      .btn-open {
+        margin-left: auto;
+        background: #3498db;
+        color: #fff;
+        border: none;
+        padding: 4px 10px;
+        font-size: 12px;
+        border-radius: 6px;
+        cursor: pointer;
+      }
+
+      .btn-open:hover {
+        background: #1f78c1;
       }
     </style>
     <style>

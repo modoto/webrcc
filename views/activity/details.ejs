@@ -23,7 +23,7 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-md-3 mb-2">
-                <div class="card h-100" style="background-color: #18261C;">
+                <div class="card" style="background-color: #18261C;">
                     <div class="card-header">
                         <h5 class="text-white">#<%= row.activity_id %> - <%= row.activity_name %>
                         </h5>
@@ -41,26 +41,45 @@
                                         title="Expand">
                                         <i class="fas fa-expand-arrows-alt"></i>
                                     </button> -->
-                                    <canvas id="videoCanvas1" class="img-fluid" onclick="expandCanvasFullscreen('videoCanvas1')"></canvas>
+                                    <canvas id="videoCanvas1" class="img-fluid"
+                                        onclick="expandCanvasFullscreen('videoCanvas1')"></canvas>
                                     <div id="recordIndicator1" class="record-indicator">● REC</div>
                                 </div>
                             </div>
                             <div class="col-sm-6">
                                 <div class="canvas-wrapper" style="position: relative;">
-                                    <canvas id="videoCanvas2" class="img-fluid" onclick="expandCanvasFullscreen('videoCanvas2')"></canvas>
+                                    <canvas id="videoCanvas2" class="img-fluid"
+                                        onclick="expandCanvasFullscreen('videoCanvas2')"></canvas>
                                     <div id="recordIndicator2" class="record-indicator">● REC</div>
                                 </div>
                             </div>
                             <div class="col-sm-6">
                                 <div class="canvas-wrapper" style="position: relative;">
-                                    <canvas id="videoCanvas3" class="img-fluid" onclick="expandCanvasFullscreen('videoCanvas3')"></canvas>
+                                    <canvas id="videoCanvas3" class="img-fluid"
+                                        onclick="expandCanvasFullscreen('videoCanvas3')"></canvas>
                                     <div id="recordIndicator3" class="record-indicator">● REC</div>
                                 </div>
                             </div>
                             <div class="col-sm-6">
                                 <div class="canvas-wrapper" style="position: relative;">
-                                    <canvas id="videoCanvas4" class="img-fluid" onclick="expandCanvasFullscreen('videoCanvas4')"></canvas>
+                                    <canvas id="videoCanvas4" class="img-fluid"
+                                        onclick="expandCanvasFullscreen('videoCanvas4')"></canvas>
                                     <div id="recordIndicator4" class="record-indicator">● REC</div>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-6">
+                                <div class="canvas-wrapper" style="position: relative;">
+                                    <canvas id="videoCanvas5" class="img-fluid"
+                                        onclick="expandCanvasFullscreen('videoCanvas5')"></canvas>
+                                    <div id="recordIndicator5" class="record-indicator">● REC</div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="canvas-wrapper" style="position: relative;">
+                                    <canvas id="videoCanvas6" class="img-fluid"
+                                        onclick="expandCanvasFullscreen('videoCanvas6')"></canvas>
+                                    <div id="recordIndicator6" class="record-indicator">● REC</div>
                                 </div>
                             </div>
 
@@ -78,10 +97,15 @@
                         <input type="hidden" id="chat_name" value="<%= row.activity_name %>" />
 
                     </div>
+                    <!-- <div class="card-footer">
+                        <button class="btn btn-primary btn-block mt-4"
+                            onclick="setOption('0', 'all');return false;">VIEW ALL</button>
+                    </div> -->
+                    <!-- /.card-footer-->
                 </div>
             </div>
             <div class="col-md-7  mb-2">
-                <div class="card h-100" style="background-color: #18261C;">
+                <div class="card" style="background-color: #18261C;">
                     <div class="card-body" style="padding: 0;">
                         <input type="hidden" id="id" value="<%= id %>" />
                         <input type="hidden" id="type" value="<%= type %>" />
@@ -120,18 +144,18 @@
 
                     </div>
                     <!-- /.card-body -->
-                    <!-- <div class="card-footer">
+                    <div class="card-footer">
 
-                    </div> -->
+                    </div>
                     <!-- /.card-footer-->
                 </div>
             </div>
             <div class="col-md-2  mb-2">
-                <div class="card h-100" style="background-color: #18261C;">
+                <div class="card" style="background-color: #18261C;">
                     <div class="card-header">
                         <h5 class="text-white">Live Chat</h5>
                     </div>
-                    <div class="card-body scrollable-card-body">
+                    <div class="card-body scrollable-card-body" id="card-body-chat">
                         <div class="wa-chat-body" id="chat-container">
                             <!-- Pesan WhatsApp-style akan append di sini -->
                         </div>

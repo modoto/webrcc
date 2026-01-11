@@ -6,7 +6,7 @@ const { authMiddleware } = require("../helpers/sessionHelper");
 router.get("/", authMiddleware, GpsController.index);
 router.get("/getMaps", GpsController.getMaps);
 router.get("/getMapGroups/:id", GpsController.getMapGroups);
-router.get("/device/:id", authMiddleware, GpsController.device);
+router.get("/getDevice/:id", GpsController.getDevice);
 
 router.post("/create", authMiddleware, GpsController.create);
 
