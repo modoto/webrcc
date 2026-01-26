@@ -2,7 +2,7 @@ const db = require('../config/db');
 
 class MtcamModel {
     static async getAll() {
-        return db.query('SELECT * FROM mtcam WHERE deleted_at IS NULL ORDER BY id DESC');
+        return db.query('SELECT * FROM mtcam WHERE deleted_at IS NULL ORDER BY id ASC');
     }
 
     static async getById(id) {
@@ -16,7 +16,7 @@ class MtcamModel {
 
     static async getReady() {
         const result = await db.query(
-            "SELECT id, mtcam_id, device_name FROM mtcam WHERE deleted_at IS NULL ORDER BY id DESC"
+            "SELECT id, mtcam_id, device_name FROM mtcam WHERE deleted_at IS NULL ORDER BY id ASC"
         );
         return result.rows;
     }
@@ -47,7 +47,7 @@ class MtcamModel {
             data.rtsp_port,
             data.rtsp_username,
             data.rtsp_password,
-            data.rtsp_url, data.ffmpeg_options, data.max_retries, data.retry_delay, data.watchdog_timeout, data.watchdog_check_interval,
+            data.stream_url, data.ffmpeg_options, data.max_retries, data.retry_delay, data.watchdog_timeout, data.watchdog_check_interval,
             data.status,
             data.user_id
         ];
@@ -81,7 +81,7 @@ class MtcamModel {
             data.rtsp_port,
             data.rtsp_username,
             data.rtsp_password,
-            data.rtsp_url, JSON.stringify(data.ffmpeg_options), data.max_retries, data.retry_delay, data.watchdog_timeout, data.watchdog_check_interval,
+            data.stream_url, JSON.stringify(data.ffmpeg_options), data.max_retries, data.retry_delay, data.watchdog_timeout, data.watchdog_check_interval,
             data.status,
             data.user_id,
             id

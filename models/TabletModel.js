@@ -3,7 +3,7 @@ const db = require("../config/db");
 class TabletModel {
   static async getAll() {
     const result = await db.query(
-      "SELECT * FROM tablet WHERE deleted_at IS NULL ORDER BY id DESC"
+      "SELECT * FROM tablet WHERE deleted_at IS NULL ORDER BY id ASC"
     );
     return result.rows;
   }
@@ -20,7 +20,7 @@ class TabletModel {
 
   static async getReady() {
     const result = await db.query(
-      "SELECT id,tab_id, device_name FROM tablet WHERE deleted_at IS NULL ORDER BY id DESC"
+      "SELECT id,tab_id, device_name FROM tablet WHERE deleted_at IS NULL ORDER BY id ASC"
     );
     return result.rows;
   }

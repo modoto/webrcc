@@ -11,7 +11,7 @@ class GpsModel {
 
     static async getMaps() {
         const result = await db.query(
-            "SELECT id, device_id, latitute, longitude FROM gps"
+            "SELECT id, device_id, latitute, longitude FROM gps ORDER BY id ASC"
         );
         return result.rows;
     }

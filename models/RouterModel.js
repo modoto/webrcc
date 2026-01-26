@@ -2,7 +2,7 @@ const db = require("../config/db");
 
 class RouterModel {
   static async getAll() {
-    const q = "SELECT * FROM router WHERE deleted_at IS NULL ORDER BY id DESC";
+    const q = "SELECT * FROM router WHERE deleted_at IS NULL ORDER BY id ASC";
     const result = await db.query(q);
     return result.rows;
   }
@@ -19,7 +19,7 @@ class RouterModel {
     }
 
   static async getReady() {
-    const q = "SELECT id, router_id, device_name FROM router WHERE deleted_at IS NULL ORDER BY id DESC";
+    const q = "SELECT id, router_id, device_name FROM router WHERE deleted_at IS NULL ORDER BY id ASC";
     const result = await db.query(q);
     return result.rows;
   }

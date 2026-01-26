@@ -41,6 +41,8 @@
                             <th>Device</th>
                             <th>Model</th>
                             <th>IP Address</th>
+                            <th>Stream Url</th>
+                            <th>RSTP Url</th>
                             <th>Status</th>
                             <th>Action</th>
                         </tr>
@@ -63,6 +65,12 @@
                                 </td>
                                 <td>
                                     <%= row.ip_address %>
+                                </td>
+                                <td>
+                                    <%= row.stream_url %>
+                                </td>
+                                <td>
+                                    <%= row.rtsp_url %>
                                 </td>
                                 <td>
                                     <% if(row.status==1){ %>

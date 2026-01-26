@@ -2,7 +2,7 @@ const db = require("../config/db");
 
 class VehicleModel {
   static async getAll() {
-    const q = "SELECT * FROM vehicle WHERE deleted_at IS NULL ORDER BY id DESC";
+    const q = "SELECT * FROM vehicle WHERE deleted_at IS NULL ORDER BY id ASC";
     const result = await db.query(q);
     return result.rows;
   }
