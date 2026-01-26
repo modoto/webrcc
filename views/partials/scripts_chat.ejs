@@ -9,6 +9,7 @@
 <!-- AdminLTE for demo purposes -->
 
 <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+<script type="module" src="/js/call.js"></script>
 
 <script>
   // =============================
@@ -16,8 +17,18 @@
   // =============================
   console.log("========START=========");
 
+  let device;
+  let producer;
+  let transport;
+  let localStream;
+  let isMuted = false;
+
+
   let activeConversationId = null;
   let activeUserId = null;
+  let activeChatName = "";
+  let activeChatAvatar = "";
+
   let isLoadingMessages = false;
 
   const token = document.getElementById("token").value;
@@ -68,6 +79,8 @@
     const status = item.dataset.status;
     const isGroup = item.dataset.isgroup === "true";
     activeUserId = targetUserId;
+    activeChatName = name;
+    activeChatAvatar = avatar;
 
     //console.log('conversationId :', conversationId);
     //console.log('targetUserId :', targetUserId);
@@ -85,12 +98,12 @@
     } else {
       // 🟢 PRIVATE
       // CARI / BUAT CONVERSATION
-        const conversationIdd = await getOrCreateConversation(targetUserId);
-        activeConversationId = conversationIdd;
-        conversationId = conversationIdd;
+      const conversationIdd = await getOrCreateConversation(targetUserId);
+      activeConversationId = conversationIdd;
+      conversationId = conversationIdd;
     }
 
-   
+
 
     //console.log('conversationId:', conversationId);
 
@@ -523,4 +536,23 @@
     if (diff < 86400) return Math.floor(diff / 3600) + "h ago";
     return Math.floor(diff / 86400) + "d ago";
   }
+</script>
+
+<script>
+
+  document.getElementById("btnCall").addEventListener("click", () => {
+    if (!activeConversationId) return alert("Pilih chat dulu");
+
+    startCall(
+      activeConversationId,activeUserId
+    );
+    showOutgoingCallModal();
+  });
+
+  function showOutgoingCallModal() {
+    document.getElementById("callModal").classList.add("show");
+    document.getElementById("callStatus").innerText = "Calling...";
+  }
+
+
 </script>

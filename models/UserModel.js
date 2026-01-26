@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 
 class UserModel {
   static async getAll() {
-    const q = "SELECT * FROM users ORDER BY id DESC";
+    const q = "SELECT * FROM users ORDER BY id ASC";
     const result = await db.query(q);
     return result.rows;
   }

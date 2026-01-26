@@ -38,7 +38,9 @@
             <th>ID</th>
             <th>BWCam ID</th>
             <th>Device Name</th>
-            <th>IP</th>
+            <th>IP Address</th>
+            <th>Stream Url</th>
+            <th>RSTP Url</th>
             <th>Status</th>
             <th width="120">Action</th>
           </tr>
@@ -57,6 +59,12 @@
               </td>
               <td>
                 <%= row.ip_address %>
+              </td>
+              <td>
+                <%= row.stream_url %>
+              </td>
+              <td>
+                <%= row.rtsp_url %>
               </td>
               <td>
                 <% if(row.status==1){ %>

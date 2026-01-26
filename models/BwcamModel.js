@@ -3,7 +3,7 @@ const db = require("../config/db");
 class BwcamModel {
   static async getAll() {
     const result = await db.query(
-      "SELECT * FROM bwcam WHERE deleted_at IS NULL ORDER BY id DESC"
+      "SELECT * FROM bwcam WHERE deleted_at IS NULL ORDER BY id ASC"
     );
     return result.rows;
   }
@@ -35,7 +35,7 @@ class BwcamModel {
       data.serial_number, data.ip_address, data.mac_address, data.power,
       data.username, data.password,
       data.rtsp_url, data.rtsp_port, data.rtsp_username, data.rtsp_password,
-      data.rtsp_url, data.ffmpeg_options, data.max_retries, data.retry_delay, data.watchdog_timeout, data.watchdog_check_interval,
+      data.stream_url, data.ffmpeg_options, data.max_retries, data.retry_delay, data.watchdog_timeout, data.watchdog_check_interval,
       data.status, data.user_id
     ]);
   }
@@ -57,7 +57,7 @@ class BwcamModel {
       data.serial_number, data.ip_address, data.mac_address, data.power,
       data.username, data.password,
       data.rtsp_url, data.rtsp_port, data.rtsp_username, data.rtsp_password,
-      data.rtsp_url, JSON.stringify(data.ffmpeg_options), data.max_retries, data.retry_delay, data.watchdog_timeout, data.watchdog_check_interval,
+      data.stream_url, JSON.stringify(data.ffmpeg_options), data.max_retries, data.retry_delay, data.watchdog_timeout, data.watchdog_check_interval,
       data.status,
       data.user_id,
       id

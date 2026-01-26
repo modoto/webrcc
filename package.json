@@ -24,9 +24,10 @@
     "express-session": "^1.18.2",
     "jsonwebtoken": "^9.0.2",
     "luxon": "^3.7.2",
+    "mediasoup": "^3.19.14",
     "multer": "^2.0.2",
     "pg": "^8.16.3",
     "prisma": "^7.0.1",
-    "socket.io": "^4.8.1"
+    "socket.io": "^4.8.3"
   }
 }

@@ -14,7 +14,6 @@
       <div class="card-body">
         <form method="POST" action="/bwcam/create">
           <div class="row">
-
             <!-- LEFT SIDE -->
             <div class="col-md-6">
               <div class="form-group">
@@ -42,15 +41,7 @@
                 <input type="text" name="serial_number" class="form-control" value="12410185790077">
               </div>
 
-              <div class="form-group">
-                <label>IP Address</label>
-                <input type="text" name="ip_address" class="form-control">
-              </div>
-
-              <div class="form-group">
-                <label>MAC Address</label>
-                <input type="text" name="mac_address" class="form-control">
-              </div>
+              
 
             </div>
 
@@ -62,7 +53,6 @@
                 <label>Power</label>
                 <input type="text" name="power" class="form-control" value="DC 5V">
               </div>
-
               <div class="form-group">
                 <label>Username</label>
                 <input type="text" name="username" class="form-control" value="admin">
@@ -74,53 +64,76 @@
               </div>
 
               <div class="form-group">
-                <label>RTSP URL</label>
-                <input type="text" name="rtsp_url" class="form-control" value="rtsp://192.167.0.4:1554/live/1">
-              </div>
-
-              <div class="form-group">
-                <label>RTSP Port</label>
-                <input type="number" name="rtsp_port" class="form-control" value="1554">
-              </div>
-
-              <div class="form-group">
-                <label>RTSP Username</label>
-                <input type="text" name="rtsp_username" class="form-control">
-              </div>
-
-              <div class="form-group">
-                <label>RTSP Password</label>
-                <input type="text" name="rtsp_password" class="form-control">
-              </div>
-
-              <div class="form-group">
-                <label>FFMPEG Options</label>
-                <textarea rows="15" class="form-control" name="ffmpeg_options"></textarea> 
-              </div>
-              <div class="form-group">
-                <label>Max Retries</label>
-                <input type="number" class="form-control" name="max_retries">
-              </div>
-              <div class="form-group">
-                <label>Retry delay</label>
-                <input type="number" class="form-control" name="retry_delay">
-              </div>
-              <div class="form-group">
-                <label>Watchdog Timeout</label>
-                <input type="number" class="form-control" name="watchdog_timeout">
-              </div>
-              <div class="form-group">
-                <label>Watchdog Check Interval</label>
-                <input type="number" class="form-control" name="watchdog_check_interval">
-              </div>
-
-
-              <div class="form-group">
                 <label>Status</label>
                 <select name="status" class="form-control">
                   <option value="1">Active</option>
                   <option value="0">Inactive</option>
                 </select>
+              </div>
+
+              <input type="hidden" name="user_id" value="USR001">
+            </div>
+          </div>
+
+
+          <hr>
+
+          <div class="row">
+            <!-- LEFT SIDE -->
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>IP Address</label>
+                <input type="text" name="ip_address" class="form-control" placeholder="192.168.x.x">
+              </div>
+
+              <div class="form-group">
+                <label>MAC Address</label>
+                <input type="text" name="mac_address" class="form-control" placeholder="3D:34:35:FG:76">
+              </div>
+
+              <div class="form-group">
+                <label>Server Stream URL</label>
+                <input type="text" name="stream_url" class="form-control" value="ws://192.168.10.201:9990">
+              </div>
+              <div class="form-group">
+                <label>RTSP URL</label>
+                <input type="text" name="rtsp_url" class="form-control" placeholder="rtsp://192.167.0.4:1554/live/1">
+              </div>
+              <div class="form-group">
+                <label>RTSP Port</label>
+                <input type="number" name="rtsp_port" class="form-control" value="1554">
+              </div>
+              <div class="form-group">
+                <label>RTSP Username</label>
+                <input type="text" name="rtsp_username" class="form-control">
+              </div>
+              <div class="form-group">
+                <label>RTSP Password</label>
+                <input type="text" name="rtsp_password" class="form-control">
+              </div>
+            </div>
+
+            <!-- RIGHT -->
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>FFMPEG Options</label>
+                <textarea rows="8" class="form-control" name="ffmpeg_options"></textarea> 
+              </div>
+              <div class="form-group">
+                <label>Max Retries</label>
+                <input type="number" class="form-control" name="max_retries" placeholder="10">
+              </div>
+              <div class="form-group">
+                <label>Retry delay</label>
+                <input type="number" class="form-control" name="retry_delay" placeholder="5000">
+              </div>
+              <div class="form-group">
+                <label>Watchdog Timeout</label>
+                <input type="number" class="form-control" name="watchdog_timeout" placeholder="10000">
+              </div>
+              <div class="form-group">
+                <label>Watchdog Check Interval</label>
+                <input type="number" class="form-control" name="watchdog_check_interval" placeholder="3000">
               </div>
 
               <input type="hidden" name="user_id" value="USR001">

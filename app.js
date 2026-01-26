@@ -12,6 +12,8 @@ const { Server } = require("socket.io");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
 const pool = require('./config/db');
+const { initMediasoup, getRouter } = require("./mediasoupServer");
+const { getOrCreateRoom } = require("./rooms");
 
 // ====================================================
 //  EXPRESS INITIALIZATION
@@ -70,6 +72,8 @@ const onlineUsers = new Map(); // userId → Set(socketId)
 // ====================================================
 //  SOCKET.IO EVENTS
 // ====================================================
+const transports = new Map(); // socket.id -> transport
+
 io.on("connection", (socket) => {
   const userId = socket.userId;
   //console.log("Connected:", socket.id, " user:", userId);
@@ -158,6 +162,145 @@ io.on("connection", (socket) => {
       }
     }
   });
+
+  // ====================================================
+  //  MEDIASOUP
+  // ====================================================
+
+  socket.on("join_call", async ({ roomId }) => {
+    const room = getOrCreateRoom(roomId, getRouter());
+
+    socket.data.roomId = roomId; // 🔥 PENTING
+    socket.data.peerId = socket.id;
+
+    room.peers.set(socket.id, {
+      socket,
+      transports: new Map(),
+      producers: new Map(),
+      consumers: new Map()
+    });
+
+    socket.emit("router_rtp_capabilities", room.router.rtpCapabilities);
+  });
+
+  socket.on("end_call", () => {
+    const roomId = socket.data.roomId;
+    if (!roomId) return;
+
+    const room = getOrCreateRoom(roomId, getRouter());
+    const peer = room.peers.get(socket.id);
+
+    if (peer) {
+      peer.producers.forEach(p => p.close());
+      peer.transports.forEach(t => t.close());
+      room.peers.delete(socket.id);
+    }
+
+    socket.leave(`call_${roomId}`);
+    socket.to(`call_${roomId}`).emit("call_ended", { peerId: socket.id });
+
+    socket.data.roomId = null;
+  });
+
+
+
+  socket.on("create_transport", async ({ roomId }, cb) => {
+    const room = getOrCreateRoom(roomId, getRouter());
+    const peer = room.peers.get(socket.id);
+
+    if (!peer) {
+      return cb({ error: "Peer not found" });
+    }
+
+    const transport = await room.router.createWebRtcTransport({
+      listenIps: [{ ip: "0.0.0.0", announcedIp: null }],
+      enableUdp: true,
+      enableTcp: true,
+      preferUdp: true
+    });
+
+    peer.transports.set(transport.id, transport);
+
+    cb({
+      id: transport.id,
+      iceParameters: transport.iceParameters,
+      iceCandidates: transport.iceCandidates,
+      dtlsParameters: transport.dtlsParameters
+    });
+  });
+
+
+  socket.on("connect_transport", async ({ transportId, dtlsParameters }) => {
+    const roomId = socket.data.roomId;
+    const room = getOrCreateRoom(roomId, getRouter());
+    const peer = room.peers.get(socket.id);
+
+    const transport = peer?.transports.get(transportId);
+    if (!transport) return;
+
+    await transport.connect({ dtlsParameters });
+  });
+
+
+  socket.on("produce", async ({ transportId, kind, rtpParameters }, cb) => {
+    const roomId = socket.data.roomId;
+    const room = getOrCreateRoom(roomId, getRouter());
+    const peer = room.peers.get(socket.id);
+
+    const transport = peer.transports.get(transportId);
+    const producer = await transport.produce({ kind, rtpParameters });
+
+    peer.producers.set(producer.id, producer);
+
+    socket.to(`call_${roomId}`).emit("new_producer", {
+      producerId: producer.id,
+      peerId: socket.id
+    });
+
+    cb({ id: producer.id });
+  });
+
+
+  socket.on("disconnect", () => {
+    const roomId = socket.data.roomId;
+    if (!roomId) return;
+
+    const room = getOrCreateRoom(roomId, getRouter());
+    room.peers.delete(socket.id);
+
+    socket.to(`call_${roomId}`).emit("peer_left", { peerId: socket.id });
+  });
+
+
+  // =======================
+  // CALL SIGNALING
+  // =======================
+
+  // caller -> server
+  socket.on("call_user", ({ roomId, targetUserId }) => {
+    console.log("📞 call_user", roomId, targetUserId);
+
+    // kirim ke user target
+    io.to([...onlineUsers.get(targetUserId) || []])
+      .emit("incoming_call", {
+        roomId,
+        fromUserId: socket.userId
+      });
+  });
+
+  // target accept
+  socket.on("accept_call", ({ roomId }) => {
+    socket.join(`call_${roomId}`);
+    socket.to(`call_${roomId}`).emit("call_accepted", { roomId });
+  });
+
+  // target reject
+  socket.on("reject_call", ({ roomId, fromUserId }) => {
+    io.to([...onlineUsers.get(fromUserId) || []])
+      .emit("call_rejected", { roomId });
+  });
+
+
 });
 
 
@@ -214,7 +357,15 @@ app.use((req, res, next) => {
 // ====================================================
 //  SERVER RUN
 // ====================================================
-const port = 3001;
-server.listen(port, () => {
-  console.log("Server running at http://localhost:" + port);
-});
+// const port = 3001;
+// initMediasoup();
+// server.listen(port, () => {
+//   console.log("Server running at http://localhost:" + port);
+// });
+
+(async () => {
+  await initMediasoup();
+  server.listen(3001, () =>
+    console.log("🚀 Server running at http://localhost:3001")
+  );
+})();
