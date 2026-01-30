@@ -2,11 +2,13 @@
 //  IMPORT MODULE
 // ====================================================
 const express = require("express");
+const fs = require('node:fs');
 const bodyParser = require("body-parser");
 const session = require("express-session");
 const path = require("path");
 const expressLayouts = require("express-ejs-layouts");
-const http = require("http");
+//const http = require("http");
+const https = require('node:https');
 require('dotenv').config(); // Loads variables from .env file into process.env
 const { Server } = require("socket.io");
 const cors = require("cors");
@@ -38,7 +40,15 @@ app.use(session({
 // ====================================================
 //  SOCKET.IO SETUP
 // ====================================================
-const server = http.createServer(app);
+const options = {
+  key: fs.readFileSync('key.pem'),
+  cert: fs.readFileSync('cert.pem'),
+};
+
+//const server = http.createServer(app);
+const server = https.createServer(options, app);
+
+
 const io = new Server(server, { cors: { origin: "*" } });
 
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -163,15 +173,45 @@ io.on("connection", (socket) => {
     }
   });
 
-  // ====================================================
-  //  MEDIASOUP
-  // ====================================================
+
+  // =======================
+  // CALL SIGNALING
+  // =======================
+
+  socket.on("call_user", ({ roomId, targetUserId }) => {
+    const roomName = `call_${roomId}`;
+    socket.join(roomName);
+
+    io.to([...onlineUsers.get(targetUserId) || []]).emit("incoming_call", {
+      roomId,
+      fromUserId: socket.userId,
+      toUserId: targetUserId
+    });
+  });
+
+  socket.on("accept_call", ({ roomId }) => {
+    const roomName = `call_${roomId}`;
+    socket.join(roomName);
+
+    io.to(roomName).emit("call_accepted", {
+      roomId,
+      acceptedBy: socket.userId
+    });
+  });
+
+  socket.on("reject_call", ({ roomId, fromUserId }) => {
+    io.to([...onlineUsers.get(fromUserId) || []]).emit("call_rejected", { roomId });
+  });
+
+
+  // =======================
+  // MEDIASOUP
+  // =======================
 
   socket.on("join_call", async ({ roomId }) => {
-    const room = getOrCreateRoom(roomId, getRouter());
+    socket.join(`call_${roomId}`);
 
-    socket.data.roomId = roomId; // 🔥 PENTING
-    socket.data.peerId = socket.id;
+    const room = getOrCreateRoom(roomId, getRouter());
 
     room.peers.set(socket.id, {
       socket,
@@ -180,44 +220,26 @@ io.on("connection", (socket) => {
       consumers: new Map()
     });
 
+    socket.data.roomId = roomId;
+
     socket.emit("router_rtp_capabilities", room.router.rtpCapabilities);
   });
 
-  socket.on("end_call", () => {
-    const roomId = socket.data.roomId;
-    if (!roomId) return;
-
-    const room = getOrCreateRoom(roomId, getRouter());
-    const peer = room.peers.get(socket.id);
-
-    if (peer) {
-      peer.producers.forEach(p => p.close());
-      peer.transports.forEach(t => t.close());
-      room.peers.delete(socket.id);
-    }
-
-    socket.leave(`call_${roomId}`);
-    socket.to(`call_${roomId}`).emit("call_ended", { peerId: socket.id });
-
-    socket.data.roomId = null;
-  });
-
-
-
-  socket.on("create_transport", async ({ roomId }, cb) => {
-    const room = getOrCreateRoom(roomId, getRouter());
-    const peer = room.peers.get(socket.id);
-
-    if (!peer) {
-      return cb({ error: "Peer not found" });
-    }
-
-    const transport = await room.router.createWebRtcTransport({
+  async function createWebRtcTransport(router) {
+    return await router.createWebRtcTransport({
       listenIps: [{ ip: "0.0.0.0", announcedIp: null }],
       enableUdp: true,
       enableTcp: true,
       preferUdp: true
     });
+  }
+
+  socket.on("create_send_transport", async ({ roomId }, cb) => {
+    const room = getOrCreateRoom(roomId, getRouter());
+    const peer = room.peers.get(socket.id);
+
+    const transport = await createWebRtcTransport(room.router);
+    transport.appData = { direction: "send" };
 
     peer.transports.set(transport.id, transport);
 
@@ -229,22 +251,33 @@ io.on("connection", (socket) => {
     });
   });
 
-
-  socket.on("connect_transport", async ({ transportId, dtlsParameters }) => {
-    const roomId = socket.data.roomId;
+  socket.on("create_recv_transport", async ({ roomId }, cb) => {
     const room = getOrCreateRoom(roomId, getRouter());
     const peer = room.peers.get(socket.id);
 
-    const transport = peer?.transports.get(transportId);
-    if (!transport) return;
+    const transport = await createWebRtcTransport(room.router);
+    transport.appData = { direction: "recv" };
 
+    peer.transports.set(transport.id, transport);
+
+    cb({
+      id: transport.id,
+      iceParameters: transport.iceParameters,
+      iceCandidates: transport.iceCandidates,
+      dtlsParameters: transport.dtlsParameters
+    });
+  });
+
+  socket.on("connect_transport", async ({ transportId, dtlsParameters }) => {
+    const room = getOrCreateRoom(socket.data.roomId, getRouter());
+    const peer = room.peers.get(socket.id);
+
+    const transport = peer.transports.get(transportId);
     await transport.connect({ dtlsParameters });
   });
 
-
   socket.on("produce", async ({ transportId, kind, rtpParameters }, cb) => {
-    const roomId = socket.data.roomId;
-    const room = getOrCreateRoom(roomId, getRouter());
+    const room = getOrCreateRoom(socket.data.roomId, getRouter());
     const peer = room.peers.get(socket.id);
 
     const transport = peer.transports.get(transportId);
@@ -252,16 +285,50 @@ io.on("connection", (socket) => {
 
     peer.producers.set(producer.id, producer);
 
-    socket.to(`call_${roomId}`).emit("new_producer", {
-      producerId: producer.id,
-      peerId: socket.id
+    socket.to(`call_${socket.data.roomId}`).emit("new_producer", {
+      producerId: producer.id
     });
 
     cb({ id: producer.id });
   });
 
+  socket.on("consume", async ({ roomId, producerId, rtpCapabilities }, cb) => {
+    const room = getOrCreateRoom(roomId, getRouter());
+    const peer = room.peers.get(socket.id);
+
+    if (!room.router.canConsume({ producerId, rtpCapabilities })) {
+      return cb({ error: "cannot consume" });
+    }
+
+    const transport = [...peer.transports.values()]
+      .find(t => t.appData.direction === "recv");
+
+    const consumer = await transport.consume({
+      producerId,
+      rtpCapabilities,
+      paused: false
+    });
+
+    peer.consumers.set(consumer.id, consumer);
+
+    cb({
+      id: consumer.id,
+      producerId,
+      kind: consumer.kind,
+      rtpParameters: consumer.rtpParameters
+    });
+  });
+
+  socket.on("end_call", () => {
+    const room = getOrCreateRoom(socket.data.roomId, getRouter());
+    room.peers.delete(socket.id);
+
+    //socket.to(`call_${socket.data.roomId}`).emit("call_ended");
+    socket.to(`call_${socket.data.roomId}`).emit("call_ended", { peerId: socket.id });
+  });
 
   socket.on("disconnect", () => {
+    console.log('disconnect');
     const roomId = socket.data.roomId;
     if (!roomId) return;
 
@@ -272,34 +339,23 @@ io.on("connection", (socket) => {
   });
 
 
-  // =======================
-  // CALL SIGNALING
-  // =======================
+  // async function createWebRtcTransport(router) {
+  //   return await router.createWebRtcTransport({
+  //     listenIps: [{ ip: "0.0.0.0", announcedIp: null }],
+  //     enableUdp: true,
+  //     enableTcp: true,
+  //     preferUdp: true
+  //   });
+  // }
 
-  // caller -> server
-  socket.on("call_user", ({ roomId, targetUserId }) => {
-    console.log("📞 call_user", roomId, targetUserId);
-
-    // kirim ke user target
-    io.to([...onlineUsers.get(targetUserId) || []])
-      .emit("incoming_call", {
-        roomId,
-        fromUserId: socket.userId
-      });
-  });
-
-  // target accept
-  socket.on("accept_call", ({ roomId }) => {
-    socket.join(`call_${roomId}`);
-    socket.to(`call_${roomId}`).emit("call_accepted", { roomId });
-  });
-
-  // target reject
-  socket.on("reject_call", ({ roomId, fromUserId }) => {
-    io.to([...onlineUsers.get(fromUserId) || []])
-      .emit("call_rejected", { roomId });
-  });
-
+  // function getTransportParams(t) {
+  //   return {
+  //     id: t.id,
+  //     iceParameters: t.iceParameters,
+  //     iceCandidates: t.iceCandidates,
+  //     dtlsParameters: t.dtlsParameters
+  //   };
+  // }
 
 });
 
@@ -339,14 +395,6 @@ app.use("/messages", require("./routes/messages"));
 app.use("/gps", require("./routes/gps"));
 app.use("/mobile", require("./routes/mobile"));
 
-// DASHBOARD PAGE
-// app.get("/dashboard", (req, res) => {
-//   res.render("dashboard/dashboard1", {
-//     title: "RCC Dashboard",
-//     layout: "layouts/layout_camera"
-//   });
-// });
-
 app.use((req, res, next) => {
   res.locals.baseUrl = process.env.BASE_URL || `${req.protocol}://${req.get("host")}`;
   next();
@@ -357,15 +405,10 @@ app.use((req, res, next) => {
 // ====================================================
 //  SERVER RUN
 // ====================================================
-// const port = 3001;
-// initMediasoup();
-// server.listen(port, () => {
-//   console.log("Server running at http://localhost:" + port);
-// });
 
 (async () => {
   await initMediasoup();
   server.listen(3001, () =>
-    console.log("🚀 Server running at http://localhost:3001")
+    console.log("🚀 Server running at https://localhost:3001")
   );
 })();
