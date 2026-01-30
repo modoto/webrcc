@@ -544,7 +544,7 @@
     if (!activeConversationId) return alert("Pilih chat dulu");
 
     startCall(
-      activeConversationId,activeUserId
+      activeConversationId, activeUserId
     );
     showOutgoingCallModal();
   });
@@ -553,6 +553,15 @@
     document.getElementById("callModal").classList.add("show");
     document.getElementById("callStatus").innerText = "Calling...";
   }
+
+  function updateCallStatus(text){
+    document.getElementById("callStatus").innerText = text;
+  }
+
+  document.getElementById("btnEndCall").addEventListener("click", () => {
+    console.log('End Call');
+    endCall();
+  });
 
 
 </script>
