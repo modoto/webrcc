@@ -507,6 +507,25 @@
       .microphone-muted {
         color: gray;
       }
+
+      .participants-list {
+        margin-top: 10px;
+      }
+
+      .participant {
+        display: flex;
+        justify-content: space-between;
+        padding: 6px 10px;
+        border-bottom: 1px solid #eee;
+      }
+
+      .participant .mic.active {
+        color: green;
+      }
+
+      .participant .mic.muted {
+        color: gray;
+      }
     </style>
 
 </head>
@@ -532,10 +551,11 @@
         <img id="callAvatar" class="call-avatar">
         <h3 id="callName">Calling...</h3>
         <p id="callStatus">Connecting...</p>
+        <div id="participants" class="participants-list"></div>
       </div>
 
       <div class="call-controls">
-        <button id="btnMute" class="call-btn">
+        <button id="btnMute" onclick="toggleMute()" class="call-btn">
           <i class="fas fa-microphone"></i>
         </button>
 
