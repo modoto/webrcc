@@ -292,7 +292,7 @@ io.on("connection", (socket) => {
     socket.to(`call_${socket.data.roomId}`).emit("call_ended", { peerId: socket.id });
 
     //untuk groups
-    socket.to(`call_${roomId}`).emit("peer_left", {
+    socket.to(`call_${socket.data.roomId}`).emit("peer_left", {
       peerId: socket.id
     });
   });
@@ -406,7 +406,7 @@ io.on("connection", (socket) => {
     return await router.createWebRtcTransport({
       listenIps: [{
         ip: "0.0.0.0",
-        announcedIp: SERVER_ADDRESS // IP server kamu
+        announcedIp: "192.167.61.17" // IP server kamu
       }],
       initialAvailableOutgoingBitrate: 1000000,
       enableUdp: true,
