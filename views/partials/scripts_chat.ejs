@@ -547,18 +547,18 @@
   document.getElementById("btnCall").addEventListener("click", () => {
     if (!activeConversationId) return alert("Pilih chat dulu");
 
-    if (isGroup) {
+    //if (isGroup) {
       // Panggilan Group
-      const participantIds = [5,6,7,8,9,10];
-      startGroupCall(
-        activeConversationId, participantIds
-      );
-    } else {
+      //const participantIds = [5,6,7,8,9,10];
+      //startGroupCall(
+        //activeConversationId, participantIds
+      //);
+    //} else {
       // Panggilan Private
       startCall(
         activeConversationId, activeUserId
       );
-    }
+    //}
 
     showOutgoingCallModal();
   });
