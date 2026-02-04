@@ -90,6 +90,7 @@ const io = new Server(server, { cors: { origin: "*" } });
 
 const JWT_SECRET = process.env.JWT_SECRET;
 const SOCKET_URL = process.env.SOCKET_URL;
+const SERVER_ADDRESS = process.env.SERVER_ADDRESS;
 console.log('SOCKET_URL:', SOCKET_URL);
 
 // ===================== SOCKET AUTH ===================
@@ -405,7 +406,7 @@ io.on("connection", (socket) => {
     return await router.createWebRtcTransport({
       listenIps: [{
         ip: "0.0.0.0",
-        announcedIp: "192.168.100.5" // IP server kamu
+        announcedIp: SERVER_ADDRESS // IP server kamu
       }],
       initialAvailableOutgoingBitrate: 1000000,
       enableUdp: true,
