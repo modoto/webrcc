@@ -3,7 +3,7 @@
 const express = require("express");
 const router = express.Router();
 const ConversationsController = require("../controllers/ConversationsController");
-const { authMiddleware } = require("../helpers/sessionHelper");
+const { requireLogin, authMiddleware } = require("../helpers/sessionHelper");
 
 router.get("/", ConversationsController.myConversations);
 router.get("/getUserConversations", authMiddleware, ConversationsController.getUserConversations);

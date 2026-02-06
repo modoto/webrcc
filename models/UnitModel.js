@@ -13,6 +13,15 @@ class UnitModel {
     return res.rows[0];
   }
 
+  static async getNotInActivity(activity_id) {
+
+    const res = await db.query(
+      "SELECT * FROM unit WHERE unit_id NOT IN(SELECT unit_id FROM dt_activity WHERE activity_id=$1) AND deleted_at IS NULL ORDER BY id ASC",
+      [activity_id]
+    );
+    return res.rows;
+  }
+
   static async create(data) {
     const query = `
       INSERT INTO unit (

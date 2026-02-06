@@ -19,6 +19,7 @@
 
   let map = null;
   let markersLayer = {};
+  let cameras ;
 
   async function getLocation() {
     try {
@@ -764,7 +765,7 @@
       });
       let result = await res.json();
       const starting_position = result.starting_position;
-      const cameras = result.data;
+     cameras = result.data;
 
       console.log('cameras:', cameras);
 
@@ -833,32 +834,34 @@
 
   // ini untuk manual
 
-  const canvas1 = document.getElementById('videoCanvas1');
-  const canvas2 = document.getElementById('videoCanvas2');
-  const canvas3 = document.getElementById('videoCanvas3');
-  const canvas4 = document.getElementById('videoCanvas4');
-  const canvas5 = document.getElementById('videoCanvas5');
-  const canvas6 = document.getElementById('videoCanvas6');
+  //const canvas1 = document.getElementById('videoCanvas1');
+  //const canvas2 = document.getElementById('videoCanvas2');
+  //const canvas3 = document.getElementById('videoCanvas3');
+  //const canvas4 = document.getElementById('videoCanvas4');
+  //const canvas5 = document.getElementById('videoCanvas5');
+  //const canvas6 = document.getElementById('videoCanvas6');
 
   //resizeCanvasToFitCard('videoCanvas1', 1280, 720);
   //resizeCanvasToFitCard('videoCanvas2', 1280, 720);
   //resizeCanvasToFitCard('videoCanvas3', 1280, 720);
 
-  //const url1 = 'ws://192.167.0.2:9999';
+  //const url1 = 'ws://192.168.10.247:9965';
   //const player1 = new JSMpeg.Player(url1, { canvas: canvas1 });
 
-  const url1 = 'wss://192.167.0.2:9999';
-  const player1 = new JSMpeg.Player(url1, { canvas: canvas1 });
+  //const url1 = 'wss://192.167.0.2:9999';
+  //const player1 = new JSMpeg.Player(url1, { canvas: canvas1 });
 
-  const url2 = 'wss://192.167.0.2:9998';
-  const player2 = new JSMpeg.Player(url2, { canvas: canvas2 });
-  const player3 = new JSMpeg.Player(url2, { canvas: canvas3 });
-  const player4 = new JSMpeg.Player(url2, { canvas: canvas4 });
-  const player5 = new JSMpeg.Player(url2, { canvas: canvas5 });
-  const player6 = new JSMpeg.Player(url2, { canvas: canvas6 });
+  //const url2 = 'wss://192.167.0.2:9998';
+  //const player2 = new JSMpeg.Player(url2, { canvas: canvas2 });
+  //const player3 = new JSMpeg.Player(url2, { canvas: canvas3 });
+  //const player4 = new JSMpeg.Player(url2, { canvas: canvas4 });
+  //const player5 = new JSMpeg.Player(url2, { canvas: canvas5 });
+  //const player6 = new JSMpeg.Player(url2, { canvas: canvas6 });
 
   // for test esp32
   // const url1 = 'ws://192.168.100.5:9999';
   // const player1 = new JSMpeg.Player(url1, { canvas: canvas1 });
+
+  //loadCCTV();
 
 </script>

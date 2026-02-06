@@ -1,13 +1,15 @@
 const Users = require("../models/UserModel");
-const { getUserIdSession, getUserSession, getTokenSession } = require('../helpers/sessionHelper');
+const { getUserIdSession, getUserSession, getTokenSession, getRolesSession } = require('../helpers/sessionHelper');
 
 
 class CctvController {
   static async index(req, res) {
-    
+
     const user_id = getUserIdSession(req);
-    const user = getUserSession(req);
+    const username = getUserSession(req);
     const token = getTokenSession(req);
+    const roles = getRolesSession(req);
+
     const rows = await Users.getByNotMe(user_id);
     console.log(user_id);
     //console.log(rows);
@@ -15,8 +17,9 @@ class CctvController {
       title: "Chat List",
       layout: "layouts/layout_camera",
       user_id: user_id,
-      username: user,
+      username: username,
       token: token,
+      roles: roles,
       rows: rows
     });
   }

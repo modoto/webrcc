@@ -1,15 +1,16 @@
 const express = require("express");
 const router = express.Router();
 const BwcamController = require("../controllers/BwcamController");
+const { requireLogin } = require("../helpers/sessionHelper");
 
-router.get("/", BwcamController.index);
+router.get("/", requireLogin, BwcamController.index);
 
-router.get("/create", BwcamController.createForm);
-router.post("/create", BwcamController.create);
+router.get("/create", requireLogin, BwcamController.createForm);
+router.post("/create", requireLogin, BwcamController.create);
 
-router.get("/edit/:id", BwcamController.editForm);
-router.post("/edit/:id", BwcamController.update);
+router.get("/edit/:id", requireLogin, BwcamController.editForm);
+router.post("/edit/:id", requireLogin, BwcamController.update);
 
-router.get("/delete/:id", BwcamController.delete);
+router.get("/delete/:id", requireLogin, BwcamController.delete);
 
 module.exports = router;

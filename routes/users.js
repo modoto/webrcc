@@ -1,17 +1,18 @@
 const express = require("express");
 const router = express.Router();
 const UsersController = require("../controllers/UsersController");
+const { requireLogin } = require("../helpers/sessionHelper");
 
-router.get("/", UsersController.index);
-router.get("/list", UsersController.list);
-router.get("/getall", UsersController.getall);
+router.get("/", requireLogin, UsersController.index);
+router.get("/list", requireLogin, UsersController.list);
+router.get("/getall", requireLogin, UsersController.getall);
 
-router.get("/create", UsersController.createForm);
-router.post("/create", UsersController.create);
+router.get("/create", requireLogin, UsersController.createForm);
+router.post("/create", requireLogin, UsersController.create);
 
-router.get("/edit/:id", UsersController.editForm);
-router.post("/edit/:id", UsersController.update);
+router.get("/edit/:id", requireLogin, UsersController.editForm);
+router.post("/edit/:id", requireLogin, UsersController.update);
 
-router.get("/delete/:id", UsersController.delete);
+router.get("/delete/:id", requireLogin, UsersController.delete);
 
 module.exports = router;

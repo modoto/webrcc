@@ -16,10 +16,16 @@ const jwt = require("jsonwebtoken");
 const pool = require('./config/db');
 const { initMediasoup, getRouter } = require("./mediasoupServer");
 const { getOrCreateRoom } = require("./rooms");
+const { requireLogin, requireRole, requireRoles } = require('./helpers/sessionHelper');
 
 // ====================================================
 //  EXPRESS INITIALIZATION
 // ====================================================
+
+const IP_ADDRESS = process.env.SERVER_ADDRESS;
+const JWT_SECRET = process.env.JWT_SECRET;
+const SOCKET_URL = process.env.SOCKET_URL;
+
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -32,7 +38,8 @@ app.use(bodyParser.urlencoded({ extended: true })); // parsing form data
 app.use(session({
   secret: "rahasia",
   resave: false,
-  saveUninitialized: true
+  saveUninitialized: true,
+  cookie: { maxAge: 1000 * 60 * 30 }
 }));
 
 // ====================================================
@@ -84,13 +91,8 @@ const options = {
 
 //const server = http.createServer(app);
 const server = https.createServer(options, app);
-
-
 const io = new Server(server, { cors: { origin: "*" } });
 
-const JWT_SECRET = process.env.JWT_SECRET;
-const SOCKET_URL = process.env.SOCKET_URL;
-const SERVER_ADDRESS = process.env.SERVER_ADDRESS;
 console.log('SOCKET_URL:', SOCKET_URL);
 
 // ===================== SOCKET AUTH ===================
@@ -406,7 +408,7 @@ io.on("connection", (socket) => {
     return await router.createWebRtcTransport({
       listenIps: [{
         ip: "0.0.0.0",
-        announcedIp: "192.167.61.17" // IP server kamu
+        announcedIp: IP_ADDRESS // IP server kamu
       }],
       initialAvailableOutgoingBitrate: 1000000,
       enableUdp: true,

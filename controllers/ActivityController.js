@@ -3,30 +3,45 @@ const Activity = require('../models/ActivityModel');
 const Unit = require('../models/UnitModel');
 const Bwcam = require("../models/BwcamModel");
 const Mtcam = require('../models/MtcamModel');
-const { getUserIdSession, getUserSession, getTokenSession } = require('../helpers/sessionHelper');
+const { getUserIdSession, getUserSession, getTokenSession, getRolesSession } = require('../helpers/sessionHelper');
 
 // LIST HEADER
 exports.index = async (req, res) => {
+    const user_id = getUserIdSession(req);
+    const username = getUserSession(req);
+    const token = getTokenSession(req);
+    const roles = getRolesSession(req);
+
     const rows = await Activity.getAllHeader();
-    res.render("activity/index", { title: "Activity List", rows });
+    res.render("activity/index", {
+        title: "Activity List",
+        user_id: user_id,
+        username: username,
+        token: token,
+        roles: roles,
+        rows
+    });
 };
 
 exports.details = async (req, res) => {
-    const SOCKET_URL = process.env.SOCKET_URL;
+    const user_id = getUserIdSession(req);
+    const username = getUserSession(req);
+    const token = getTokenSession(req);
+    const roles = getRolesSession(req);
 
+    const SOCKET_URL = process.env.SOCKET_URL;
     const row = await Activity.getHeaderByActivityId(req.params.id);
     const id = req.params.id
-    const user_id = getUserIdSession(req);
-    const user = getUserSession(req);
-    const token = getTokenSession(req);
+
     res.render("activity/details", {
-        title: "Maps",
+        title: "Activity Details",
         layout: "layouts/layout_maps_details",
         id: id,
         type: "groups",
         user_id: user_id,
-        username: user,
+        username: username,
         token: token,
+        roles: roles,
         socket_url: SOCKET_URL,
         row: row
     });
@@ -46,7 +61,18 @@ exports.getCamera = async (req, res) => {
 
 // CREATE HEADER FORM
 exports.createForm = (req, res) => {
-    res.render("activity/create", { title: "Add Activity" });
+    const user_id = getUserIdSession(req);
+    const username = getUserSession(req);
+    const token = getTokenSession(req);
+    const roles = getRolesSession(req);
+
+    res.render("activity/create", {
+        title: "Add Activity",
+        user_id: user_id,
+        username: username,
+        token: token,
+        roles: roles
+    });
 };
 
 // CREATE HEADER POST
@@ -57,17 +83,30 @@ exports.create = async (req, res) => {
 
 // EDIT HEADER
 exports.editForm = async (req, res) => {
+    const user_id = getUserIdSession(req);
+    const username = getUserSession(req);
+    const token = getTokenSession(req);
+    const roles = getRolesSession(req);
+
     const row = await Activity.getHeaderById(req.params.id);
     const details = await Activity.getDetailByActivity(row.activity_id);
-    const units = await Unit.getAll();
-    res.render("activity/edit", { title: "Edit Activity", row, details, units });
+    const units = await Unit.getNotInActivity(row.activity_id);
+    res.render("activity/edit", { 
+        title: "Edit Activity", 
+        user_id: user_id,
+        username: username,
+        token: token,
+        roles: roles,
+        details, 
+        units,
+        row, 
+    });
 };
 
 // UPDATE HEADER
 exports.update = async (req, res) => {
     await Activity.updateHeader(req.params.id, req.body);
     res.redirect("/activity");
-
 };
 
 // DELETE HEADER
@@ -81,8 +120,9 @@ exports.delete = async (req, res) => {
 ///////////////////////////////////////////////////////
 
 exports.addDetail = async (req, res) => {
+
     await Activity.addDetail(req.body);
-    res.redirect("/activity/edit/" + req.body.header_id);
+    res.redirect("/activity/edit/" + req.body.header_id, );
 };
 
 exports.deleteDetail = async (req, res) => {

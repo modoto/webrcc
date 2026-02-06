@@ -1,27 +1,28 @@
 const express = require("express");
 const router = express.Router();
 const ActivityController = require("../controllers/ActivityController");
+const { requireLogin } = require("../helpers/sessionHelper");
 
 // HEADER
-router.get("/", ActivityController.index);
-router.get("/details/:id", ActivityController.details);
+router.get("/", requireLogin, ActivityController.index);
+router.get("/details/:id", requireLogin, ActivityController.details);
 
-router.get("/operations", ActivityController.index); // mobile
+router.get("/operations", requireLogin, ActivityController.index); // mobile
 router.get("/detailoperations/:id", ActivityController.details); // mobile
 
-router.get("/create", ActivityController.createForm);
-router.post("/create", ActivityController.create);
+router.get("/create", requireLogin, ActivityController.createForm);
+router.post("/create", requireLogin, ActivityController.create);
 
-router.get("/edit/:id", ActivityController.editForm);
-router.post("/edit/:id", ActivityController.update);
+router.get("/edit/:id", requireLogin, ActivityController.editForm);
+router.post("/edit/:id", requireLogin, ActivityController.update);
 
-router.get("/delete/:id", ActivityController.delete);
+router.get("/delete/:id", requireLogin, ActivityController.delete);
 
 // DETAIL
-router.post("/detail/add", ActivityController.addDetail);
-router.get("/detail/delete/:id", ActivityController.deleteDetail);
+router.post("/detail/add", requireLogin, ActivityController.addDetail);
+router.get("/detail/delete/:id", requireLogin, ActivityController.deleteDetail);
 
-router.get("/getCamera/:id", ActivityController.getCamera);
+router.get("/getCamera/:id", requireLogin, ActivityController.getCamera);
 
 // router.get("/detail/delete/:id", async (req, res) => {
 //     const id = req.params.id;

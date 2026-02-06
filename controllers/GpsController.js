@@ -1,8 +1,14 @@
 const GpsModel = require("../models/GpsModel");
 const { authMiddleware } = require("../helpers/sessionHelper");
+const { getUserIdSession, getUserSession, getTokenSession, getRolesSession } = require('../helpers/sessionHelper');
 
 class BwcamController {
     static async index(req, res) {
+        const user_id = getUserIdSession(req);
+        const user = getUserSession(req);
+        const token = getTokenSession(req);
+        const roles = getRolesSession(req);
+
         try {
             const rows = await GpsModel.getAll();
             res.json({ code: 200, status: true, message: 'Success', data: rows });
@@ -13,18 +19,23 @@ class BwcamController {
     }
 
     static async getMaps(req, res) {
+        const user_id = getUserIdSession(req);
+        const user = getUserSession(req);
+        const token = getTokenSession(req);
+        const roles = getRolesSession(req);
+
         try {
             const result = await GpsModel.getMaps();
             const rowSP = result[0];
             const startingPosition = [rowSP.latitute, rowSP.longitude];
             const markers = result.map(row => ({
-                    id: row.id,
-                    coords: [row.latitute, row.longitude],
-                    popup: `📍 ${row.device_id}`,
-                    is_online: true,
-                }));
+                id: row.id,
+                coords: [row.latitute, row.longitude],
+                popup: `📍 ${row.device_id}`,
+                is_online: true,
+            }));
 
-            res.json({ code: 200, status: true, message: 'Success', starting_position : startingPosition, data: markers });
+            res.json({ code: 200, status: true, message: 'Success', starting_position: startingPosition, data: markers });
         } catch (error) {
             console.error(error);
             res.json({ code: 500, status: false, message: error });
@@ -32,20 +43,25 @@ class BwcamController {
     }
 
     static async getMapGroups(req, res) {
+        const user_id = getUserIdSession(req);
+        const user = getUserSession(req);
+        const token = getTokenSession(req);
+        const roles = getRolesSession(req);
+
         try {
             const result = await GpsModel.getMapGroups(req.params.id);
             const rowSP = result[0];
             const startingPosition = [rowSP.latitute, rowSP.longitude];
             const markers = result.map(row => ({
-                    id: row.id,
-                    coords: [row.latitute, row.longitude],
-                    unit_id: row.unit_id,
-                    driver: row.driver,
-                    popup: `📍 ${row.driver}`,
-                    is_online: true,
-                }));
+                id: row.id,
+                coords: [row.latitute, row.longitude],
+                unit_id: row.unit_id,
+                driver: row.driver,
+                popup: `📍 ${row.driver}`,
+                is_online: true,
+            }));
 
-            res.json({ code: 200, status: true, message: 'Success', starting_position : startingPosition, data: markers });
+            res.json({ code: 200, status: true, message: 'Success', starting_position: startingPosition, data: markers });
         } catch (error) {
             console.error(error);
             res.json({ code: 500, status: false, message: error });
@@ -53,18 +69,23 @@ class BwcamController {
     }
 
     static async getDevice(req, res) {
+        const user_id = getUserIdSession(req);
+        const user = getUserSession(req);
+        const token = getTokenSession(req);
+        const roles = getRolesSession(req);
+
         try {
             const result = await GpsModel.getByDeviceId(req.params.id);
             const rowSP = result[0];
             const startingPosition = [rowSP.latitute, rowSP.longitude];
             const markers = result.map(row => ({
-                    id: row.id,
-                    coords: [row.latitute, row.longitude],
-                    popup: `📍 ${row.device_id}`,
-                    is_online: true,
-                }));
+                id: row.id,
+                coords: [row.latitute, row.longitude],
+                popup: `📍 ${row.device_id}`,
+                is_online: true,
+            }));
 
-            res.json({ code: 200, status: true, message: 'Success', starting_position : startingPosition, data: markers });
+            res.json({ code: 200, status: true, message: 'Success', starting_position: startingPosition, data: markers });
         } catch (error) {
             console.error(error);
             res.json({ code: 500, status: false, message: error });
@@ -72,6 +93,11 @@ class BwcamController {
     }
 
     static async create(req, res) {
+        const user_id = getUserIdSession(req);
+        const user = getUserSession(req);
+        const token = getTokenSession(req);
+        const roles = getRolesSession(req);
+
         const { device_id, latlon } = req.body;
         try {
             nonExistentFunction();

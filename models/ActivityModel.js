@@ -14,7 +14,7 @@ exports.getAllHeader = async () => {
 };
 
 exports.getHeaderById = async (id) => {
-    const q = `SELECT * FROM hd_activity WHERE id = $1`;
+    const q = `SELECT hda.*, cv.name as group_name FROM hd_activity hda INNER JOIN conversations cv ON CAST(hda.chat_id AS INTEGER)= cv.id WHERE hda.id = $1`;
     const { rows } = await pool.query(q, [id]);
     return rows[0];
 };
@@ -38,7 +38,7 @@ exports.getDetailsCamera = async (id) => {
 };
 
 exports.createHeader = async (data) => {
-
+    const activity_id = await generateRunningNumber();
     const conv = await pool.query(
         `INSERT INTO conversations (name, avatar, is_group)
                     VALUES ($1, $2, true)
@@ -50,7 +50,7 @@ exports.createHeader = async (data) => {
     await pool.query(
         `INSERT INTO conversation_users (conversation_id, user_id, role)
                     VALUES ($1, $2, $3)`,
-        [conversationId, '1','admin']
+        [conversationId, '1', 'admin']
     );
 
     const q = `
@@ -58,7 +58,7 @@ exports.createHeader = async (data) => {
         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
     `;
     await pool.query(q, [
-        data.activity_id,
+        activity_id,
         data.activity_name,
         data.description,
         data.start_date,
@@ -86,10 +86,13 @@ exports.updateHeader = async (id, data) => {
         data.end_date,
         data.room_id,
         data.chat_id,
-        data.status,
+        parseInt(data.status),
         data.user_id,
         id
     ]);
+
+    const q2 = `UPDATE conversations SET name=$1 WHERE id=$2`;
+    await pool.query(q2, [data.group_name,data.chat_id]);
 };
 
 exports.deleteHeader = async (id) => {
@@ -125,10 +128,10 @@ exports.addDetail = async (data) => {
     const { rows } = await pool.query(q2, [data.unit_id]);
     const user_id = rows[0].id;
 
-     await pool.query(
+    await pool.query(
         `INSERT INTO conversation_users (conversation_id, user_id, role)
                     VALUES ($1, $2, $3)`,
-        [data.chat_id, user_id,'member']
+        [data.chat_id, user_id, 'member']
     );
 };
 
@@ -136,3 +139,40 @@ exports.deleteDetail = async (id) => {
     const q = `UPDATE dt_activity SET deleted_at = NOW() WHERE id = $1`;
     await pool.query(q, [id]);
 };
+
+async function generateRunningNumber() {
+    let lastIdFromDb = "";
+    // 1. Dapatkan tanggal hari ini (Format: YYMMDD)
+    const now = new Date();
+    const year = now.getFullYear().toString().slice(-2);
+    const month = (now.getMonth() + 1).toString().padStart(2, '0');
+    const day = now.getDate().toString().padStart(2, '0');
+    const currentDateStr = `${year}${month}${day}`; // Hasil: "260206"
+
+
+    const q = `SELECT activity_id FROM hd_activity ORDER BY id DESC LIMIT 1`;
+    const { rows } = await pool.query(q);
+
+    // Cek apakah rows memiliki isi (tidak undefined dan panjangnya > 0)
+    if (rows && rows.length > 0) {
+        // Ambil activity_id dari baris pertama
+        lastIdFromDb = rows[0].activity_id;
+    } else {
+        // Jika tabel kosong atau tidak ada data yang ditemukan
+        lastIdFromDb = null;
+    }
+
+    const newPrefix = `${currentDateStr}`;
+
+    // 2. Jika tidak ada data sebelumnya atau tanggal di database berbeda dengan hari ini
+    if (!lastIdFromDb || !lastIdFromDb.includes(currentDateStr)) {
+        return `${newPrefix}-001`;
+    }
+
+    // 3. Jika tanggal sama, ambil 4 digit terakhir dan tambahkan 1
+    const parts = lastIdFromDb.split("-");
+    const lastSequence = parseInt(parts[2], 10);
+    const nextSequence = (lastSequence + 1).toString().padStart(3, '0');
+
+    return `${newPrefix}-${nextSequence}`;
+}
