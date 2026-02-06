@@ -49,6 +49,11 @@
               </div>
 
               <div class="form-group">
+                <label>Group Name</label>
+                <input type="text" class="form-control" name="group_name" value="<%= row.group_name %>">
+              </div>
+
+              <div class="form-group">
                 <label>Status</label>
                 <select class="form-control" name="status">
                   <option value="1" <%=row.status==1 ? "selected" : "" %>>Active</option>

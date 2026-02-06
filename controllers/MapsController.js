@@ -1,6 +1,6 @@
 const Users = require("../models/UserModel");
 const Unit = require("../models/UnitModel");
-const { getUserIdSession, getUserSession, getTokenSession } = require('../helpers/sessionHelper');
+const { getUserIdSession, getUserSession, getTokenSession, getRolesSession } = require('../helpers/sessionHelper');
 
 class MapsController {
   static async index(req, res) {
@@ -8,6 +8,8 @@ class MapsController {
     const user_id = getUserIdSession(req);
     const user = getUserSession(req);
     const token = getTokenSession(req);
+    const roles = getRolesSession(req);
+
     console.log(user_id);
     res.render("maps/index", {
       title: "Maps",
@@ -17,7 +19,8 @@ class MapsController {
       user_id: user_id,
       username: user,
       token: token,
-      units: units
+      units: units,
+      roles: roles
     });
   }
 
@@ -26,6 +29,8 @@ class MapsController {
     const user_id = getUserIdSession(req);
     const user = getUserSession(req);
     const token = getTokenSession(req);
+    const roles = getRolesSession(req);
+
     console.log(user_id);
     res.render("maps/index", {
       title: "Maps",
@@ -34,7 +39,8 @@ class MapsController {
       type: "individu",
       user_id: user_id,
       username: user,
-      token: token
+      token: token,
+      roles: roles
     });
   }
 
@@ -43,6 +49,8 @@ class MapsController {
     const user_id = getUserIdSession(req);
     const user = getUserSession(req);
     const token = getTokenSession(req);
+    const roles = getRolesSession(req);
+
     console.log(user_id);
     res.render("maps/index", {
       title: "Maps",
@@ -51,7 +59,8 @@ class MapsController {
       type: "groups",
       user_id: user_id,
       username: user,
-      token: token
+      token: token,
+      roles: roles
     });
   }
 

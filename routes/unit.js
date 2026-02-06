@@ -1,16 +1,17 @@
 const express = require("express");
 const router = express.Router();
 const UnitController = require("../controllers/UnitController");
+const { requireLogin } = require("../helpers/sessionHelper");
 
-router.get("/", UnitController.index);
-router.get("/details/:id", UnitController.details);
+router.get("/", requireLogin, UnitController.index);
+router.get("/details/:id", requireLogin, UnitController.details);
 
-router.get("/create", UnitController.createForm);
-router.post("/create", UnitController.create);
+router.get("/create", requireLogin, UnitController.createForm);
+router.post("/create", requireLogin,  UnitController.create);
 
-router.get("/edit/:id", UnitController.editForm);
-router.post("/edit/:id", UnitController.update);
+router.get("/edit/:id", requireLogin, UnitController.editForm);
+router.post("/edit/:id", requireLogin, UnitController.update);
 
-router.get("/delete/:id", UnitController.delete);
+router.get("/delete/:id", requireLogin, UnitController.delete);
 
 module.exports = router;

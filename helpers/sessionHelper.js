@@ -39,11 +39,23 @@ function clearTokenSession(req) {
     req.session.destroy();
 }
 
+function setRolesSession(req, roles) {
+    req.session.roles = roles;
+}
+
+function getRolesSession(req) {
+    return req.session.roles;
+}
+
+function clearRosleSession(req) {
+    req.session.destroy();
+}
+
 
 
 function authMiddleware(req, res, next) {
     const auth = req.headers.authorization;
-    if (!auth) return res.status(401).json({ code : 401, status: false, message : "Missing token" });
+    if (!auth) return res.status(401).json({ code: 401, status: false, message: "Missing token" });
 
     const token = auth.split(" ")[1];
 
@@ -52,11 +64,52 @@ function authMiddleware(req, res, next) {
         req.userId = decoded.userId;
         next();
     } catch (e) {
-        return res.status(401).json({ code : 401, status: false, message : "Missing token" });
+        return res.status(401).json({ code: 401, status: false, message: "Missing token" });
     }
 }
 
+// Middleware cek login
+function requireLogin(req, res, next) {
+    if (!req.session.user_id) {
+        req.session.destroy();
+        return res.redirect('/');
+    }
+    next();
+}
+
+// Middleware cek role
+function requireRole(role) {
+    return function (req, res, next) {
+        if (!req.session.role) {
+            req.session.destroy();
+            return res.redirect('/');
+        }
+        if (req.session.user.role !== role) {
+            return res.status(403).send('Access Denied');
+        }
+        next();
+    }
+}
+
+// Middleware cek multiple role (opsional)
+function requireRoles(roles = []) {
+    return function (req, res, next) {
+        if (!req.session.roles) {
+            req.session.destroy();
+            return res.redirect('/login');
+        }
+        if (!roles.includes(req.session.user.role)) {
+            return res.status(403).send('Access Denied');
+        }
+        next();
+    }
+}
+
+
 module.exports = {
+    requireLogin,
+    requireRole,
+    requireRoles,
     setUserIdSession,
     getUserIdSession,
     clearUserIdSession,
@@ -66,5 +119,8 @@ module.exports = {
     setTokenSession,
     getTokenSession,
     clearTokenSession,
-    authMiddleware
+    authMiddleware,
+    setRolesSession,
+    getRolesSession,
+    clearRosleSession
 };

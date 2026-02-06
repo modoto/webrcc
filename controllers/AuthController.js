@@ -6,6 +6,7 @@ const {
     setUserIdSession, 
     setUserSession,
     setTokenSession,
+    setRolesSession
 } = require('../helpers/sessionHelper');
 
 
@@ -89,6 +90,7 @@ class AuthController {
                 setUserIdSession(req, user.id);
                 setUserSession(req, username);
                 setTokenSession(req, token);
+                setRolesSession(req, user.roles);
                 
 
                 console.log('token:', token);
