@@ -19,6 +19,12 @@ exports.getHeaderById = async (id) => {
     return rows[0];
 };
 
+exports.getHeaderByActivityId = async (id) => {
+    const q = `SELECT * FROM hd_activity WHERE activity_id = $1 AND deleted_at IS NULL`;
+     const { rows } = await pool.query(q, [id]);
+    return rows;
+};
+
 exports.getHeaderOperationById = async (id) => {
     const q = `SELECT * FROM hd_activity WHERE id = $1 AND deleted_at IS NULL`;
      const { rows } = await pool.query(q, [id]);
