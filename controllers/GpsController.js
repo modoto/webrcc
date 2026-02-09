@@ -19,10 +19,10 @@ class BwcamController {
     }
 
     static async getMaps(req, res) {
-        const user_id = getUserIdSession(req);
-        const user = getUserSession(req);
-        const token = getTokenSession(req);
-        const roles = getRolesSession(req);
+        // const user_id = getUserIdSession(req);
+        // const user = getUserSession(req);
+        // const token = getTokenSession(req);
+        // const roles = getRolesSession(req);
 
         try {
             const result = await GpsModel.getMaps();
