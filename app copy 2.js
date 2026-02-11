@@ -14,7 +14,6 @@ const { Server } = require("socket.io");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
 const pool = require('./config/db');
-const { createMediasoup } = require("./mediasoup");
 const { initMediasoup, getRouter } = require("./mediasoupServer");
 const { getOrCreateRoom } = require("./rooms");
 const { requireLogin, requireRole, requireRoles } = require('./helpers/sessionHelper');
@@ -121,44 +120,9 @@ const onlineUsers = new Map(); // userId → Set(socketId)
 // ====================================================
 //  SOCKET.IO EVENTS
 // ====================================================
-
-let router;
-const rooms = new Map(); // roomId -> { peers: Map }
-(async () => {
-  const media = await createMediasoup();
-  router = media.router;
-  console.log("Mediasoup ready 🚀");
-})();
-
-function getRoom(roomId) {
-  if (!rooms.has(roomId)) {
-    rooms.set(roomId, { peers: new Map() });
-  }
-  return rooms.get(roomId);
-}
-
-function broadcastUsers(roomId) {
-  const room = getRoom(roomId);
-
-  const users = [];
-  room.peers.forEach(peer => {
-    users.push({
-      id: peer.id,
-      name: peer.username,
-      speaking: false
-    });
-  });
-
-  room.peers.forEach(peer => peer.emit("userList", users));
-}
+const transports = new Map(); // socket.id -> transport
 
 io.on("connection", (socket) => {
-  socket.roomId = null;
-  socket.username = null;
-  socket.transports = new Map();
-  socket.producers = new Map();
-  socket.consumers = new Map();
-
   const userId = socket.userId;
   console.log("Connected:", socket.id, " user:", userId);
 
@@ -174,10 +138,12 @@ io.on("connection", (socket) => {
     socket.join(`conv_${conversationId}`);
   });
 
+
   // -------- typing indicator --------
   socket.on("typing", ({ conversationId, isTyping }) => {
     socket.to(`conv_${conversationId}`).emit("typing", { userId, isTyping });
   });
+
 
   // -------- SEND MESSAGE --------
   socket.on("send_message", async ({ conversationId, content }) => {
@@ -230,6 +196,27 @@ io.on("connection", (socket) => {
     );
   });
 
+  // -------- disconnect --------
+  socket.on("disconnect", () => {
+    const set = onlineUsers.get(userId);
+    if (set) {
+      set.delete(socket.id);
+      if (set.size === 0) {
+        onlineUsers.delete(userId);
+        io.emit("user_offline", { userId });
+      }
+    }
+
+    const roomId = socket.data.roomId;
+    if (!roomId) return;
+
+    const room = getOrCreateRoom(roomId, getRouter());
+    room.peers.delete(socket.id);
+
+    socket.to(`call_${roomId}`).emit("peer_left", { peerId: socket.id });
+  });
+
+
   // =======================
   // CALL SIGNALING (2)
   // =======================
@@ -270,10 +257,8 @@ io.on("connection", (socket) => {
   // =======================
   // REJECT CALL (10)
   // =======================
-  socket.on("reject_call", ({ roomId, callerUserId }) => {
-    
-     console.log("📴 Call Rejected by:", socket.userId);
-    io.to([...onlineUsers.get(callerUserId) || []]).emit("call_rejected", { roomId, rejectedBy: socket.userId });
+  socket.on("reject_call", ({ roomId, fromUserId }) => {
+    io.to([...onlineUsers.get(fromUserId) || []]).emit("call_rejected", { roomId, rejectedBy: socket.userId });
   });
 
   socket.on("reject_group_call", ({ roomId, fromUserId }) => {
@@ -299,34 +284,20 @@ io.on("connection", (socket) => {
   // =======================
   // END CALL
   // =======================
-  socket.on("end_call", ({ roomId }) => {
-    console.log("📴 end_call from", socket.id);
-
-    const room = getRoom(roomId);
-    if (!room) return;
-
-    // notify peers BEFORE cleanup
-    room.peers.forEach(peer => {
-      if (peer.id !== socket.id) {
-        peer.emit("call_ended", {
-          roomId,
-          endedBy: socket.userId
-        });
-      }
-    });
-
-    // cleanup mediasoup
-    closePeer(socket);
-
-    // remove peer from room
+  socket.on("end_call", () => {
+    const room = getOrCreateRoom(socket.data.roomId, getRouter());
+    //console.log('room sebelum delete -->', room)
     room.peers.delete(socket.id);
+    console.log('end_call')
+    //console.log('room sesudah delete-->', room)
 
-    // leave socket.io room
-    socket.leave(`call_${roomId}`);
+    socket.to(`call_${socket.data.roomId}`).emit("call_ended", { peerId: socket.id });
 
-    broadcastUsers(roomId);
+    //untuk groups
+    socket.to(`call_${socket.data.roomId}`).emit("peer_left", {
+      peerId: socket.id
+    });
   });
-
 
   // =======================
   // MEDIASOUP
@@ -334,39 +305,98 @@ io.on("connection", (socket) => {
   // Fungsinya: mendaftarkan socket ke room mediasoup.
   // =======================
 
-  socket.on("joinRoom", (roomId, callback) => {
-    socket.roomId = roomId;
-    socket.username = "User-" + socket.id.slice(0, 4);
+  // =======================
+  // GROUPS CALL
+  // =======================
+  socket.on("start_group_call", ({ roomId, participantIds }) => {
+    console.log("📞 start_group_call", roomId, participantIds);
 
-    const room = getRoom(roomId);
-    room.peers.set(socket.id, socket);
+    socket.join(`call_${roomId}`);
 
-    broadcastUsers(roomId);
+    (participantIds || []).forEach(uid => {
+      const sockets = onlineUsers.get(uid);
+      if (!sockets) return;
 
-    callback(router.rtpCapabilities);
+      sockets.forEach(socketId => {
+        io.to(socketId).emit("incoming_group_call", {
+          roomId,
+          fromUserId: socket.userId
+        });
+      });
+    });
   });
 
-  socket.on("createTransport", async callback => {
-    const transport = await router.createWebRtcTransport({
-      listenIps: [{
-        ip: "0.0.0.0",
-        //announcedIp: "192.168.100.5" // IP server local
-        announcedIp: "192.168.18.94" // IP server local
-        //announcedIp: "31.97.67.18" // IP server Public
-      }],
-      initialAvailableOutgoingBitrate: 1000000,
-      enableUdp: true,
-      enableTcp: true,
-      preferUdp: true
+  // END GROUPS CALL
+
+  socket.on("join_call", async ({ roomId }) => {
+    // Socket masuk ke Socket.IO room
+    // Dipakai untuk:
+    // broadcast ke semua peserta call
+    // bukan mediasoup, tapi signaling
+    socket.join(`call_${roomId}`);
+
+    // Ambil room mediasoup berdasarkan roomId
+    // Kalau belum ada → buat baru
+    // getRouter() = mediasoup router (codec support, RTP caps)
+    // 1 room = 1 router
+    const room = getOrCreateRoom(roomId, getRouter());
+
+    // Setiap participant disimpan sebagai peer
+    room.peers.set(socket.id, {
+      socket,                     // Key = socket.id (peerId) Simpan reference socket peer Digunakan untuk: emit event spesifik ke peer dan cleanup saat disconnect
+      transports: new Map(),      // Key: transport.id Map semua transport peer Biasanya: 1 send transport dan 1 recv transport
+      producers: new Map(),       // Key: producer.id Menyimpan semua producer milik peer ini Contoh: audio producer, video producer
+      consumers: new Map()        // Menyimpan semua consumer peer ini Biasanya: consume audio peer lain dan consume video peer lain
     });
 
-    socket.transports.set(transport.id, transport);
+    // Simpan roomId di socket Supaya: gampang cleanup dan tahu peer ini ada di room mana
+    socket.data.roomId = roomId;
 
-    transport.on("close", () => {
-      socket.transports.delete(transport.id);
+    // 🧠 KRUSIAL
+    // Kirim capability router ke client
+    // Client butuh ini untuk: device.load({ routerRtpCapabilities }) Tanpa ini → mediasoup tidak bisa jalan
+    socket.emit("router_rtp_capabilities", room.router.rtpCapabilities);
+
+    // Array untuk menyimpan producer yang SUDAH ADA
+    // Digunakan agar peer baru bisa langsung dengar audio yang sedang aktif.
+    const existingProducers = [];
+
+    // Loop semua peer yang sudah ada di room Termasuk: peer lama / peer baru (tapi belum punya producer)
+    for (const [peerSocketId, peer] of room.peers.entries()) {
+      // Loop semua producer milik peer tersebut Contoh: audio mic dari peer lama
+      for (const producer of peer.producers.values()) {
+        // Simpan info producer ke array
+        existingProducers.push({
+          producerId: producer.id,  // ID producer Dipakai client untuk: consumeAudio(producerId)
+          peerId: peerSocketId      // ID peer pemilik producer Dipakai client untuk: hindari consume diri sendiri if (peerId === myPeerId) return;
+        });
+      }
+    }
+
+    // INI KUNCI A ↔ B TERHUBUNG
+    // Kirim semua producer yang sudah aktif
+    // Peer baru langsung consume audio lama
+    // Tanpa ini → peer baru tidak dengar apa-apa
+    socket.emit("existing_producers", existingProducers);
+
+    // untuk groups
+    io.to(`call_${roomId}`).emit("peer_joined", {
+      peerId: socket.id,
+      userId: socket.userId,
+      name: socket.userId // atau username dari DB
     });
+  });
 
-    callback({
+  socket.on("create_send_transport", async ({ roomId }, cb) => {
+    const room = getOrCreateRoom(roomId, getRouter());
+    const peer = room.peers.get(socket.id);
+
+    const transport = await createWebRtcTransport(room.router);
+    transport.appData = { direction: "send" };
+
+    peer.transports.set(transport.id, transport);
+
+    cb({
       id: transport.id,
       iceParameters: transport.iceParameters,
       iceCandidates: transport.iceCandidates,
@@ -374,44 +404,73 @@ io.on("connection", (socket) => {
     });
   });
 
-  socket.on("connectTransport", async ({ transportId, dtlsParameters }) => {
-    const transport = socket.transports.get(transportId);
-    if (transport && !transport.closed)
-      await transport.connect({ dtlsParameters });
+  async function createWebRtcTransport(router) {
+    return await router.createWebRtcTransport({
+      listenIps: [{
+        ip: "0.0.0.0",
+        announcedIp: IP_ADDRESS // IP server kamu
+      }],
+      initialAvailableOutgoingBitrate: 1000000,
+      enableUdp: true,
+      enableTcp: true,
+      preferUdp: true
+    });
+  }
+
+  socket.on("create_recv_transport", async ({ roomId }, cb) => {
+    const room = getOrCreateRoom(roomId, getRouter());
+    const peer = room.peers.get(socket.id);
+
+    const transport = await createWebRtcTransport(room.router);
+    transport.appData = { direction: "recv" };
+
+    peer.transports.set(transport.id, transport);
+
+    cb({
+      id: transport.id,
+      iceParameters: transport.iceParameters,
+      iceCandidates: transport.iceCandidates,
+      dtlsParameters: transport.dtlsParameters
+    });
   });
 
-  socket.on("produce", async ({ transportId, kind, rtpParameters }, callback) => {
-    const transport = socket.transports.get(transportId);
-    const producer = await transport.produce({ kind, rtpParameters });
+  socket.on("connect_transport", async ({ transportId, dtlsParameters }, cb) => {
+    const room = getOrCreateRoom(socket.data.roomId, getRouter());
+    const peer = room.peers.get(socket.id);
 
-    socket.producers.set(producer.id, producer);
+    const transport = peer.transports.get(transportId);
+    await transport.connect({ dtlsParameters });
 
-    producer.on("close", () => {
-      socket.producers.delete(producer.id);
-    });
-
-    const room = getRoom(socket.roomId);
-
-    // notify peers
-    room.peers.forEach(peer => {
-      if (peer.id !== socket.id) {
-        peer.emit("newProducer", {
-          producerId: producer.id,
-          peerId: socket.id
-        });
-      }
-    });
-
-    callback({ id: producer.id });
+    cb && cb();
   });
 
-  socket.on("consume", async ({ transportId, producerId, rtpCapabilities }, callback) => {
-    const transport = socket.transports.get(transportId);
+  socket.on("produce", async ({ transportId, kind, rtpParameters }, cb) => {
+    console.log("🎤 PRODUCE FROM", socket.id, "kind:", kind);
 
-    if (!transport || transport.closed) return callback(null);
+    const room = getOrCreateRoom(socket.data.roomId, getRouter());
+    const peer = room.peers.get(socket.id);
 
-    if (!router.canConsume({ producerId, rtpCapabilities }))
-      return callback(null);
+    const transport = peer.transports.get(transportId);
+    const producer = await transport.produce({ kind, rtpParameters, appData: { mediaTag: "audio" } });
+
+    console.log("✅ PRODUCER ID:", producer.id);
+
+    peer.producers.set(producer.id, producer);
+
+    socket.to(`call_${socket.data.roomId}`).emit("new_producer", {
+      producerId: producer.id,
+      peerId: socket.id
+    });
+
+    cb({ id: producer.id });
+  });
+
+  socket.on("consume", async ({ roomId, producerId, rtpCapabilities }, cb) => {
+    const room = getOrCreateRoom(roomId, getRouter());
+    const peer = room.peers.get(socket.id);
+
+    const transport = [...peer.transports.values()]
+      .find(t => t.appData.direction === "recv");
 
     const consumer = await transport.consume({
       producerId,
@@ -419,13 +478,9 @@ io.on("connection", (socket) => {
       paused: false
     });
 
-    socket.consumers.set(consumer.id, consumer);
+    peer.consumers.set(consumer.id, consumer);
 
-    consumer.on("close", () => {
-      socket.consumers.delete(consumer.id);
-    });
-
-    callback({
+    cb({
       id: consumer.id,
       producerId,
       kind: consumer.kind,
@@ -433,77 +488,34 @@ io.on("connection", (socket) => {
     });
   });
 
-  socket.on("getProducers", callback => {
-    const room = getRoom(socket.roomId);
-    const ids = [];
 
-    room.peers.forEach(peer => {
-      peer.producers.forEach((_, id) => {
-        if (peer.id !== socket.id) ids.push(id);
-      });
-    });
 
-    callback(ids);
-  });
+  // =======================
+  // PRODUCER MUTE / UNMUTE
+  // =======================
+  socket.on("producer_mute", ({ muted }) => {
+    const roomId = socket.data.roomId;
+    if (!roomId) return;
 
-  socket.on("speaking", isSpeaking => {
-    const room = getRoom(socket.roomId);
+    const room = getOrCreateRoom(roomId, getRouter());
+    const peer = room.peers.get(socket.id);
+    if (!peer) return;
 
-    room.peers.forEach(peer => {
-      peer.emit("userSpeaking", {
-        id: socket.id,
-        speaking: isSpeaking
-      });
-    });
-  });
-
-  function cleanup() {
-    console.log("Peer left:", socket.id);
-
-    const roomId = socket.roomId;
-    const room = roomId ? getRoom(roomId) : null;
-
-    // 🔥 notify others: producer closed
-    if (room) {
-      socket.producers.forEach((producer) => {
-        room.peers.forEach(peer => {
-          if (peer.id !== socket.id) {
-            peer.emit("producerClosed", {
-              producerId: producer.id,
-              peerId: socket.id
-            });
-          }
-        });
-      });
+    for (const producer of peer.producers.values()) {
+      if (muted) {
+        producer.pause();
+      } else {
+        producer.resume();
+      }
     }
 
-    socket.transports.forEach(t => t.close());
-    socket.producers.forEach(p => p.close());
-
-    socket.transports.clear();
-    socket.producers.clear();
-
-    if (room) {
-      room.peers.delete(socket.id);
-      broadcastUsers(roomId);
-    }
-  }
-
-
-  socket.on("disconnect", () => {
-    closePeer(socket);
+    socket.to(`call_${roomId}`).emit("peer_muted", {
+      peerId: socket.id,
+      muted
+    });
   });
+
 });
-
-function closePeer(socket) {
-  socket.transports.forEach(t => t.close());
-  socket.producers.forEach(p => p.close());
-  socket.consumers.forEach(c => c.close());
-
-  socket.transports.clear();
-  socket.producers.clear();
-  socket.consumers.clear();
-}
 
 
 // ====================================================
