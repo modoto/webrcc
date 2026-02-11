@@ -55,8 +55,8 @@ class AuthController {
         if (!ok) return res.status(401).json({ error: "Invalid login" });
 
         const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET);
-        console.log('token:', token);
-        console.log('------------------------');
+        //console.log('token:', token);
+        //console.log('------------------------');
         res.status(200).json({
             token,
             user: { id: user.id, username: user.username, displayName: user.display_name },
@@ -72,11 +72,11 @@ class AuthController {
         console.log('AuthController:loginweb');
         const { username, password } = req.body;
         console.log('username:', username);
-        console.log('password:', password);
+        //console.log('password:', password);
 
         const q = await pool.query("SELECT * FROM users WHERE username=$1", [username]);
         const user = q.rows[0];
-        console.log('user:', user);
+        //console.log('user:', user);
 
         if (!user) {
             res.redirect("/");
@@ -93,8 +93,8 @@ class AuthController {
                 setRolesSession(req, user.roles);
                 
 
-                console.log('token:', token);
-                console.log('------------------------');
+                //console.log('token:', token);
+                //console.log('------------------------');
                 res.redirect("/dashboard");
             }
         }
