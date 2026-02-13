@@ -513,6 +513,7 @@
                 <div class="wa-contact-name">${conv.display_name}</div>
                 <div class="wa-contact-last-msg">${conv.last_message || ""}</div>
              </div>
+             
               ${badge}
       </div>
     `;
@@ -521,6 +522,30 @@
 
   }
 
+  document.querySelectorAll(".wa-call-btn-contact").forEach(btn => {
+    console.log("📞 Call user:", btn);
+    btn.addEventListener("click", async (e) => {
+      e.stopPropagation(); // 🔥 JANGAN buka chat
+
+      const targetUserId = btn.dataset.userid;
+      const name = btn.dataset.name;
+
+      console.log("📞 Call user:", targetUserId);
+
+      // cari / buat conversation dulu
+      const conversationId = await getOrCreateConversation(targetUserId);
+
+      // start call
+      //startCall(conversationId, targetUserId, name);
+      startCall(
+        activeConversationId, activeUserId
+      );
+      //}
+
+      showOutgoingCallModal();
+    });
+
+  });
 
 
   // =============================
@@ -547,18 +572,18 @@
   document.getElementById("btnCall").addEventListener("click", () => {
     if (!activeConversationId) return alert("Pilih chat dulu");
 
-    //if (isGroup) {
-      // Panggilan Group
-      //const participantIds = [5,6,7,8,9,10];
-      //startGroupCall(
-        //activeConversationId, participantIds
-      //);
-    //} else {
-      // Panggilan Private
-      startCall(
-        activeConversationId, activeUserId
-      );
-    //}
+    if (isGroup) {
+    // Panggilan Group
+    const participantIds = [5,6,7,8,9,10];
+    startGroupCall(
+    activeConversationId, participantIds
+    );
+    } else {
+    // Panggilan Private
+    startCall(
+      activeConversationId, activeUserId
+    );
+    }
 
     showOutgoingCallModal();
   });

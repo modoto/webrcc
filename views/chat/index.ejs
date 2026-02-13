@@ -47,21 +47,29 @@
 
         <div class="wa-contact-list" id="contact-list">
 
-          <!-- Contoh kontak -->
           <% rows.forEach(row=> { %>
-            <div class="wa-contact-item" data-userid=" <%= row.id %>" data-name="<%= row.username %>"
+            <div class="wa-contact-item" data-userid="<%= row.id %>" data-name="<%= row.username %>"
               data-avatar="https://ui-avatars.com/api/?name=<%= row.username %>" data-status="online">
 
               <img src="https://ui-avatars.com/api/?name=<%= row.username %>" class="wa-avatar">
+
               <div class="wa-contact-info">
                 <div class="wa-contact-name">
                   <%= row.username %>
                 </div>
                 <div class="wa-contact-last-msg">See you tomorrow!</div>
               </div>
+
+              <!-- 🔥 BUTTON CALL -->
+              <!-- <button class="wa-call-btn-contact" data-userid="<%= //row.id %>" data-name="<%= //row.username %>">
+                <i class="fas fa-phone"></i>
+              </button> -->
+
             </div>
             <% }) %>
+
         </div>
+
 
       </div>
 
@@ -73,7 +81,11 @@
             <div id="chat-header-name" class="wa-chat-name"></div>
             <div id="chat-header-status" class="wa-chat-status"></div>
           </div>
-          <i class="fas fa-phone" id="btnCall"></i>
+
+          <button class="btn-call" id="btnCall" >
+            <i class="fas fa-phone"></i>
+          </button>
+         
           <!-- <button id="btnEndCall" class="btn-end-call">End</button> -->
           <div id="videos"></div>
         </div>

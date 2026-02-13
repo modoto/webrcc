@@ -7,7 +7,7 @@ const bodyParser = require("body-parser");
 const session = require("express-session");
 const path = require("path");
 const expressLayouts = require("express-ejs-layouts");
-//const http = require("http");
+const http = require("http");
 const https = require('node:https');
 require('dotenv').config(); // Loads variables from .env file into process.env
 const { Server } = require("socket.io");
@@ -267,12 +267,37 @@ io.on("connection", (socket) => {
     });
   });
 
+  socket.on("start_group_call", ({ roomId, participantIds }) => {
+    console.log("📞 start_group_call", roomId, participantIds);
+
+    socket.join(`call_${roomId}`);
+
+    (participantIds || []).forEach(uid => {
+      const sockets = onlineUsers.get(uid);
+      if (!sockets) return;
+
+      sockets.forEach(socketId => {
+        io.to(socketId).emit("incoming_group_call", {
+          roomId,
+          fromUserId: socket.userId,
+          toUserId: socketId
+        });
+
+        // io.to([...onlineUsers.get(targetUserId) || []]).emit("incoming_call", {
+        //   roomId,
+        //   fromUserId: socket.userId,
+        //   toUserId: targetUserId
+        // });
+      });
+    });
+  });
+
   // =======================
   // REJECT CALL (10)
   // =======================
   socket.on("reject_call", ({ roomId, callerUserId }) => {
-    
-     console.log("📴 Call Rejected by:", socket.userId);
+
+    console.log("📴 Call Rejected by:", socket.userId);
     io.to([...onlineUsers.get(callerUserId) || []]).emit("call_rejected", { roomId, rejectedBy: socket.userId });
   });
 
@@ -351,8 +376,9 @@ io.on("connection", (socket) => {
       listenIps: [{
         ip: "0.0.0.0",
         //announcedIp: "192.168.100.5" // IP server local
-        announcedIp: "192.168.18.94" // IP server local
+        //announcedIp: "192.168.18.94" // IP server local
         //announcedIp: "31.97.67.18" // IP server Public
+        announcedIp: "192.168.18.94"
       }],
       initialAvailableOutgoingBitrate: 1000000,
       enableUdp: true,
