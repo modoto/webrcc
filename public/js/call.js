@@ -53,6 +53,22 @@ window.startCall = async (roomId, targetUserId) => {
   socket.emit("call_user", { roomId, targetUserId });
 };
 
+window.startGroupCall = (roomId, participantIds) => {
+  console.log("📞 START GROUP CALL", roomId, participantIds);
+
+  currentRoomId = roomId;
+
+  // tampilkan UI call di host
+  document.getElementById("callModal").classList.remove("hidden");
+
+  // 🔥 INI YANG KAMU TANYA
+  socket.emit("start_group_call", {
+    roomId,
+    participantIds // array userId
+  });
+};
+
+
 async function startMediasoup(roomId) {
   const stream = await navigator.mediaDevices.getUserMedia({
     audio: true,
@@ -79,11 +95,18 @@ async function startMediasoup(roomId) {
   sendTransport = device.createSendTransport(sendParams);
 
   sendTransport.on("connect", ({ dtlsParameters }, cb) => {
+    console.log("🔥 sendTransport connect triggered");  // Debug: bukti transport mencoba konek
     socket.emit("connectTransport", {
       transportId: sendTransport.id,
       dtlsParameters
     });
     cb();
+  });
+
+  // Monitoring status: connecting, connected, failed, closed 
+  // Digunakan untuk debug network
+  sendTransport.on("connectionstatechange", state => {
+    console.log("🔥 sendTransport state:", state);
   });
 
   sendTransport.on("produce", ({ kind, rtpParameters }, cb) => {
@@ -117,11 +140,18 @@ async function startMediasoup(roomId) {
   recvTransport = device.createRecvTransport(recvParams);
 
   recvTransport.on("connect", ({ dtlsParameters }, cb) => {
+    console.log("🔥 recvTransport connect triggered"); // Menandakan recvTransport benar-benar mencoba konek
     socket.emit("connectTransport", {
       transportId: recvTransport.id,
       dtlsParameters
     });
     cb();
+  });
+
+  // Monitoring koneksi: connecting → connected → failed
+  // 📌 Sangat berguna untuk debug ICE / network
+  recvTransport.on("connectionstatechange", state => {
+    console.log("🔥 recvTransport state:", state);
   });
 
   const producerIds = await new Promise(res =>
