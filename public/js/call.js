@@ -36,8 +36,8 @@ const users = new Map();
 // ================= START =================
 window.startCall = async (roomId, targetUserId) => {
   console.log('START CALL (CALLER)');
-  console.log(roomId);
-  console.log(targetUserId);
+  console.log('roomId:', roomId);
+  console.log('targetUserId:',targetUserId);
 
   callActive = true;
 
@@ -55,13 +55,20 @@ window.startCall = async (roomId, targetUserId) => {
 
 window.startGroupCall = (roomId, participantIds) => {
   console.log("📞 START GROUP CALL", roomId, participantIds);
+  console.log('roomId:', roomId);
+  console.log('participants:',participantIds);
 
+  callActive = true;
+
+  callPending = true;
+  //currentTargetUserId = targetUserId;
   currentRoomId = roomId;
 
+ 
   // tampilkan UI call di host
   document.getElementById("callModal").classList.remove("hidden");
 
-  // 🔥 INI YANG KAMU TANYA
+  startMediasoup(roomId);
   socket.emit("start_group_call", {
     roomId,
     participantIds // array userId

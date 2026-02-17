@@ -213,12 +213,12 @@ io.on("connection", (socket) => {
   socket.on("message_read", async ({ conversationId }) => {
     const userId = socket.userId;
 
-    await pool.query(
-      `UPDATE messages 
-     SET status='read'
-     WHERE conversation_id=$1 AND sender_id != $2`,
-      [conversationId, userId]
-    );
+    // await pool.query(
+    //   `UPDATE messages 
+    //  SET status='read'
+    //  WHERE conversation_id=$1 AND sender_id != $2`,
+    //   [conversationId, userId]
+    // );
 
     socket.to(`conv_${conversationId}`).emit("messages_read", { conversationId });
   });
@@ -242,6 +242,9 @@ io.on("connection", (socket) => {
 
     // server mengirim sinyal ke target user yang sedang online dengan parameter roomid, userid Caller dan userid Calle
     // Contoh : roomId = 2, fromUserId = 1, toUserId = 10
+    console.log("targetUserId:", targetUserId);
+    console.log("onlineUsers:", onlineUsers);
+
     io.to([...onlineUsers.get(targetUserId) || []]).emit("incoming_call", {
       roomId,
       fromUserId: socket.userId,
@@ -269,25 +272,22 @@ io.on("connection", (socket) => {
 
   socket.on("start_group_call", ({ roomId, participantIds }) => {
     console.log("📞 start_group_call", roomId, participantIds);
+    const roomName = `call_${roomId}`;
+    socket.join(roomName);
 
-    socket.join(`call_${roomId}`);
-
-    (participantIds || []).forEach(uid => {
-      const sockets = onlineUsers.get(uid);
+    (participantIds || []).forEach(targetUserId => {
+      const sockets = onlineUsers.get(targetUserId);
+      //console.log("uid:", targetUserId);
+      //console.log("sockets:", sockets);
       if (!sockets) return;
 
       sockets.forEach(socketId => {
-        io.to(socketId).emit("incoming_group_call", {
+        //console.log("call to:", socketId);
+        io.to([...onlineUsers.get(targetUserId) || []]).emit("incoming_call", {
           roomId,
           fromUserId: socket.userId,
-          toUserId: socketId
+          toUserId: targetUserId
         });
-
-        // io.to([...onlineUsers.get(targetUserId) || []]).emit("incoming_call", {
-        //   roomId,
-        //   fromUserId: socket.userId,
-        //   toUserId: targetUserId
-        // });
       });
     });
   });
@@ -375,10 +375,10 @@ io.on("connection", (socket) => {
     const transport = await router.createWebRtcTransport({
       listenIps: [{
         ip: "0.0.0.0",
-        //announcedIp: "192.168.100.5" // IP server local
+        announcedIp: "192.168.100.5" // IP server local
         //announcedIp: "192.168.18.94" // IP server local
         //announcedIp: "31.97.67.18" // IP server Public
-        announcedIp: "192.168.18.94"
+        //announcedIp: IP_ADDRESS
       }],
       initialAvailableOutgoingBitrate: 1000000,
       enableUdp: true,

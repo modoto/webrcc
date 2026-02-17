@@ -1,3 +1,27 @@
+START CALL (CALLER)
+call.js:39 8
+call.js:40 10
+call.js:98 🔥 sendTransport connect triggered
+call.js:109 🔥 sendTransport state: connecting
+call.js:109 🔥 sendTransport state: connected
+call.js:165 🎥 Video call ready
+call.js:143 🔥 recvTransport connect triggered
+call.js:288 call accepted by 10
+call.js:154 🔥 recvTransport state: connecting
+call.js:154 🔥 recvTransport state: connected
+
+INCOMING CALL (CALLE)
+call.js:247 btnAccept click
+call.js:98 🔥 sendTransport connect triggered
+call.js:109 🔥 sendTransport state: connecting
+call.js:109 🔥 sendTransport state: connected
+call.js:143 🔥 recvTransport connect triggered
+call.js:154 🔥 recvTransport state: connecting
+call.js:154 🔥 recvTransport state: connected
+call.js:165 🎥 Video call ready
+call.js:288 call accepted by 1
+
+
 select * from users
 
 CREATE TABLE users (
