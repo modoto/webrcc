@@ -353,7 +353,22 @@ class ConversationsController {
     }
 
 
+    static async ParticipantIds(req, res) {
+        //const { conversationId, callerId } = req.body;
+        const conversationId = req.body.conversationId;
+        const callerId  = Number(req.body.callerId);
+        //console.log(conversationId);
+        // cek admin
+        const q = await pool.query(
+            `SELECT user_id, role FROM conversation_users
+            WHERE conversation_id=$1 AND  user_id !=$2`,
+            [conversationId, callerId]
+        );
 
+        const participants = q.rows;
+        //console.log(participants);
+        res.json({ success: true, participantIds : participants });
+    }
 
     static async getUserConversations1(req, res) {
         try {
