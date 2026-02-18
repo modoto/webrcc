@@ -442,8 +442,10 @@ io.on("connection", (socket) => {
     const consumer = await transport.consume({
       producerId,
       rtpCapabilities,
-      paused: false
+      paused: true
     });
+
+     await consumer.resume();
 
     socket.consumers.set(consumer.id, consumer);
 
