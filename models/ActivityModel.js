@@ -21,20 +21,20 @@ exports.getHeaderById = async (id) => {
 
 exports.getHeaderByActivityId = async (id) => {
     const q = `SELECT * FROM hd_activity WHERE activity_id = $1 AND deleted_at IS NULL`;
-     const { rows } = await pool.query(q, [id]);
-    return rows;
+    const { rows } = await pool.query(q, [id]);
+    return rows[0];
 };
 
 exports.getHeaderOperationById = async (id) => {
     const q = `SELECT * FROM hd_activity WHERE id = $1 AND deleted_at IS NULL`;
-     const { rows } = await pool.query(q, [id]);
+    const { rows } = await pool.query(q, [id]);
     return rows;
 };
 
 
 exports.getDtOperationByActivityId = async (id) => {
     const q = `SELECT * FROM dt_activity WHERE activity_id = $1 AND deleted_at IS NULL`;
-     const { rows } = await pool.query(q, [id]);
+    const { rows } = await pool.query(q, [id]);
     return rows;
 };
 
@@ -118,7 +118,7 @@ exports.updateHeader = async (id, data) => {
     ]);
 
     const q2 = `UPDATE conversations SET name=$1 WHERE id=$2`;
-    await pool.query(q2, [data.group_name,data.chat_id]);
+    await pool.query(q2, [data.group_name, data.chat_id]);
 };
 
 exports.deleteHeader = async (id) => {
@@ -137,6 +137,7 @@ exports.getDetailByActivity = async (activity_id) => {
 };
 
 exports.addDetail = async (data) => {
+
     const q = `
         INSERT INTO dt_activity (activity_id, unit_id, nrp, driver, status, user_id)
         VALUES ($1,$2,$3,$4,$5,$6)
@@ -162,8 +163,26 @@ exports.addDetail = async (data) => {
 };
 
 exports.deleteDetail = async (id) => {
-    const q = `UPDATE dt_activity SET deleted_at = NOW() WHERE id = $1`;
-    await pool.query(q, [id]);
+    console.log('deleteDetail:', id);
+    const q0 = `SELECT da.id as da_id, ha.chat_id as conversation_id, u.id as user_id FROM dt_activity da 
+    INNER JOIN hd_activity ha ON da.activity_id=ha.activity_id 
+    INNER JOIN users u ON da.unit_id=u.user_id 
+    WHERE da.id = $1`;
+    const { rows } = await pool.query(q0, [id]);
+    console.log('rows:', rows[0]);
+    const da_id = rows[0].da_id;
+    const user_id = rows[0].user_id;
+    const conversation_id = rows[0].conversation_id;
+
+    // const q1 = `UPDATE dt_activity SET status=0, deleted_at = NOW() WHERE id = $1`;
+    // await pool.query(q1, [id]);
+
+    const q1 = `DELETE FROM dt_activity WHERE id = $1`;
+    await pool.query(q1, [id]);
+
+    //delete user daru group chat
+    const q2 = `DELETE FROM conversation_users WHERE conversation_id = $1 AND user_id = $2`;
+    await pool.query(q2, [conversation_id, user_id]);
 };
 
 async function generateRunningNumber() {

@@ -90,8 +90,8 @@ const options = {
   cert: fs.readFileSync('cert.pem'),
 };
 
-//const server = http.createServer(app);
-const server = https.createServer(options, app);
+const server = http.createServer(app);
+//const server = https.createServer(options, app);
 const io = new Server(server, { cors: { origin: "*" } });
 
 console.log('SOCKET_URL:', SOCKET_URL);
@@ -375,7 +375,7 @@ io.on("connection", (socket) => {
     const transport = await router.createWebRtcTransport({
       listenIps: [{
         ip: "0.0.0.0",
-        announcedIp: "192.168.100.5" // IP server local
+        announcedIp: "192.168.0.113" // IP server local
         //announcedIp: "192.168.18.94" // IP server local
         //announcedIp: "31.97.67.18" // IP server Public
         //announcedIp: IP_ADDRESS
@@ -445,7 +445,7 @@ io.on("connection", (socket) => {
       paused: true
     });
 
-     await consumer.resume();
+    await consumer.resume();
 
     socket.consumers.set(consumer.id, consumer);
 
