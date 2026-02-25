@@ -31,6 +31,7 @@ exports.details = async (req, res) => {
 
     const SOCKET_URL = process.env.SOCKET_URL;
     const row = await Activity.getHeaderByActivityId(req.params.id);
+    console.log('iki---->',row)
     const id = req.params.id
 
     res.render("activity/details", {

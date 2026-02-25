@@ -335,7 +335,7 @@ class ConversationsController {
         // admin check
         const adminCheck = await pool.query(
             `SELECT role FROM conversation_users
-     WHERE conversation_id=$1 AND user_id=$2`,
+            WHERE conversation_id=$1 AND user_id=$2`,
             [conversationId, userId]
         );
 
@@ -345,7 +345,7 @@ class ConversationsController {
 
         await pool.query(
             `DELETE FROM conversation_users
-     WHERE conversation_id=$1 AND user_id=$2`,
+            WHERE conversation_id=$1 AND user_id=$2`,
             [conversationId, memberId]
         );
 

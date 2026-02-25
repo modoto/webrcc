@@ -18,7 +18,7 @@ class GpsModel {
 
     static async getMapGroups(id) {
         const result = await db.query(
-            "SELECT da.id, unit_id, driver, g.latitute, g.longitude FROM dt_activity da LEFT JOIN gps g on g.device_id=da.unit_id WHERE da.activity_id=$1",
+            "SELECT da.id, unit_id, driver, g.latitute, g.longitude FROM dt_activity da LEFT JOIN gps g on g.device_id=da.unit_id WHERE da.deleted_at IS NULL AND da.activity_id=$1",
             [id]
         );
         return result.rows;

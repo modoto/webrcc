@@ -15,6 +15,8 @@
                         </h5>
                     </div>
                     <div class="card-body scrollable-card-body">
+                        <input type="hidden" id="chat_id" value="<%= row.chat_id %>" />
+                        <input type="hidden" id="chat_name" value="<%= row.activity_name %>" />
                         <div class="row" id="container-cctv">
                             <div class="col-sm-6">
                                 <div class="canvas-wrapper" style="position: relative; width: 100%;">
@@ -97,8 +99,7 @@
                                 </div>
                             </div>
                         </div>
-                        <input type="hidden" id="chat_id" value="<%= row.chat_id %>" />
-                        <input type="hidden" id="chat_name" value="<%= row.activity_name %>" />
+                        
 
                     </div>
                     <!-- <div class="card-footer">
