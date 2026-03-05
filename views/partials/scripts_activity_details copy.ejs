@@ -115,7 +115,7 @@
       div.innerHTML = `
             <img src="${u.avatar ?? '/images/Top POV.png'}" class="user-avatar">
             <div class="user-info">
-                <div class="user-name">${u.unit_id}</div>
+                <div class="user-name">${u.unit_id}<span class="status-dot ${u.is_online ? 'online' : 'offline'}"></span></div>
                 <div class="user-id">${u.driver}</div>
             </div>
             <button class="btn-open"
