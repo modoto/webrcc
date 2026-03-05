@@ -213,12 +213,12 @@ io.on("connection", (socket) => {
   socket.on("message_read", async ({ conversationId }) => {
     const userId = socket.userId;
 
-    // await pool.query(
-    //   `UPDATE messages 
-    //  SET status='read'
-    //  WHERE conversation_id=$1 AND sender_id != $2`,
-    //   [conversationId, userId]
-    // );
+    await pool.query(
+      `UPDATE messages 
+     SET status='read'
+     WHERE conversation_id=$1 AND sender_id != $2`,
+      [conversationId, userId]
+    );
 
     socket.to(`conv_${conversationId}`).emit("messages_read", { conversationId });
   });

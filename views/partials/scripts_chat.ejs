@@ -194,7 +194,15 @@
   function updateChatHeader(conversationId, name, avatar, status, isGroup) {
     document.getElementById("chat-header-name").innerText = name;
     document.getElementById("chat-header-status").innerText = status;
-    document.getElementById("chat-header-avatar").src = avatar;
+    
+    let image = "";
+    if (name == "SA" || name == "Admin" || name == "User1" || name == "User2") {
+      image = "/images/logo.png";
+    } else {
+      image = "/images/unit.png";
+    }
+
+    document.getElementById("chat-header-avatar").src = image;
   }
 
 
@@ -282,9 +290,16 @@
     `);
     }
 
+    let image = "";
+    if (senderName == "SA" || senderName == "Admin" || senderName == "User1" || senderName == "User2") {
+      image = "/images/logo.png";
+    } else {
+      image = "/images/unit.png";
+    }
+
     const html = `
     <div class="chat-row ${isMe ? "chat-right" : "chat-left"}">
-      ${!isMe ? `<img src="${avatar}" class="chat-avatar">` : ""}
+      ${!isMe ? `<img src="${image}" class="chat-avatar">` : ""}
 
       <div class="chat-bubble">
         ${!isMe ? `<div class="chat-name">${senderName}</div>` : ""}
@@ -295,7 +310,7 @@
         </div>
       </div>
 
-      ${isMe ? `<img src="${avatar}" class="chat-avatar chat-avatar-right">` : ""}
+      ${isMe ? `<img src="${image}" class="chat-avatar chat-avatar-right">` : ""}
     </div>
   `;
 
@@ -505,10 +520,18 @@
         ? `<div class="wa-unread-badge">${unread}</div>`
         : "";
 
+      // <img src="${conv.display_avatar}" class="wa-avatar">
+      let image = "";
+      if (conv.display_name == "SA" || conv.display_name == "Admin" || conv.display_name == "User1" || conv.display_name == "User2") {
+        image = "/images/logo.png";
+      } else {
+        image = "/images/unit.png";
+      }
       const html = `
       <div class="wa-contact-item" data-userid="${conv.id}" data-conversationid="${conv.conversation_id}" data-name="${conv.display_name}"
               data-avatar="${conv.display_avatar}" data-isgroup="${conv.is_group}" data-status="online">
-              <img src="${conv.display_avatar}" class="wa-avatar">
+              
+              <img src="${image}" class="wa-avatar"> 
               <div class="wa-contact-info">
                 <div class="wa-contact-name">${conv.display_name}</div>
                 <div class="wa-contact-last-msg">${conv.last_message || ""}</div>
