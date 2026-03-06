@@ -216,7 +216,7 @@ async function generateRunningNumber() {
 
     // 3. Jika tanggal sama, ambil 4 digit terakhir dan tambahkan 1
     const parts = lastIdFromDb.split("-");
-    const lastSequence = parseInt(parts[2], 10);
+    const lastSequence = parseInt(parts[1], 10);
     const nextSequence = (lastSequence + 1).toString().padStart(3, '0');
 
     return `${newPrefix}-${nextSequence}`;
