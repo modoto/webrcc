@@ -86,12 +86,14 @@ app.use((req, res, next) => {
 //  SOCKET.IO SETUP
 // ====================================================
 const options = {
-  key: fs.readFileSync('key.pem'),
-  cert: fs.readFileSync('cert.pem'),
+  // key: fs.readFileSync('key.pem'),
+  // cert: fs.readFileSync('cert.pem'),
+  key: fs.readFileSync('/etc/ssl/server.key'),
+  cert: fs.readFileSync('/etc/ssl/server.crt'),
 };
 
-const server = http.createServer(app);
-//const server = https.createServer(options, app);
+//const server = http.createServer(app);
+const server = https.createServer(options, app);
 const io = new Server(server, { cors: { origin: "*" } });
 
 console.log('SOCKET_URL:', SOCKET_URL);
@@ -375,10 +377,8 @@ io.on("connection", (socket) => {
     const transport = await router.createWebRtcTransport({
       listenIps: [{
         ip: "0.0.0.0",
-        announcedIp: "192.168.0.113" // IP server local
-        //announcedIp: "192.168.18.94" // IP server local
-        //announcedIp: "31.97.67.18" // IP server Public
-        //announcedIp: IP_ADDRESS
+        announcedIp: "192.168.10.226" // IP server local
+        //announcedIp: "192.168.10.201" // IP server
       }],
       initialAvailableOutgoingBitrate: 1000000,
       enableUdp: true,
