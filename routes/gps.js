@@ -8,6 +8,6 @@ router.get("/getMaps", requireLogin, GpsController.getMaps);
 router.get("/getMapGroups/:id", requireLogin, GpsController.getMapGroups);
 router.get("/getDevice/:id", requireLogin, GpsController.getDevice);
 
-router.post("/create", requireLogin, authMiddleware, GpsController.create);
+router.post("/create", authMiddleware, GpsController.create);
 
 module.exports = router; 
