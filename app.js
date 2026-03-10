@@ -86,10 +86,10 @@ app.use((req, res, next) => {
 //  SOCKET.IO SETUP
 // ====================================================
 const options = {
-  // key: fs.readFileSync('key.pem'),
-  // cert: fs.readFileSync('cert.pem'),
-  key: fs.readFileSync('/etc/ssl/server.key'),
-  cert: fs.readFileSync('/etc/ssl/server.crt'),
+  key: fs.readFileSync('key.pem'),
+  cert: fs.readFileSync('cert.pem'),
+  // key: fs.readFileSync('/etc/ssl/server.key'),
+  // cert: fs.readFileSync('/etc/ssl/server.crt'),
 };
 
 //const server = http.createServer(app);
@@ -377,7 +377,8 @@ io.on("connection", (socket) => {
     const transport = await router.createWebRtcTransport({
       listenIps: [{
         ip: "0.0.0.0",
-        announcedIp: "192.168.10.226" // IP server local
+        //announcedIp: "192.167.61.17" // IP server local
+        announcedIp: "192.168.100.5" // IP Ralika
         //announcedIp: "192.168.10.201" // IP server
       }],
       initialAvailableOutgoingBitrate: 1000000,

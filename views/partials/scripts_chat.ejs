@@ -499,12 +499,13 @@
   //  LOAD CONTACT LIST
   // =============================
   async function loadContactList() {
+    console.log('loadContactList');
     const res = await fetch("/conversations/getUserConversations", {
       headers: { Authorization: "Bearer " + token }
     });
 
     const list = await res.json();
-    //console.log(list);
+    console.log(list);
     renderContactList(list);
   }
 
