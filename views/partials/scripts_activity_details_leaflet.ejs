@@ -14,125 +14,12 @@
 <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js"></script>
 
 <script>
-
-  // =============================
-  // CUSTOM MARKER
-  // =============================
-  class CustomMarker extends google.maps.OverlayView {
-    constructor(position, map, imageUrl, popup) {
-      super();
-      this.position = new google.maps.LatLng(position.lat, position.lng);
-      this.map = map;
-      this.imageUrl = imageUrl;
-      this.popup = popup;
-      this.div = null;
-      this.angle = 0;
-
-      this.setMap(map);
-    }
-
-    onAdd() {
-      this.div = document.createElement("div");
-      this.div.style.position = "absolute";
-
-      // container
-      const wrapper = document.createElement("div");
-      wrapper.style.position = "relative";
-
-      const img = document.createElement("img");
-      img.src = this.imageUrl;
-      img.style.width = "45px";
-      img.style.height = "66px";
-      img.style.transformOrigin = "center center";
-      img.style.transition = "transform 0.2s linear";
-
-      // 🔥 LABEL
-      const label = document.createElement("div");
-      label.innerHTML = this.popup || "iki lho";
-      label.style.position = "absolute";
-      label.style.bottom = "100%";
-      label.style.left = "50%";
-      label.style.transform = "translateX(-50%)";
-      label.style.background = "white";
-      label.style.padding = "2px 6px";
-      label.style.borderRadius = "6px";
-      label.style.fontSize = "12px";
-      label.style.whiteSpace = "nowrap";
-      label.style.boxShadow = "0 2px 6px rgba(0,0,0,0.3)";
-
-      this.img = img;
-
-      wrapper.appendChild(img);
-      wrapper.appendChild(label);
-      this.div.appendChild(wrapper);
-
-      const panes = this.getPanes();
-      panes.overlayImage.appendChild(this.div);
-    }
-
-    draw() {
-      const projection = this.getProjection();
-      if (!projection) return; // ⛑️ WAJIB
-
-      const pos = projection.fromLatLngToDivPixel(this.position);
-
-      if (this.div && pos) {
-        this.div.style.left = pos.x - 22 + "px";
-        this.div.style.top = pos.y - 33 + "px";
-      }
-    }
-
-    updatePosition(latLng) {
-      this.position = new google.maps.LatLng(latLng.lat, latLng.lng);
-
-      if (this.getProjection()) {
-        this.draw();
-      }
-    }
-
-    setRotation(angle) {
-      this.angle = angle;
-      if (this.img) {
-        this.img.style.transform = `rotate(${angle}deg)`;
-      }
-    }
-
-    remove() {
-      this.isRemoved = true;
-
-      if (this.div) {
-        this.div.remove();
-        this.div = null;
-      }
-
-      this.setMap(null);
-    }
-  }
-  // ======================== END CLASS ===================
-
-
   const token = document.getElementById("token").value;
   console.log('token:', token);
 
   let map = null;
   let markersLayer = {};
-  let lastPositions = {};
-  let trails = {};
-  let cameras;
-
-  // =============================
-  // INIT MAP
-  // =============================
-  function initMap(starting_position = [-6.17045, 106.81595]) {
-
-    if (map) return;
-
-    map = new google.maps.Map(document.getElementById("map"), {
-      zoom: 14,
-      center: { lat: starting_position[0], lng: starting_position[1] },
-      mapTypeId: "roadmap"
-    });
-  }
+  let cameras ;
 
   async function getLocation() {
     try {
@@ -152,147 +39,57 @@
       // =============================
       // 1️⃣ INIT MAP (HANYA SEKALI)
       // =============================
-      initMap(starting_position);
+      if (!map) {
+        const key = 'xETUuAVe5RphO86wCqU2';
+
+        map = L.map('map').setView(starting_position, 14);
+
+        L.tileLayer(
+          `https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=${key}`,
+          {
+            tileSize: 512,
+            zoomOffset: -1,
+            minZoom: 1,
+            attribution:
+              '&copy; MapTiler &copy; OpenStreetMap contributors',
+            crossOrigin: true
+          }
+        ).addTo(map);
+      }
+      // =============================
+      // 2️⃣ ICON (BISA GLOBAL JUGA)
+      // =============================
+      const carIcon = L.icon({
+        iconUrl: '/images/Top POV.png',
+        iconSize: [45, 66],
+        iconAnchor: [22.5, 60],
+        popupAnchor: [0, -62]
+      });
 
       // =============================
-      // UPDATE / CREATE MARKER
+      // 3️⃣ UPDATE / CREATE MARKER
       // =============================
-      updateMarkers(data);
+      data.forEach(item => {
+        const id = item.id;              // 🔑 marker unique id
+        const coords = item.coords;      // [lat, lng]
+        const popup = item.popup;
+
+        if (markersLayer[id]) {
+          // 🟢 UPDATE posisi
+          markersLayer[id].setLatLng(coords);
+        } else {
+          // 🟢 CREATE marker pertama kali
+          markersLayer[id] = L.marker(coords, { icon: carIcon })
+            .addTo(map)
+            .bindPopup(popup)
+            .openPopup();
+        }
+      });
+
     } catch (err) {
       console.error("getLocation error:", err);
     }
   }
-
-  // =============================
-  // UPDATE MARKERS
-  // =============================
-  function updateMarkers(data) {
-
-    if (!map) return;
-
-    data.forEach(item => {
-
-      const id = item.id;
-      const coords = item.coords;
-      const popup = item.popup;
-
-      if (!coords || coords.length < 2) return;
-
-      const latLng = {
-        lat: parseFloat(coords[0]),
-        lng: parseFloat(coords[1])
-      };
-
-      // VALIDASI tambahan
-      if (isNaN(latLng.lat) || isNaN(latLng.lng)) return;
-
-      if (markersLayer[id]) {
-
-        // =====================
-        // HITUNG ROTASI
-        // =====================
-        if (lastPositions[id]) {
-          const last = lastPositions[id];
-          const angle = getBearing(last[0], last[1], coords[0], coords[1]);
-
-          markersLayer[id].setRotation(angle); // 🔥 ROTATE REAL
-        }
-
-        smoothMoveMarkerCustom(markersLayer[id], latLng);
-
-        // TRAIL
-        trails[id].getPath().push(
-          new google.maps.LatLng(latLng.lat, latLng.lng)
-        );
-
-      } else {
-
-        // MARKER
-        markersLayer[id] = new CustomMarker(
-          latLng,
-          map,
-          '/images/Top POV.png',
-          popup
-        );
-
-        // INFO WINDOW
-        const infowindow = new google.maps.InfoWindow({
-          content: popup
-        });
-
-        markersLayer[id].addListener("click", () => {
-          infowindow.open(map, markersLayer[id]);
-        });
-
-        // TRAIL
-        trails[id] = new google.maps.Polyline({
-          path: [new google.maps.LatLng(latLng.lat, latLng.lng)],
-          geodesic: true,
-          strokeWeight: 3
-        });
-
-        // aktifkan ini jika ingin ada line rute yang di lewati
-        //trails[id].setMap(map);
-      }
-
-      lastPositions[id] = coords;
-    });
-  }
-
-  // =============================
-  // SMOOTH MOVEMENT
-  // =============================
-  function smoothMoveMarkerCustom(marker, newLatLng, duration = 1000) {
-
-    if (!marker || !marker.position) return;
-
-    const start = marker.position;
-
-    // ⛑️ HANDLE DUA TIPE
-    const startLat = typeof start.lat === "function" ? start.lat() : start.lat;
-    const startLng = typeof start.lng === "function" ? start.lng() : start.lng;
-
-    const startTime = performance.now();
-
-    function animate(time) {
-
-      const progress = Math.min((time - startTime) / duration, 1);
-
-      const lat = startLat + (newLatLng.lat - startLat) * progress;
-      const lng = startLng + (newLatLng.lng - startLng) * progress;
-
-      marker.updatePosition({ lat, lng });
-
-      if (progress < 1) {
-        requestAnimationFrame(animate);
-      }
-    }
-
-    requestAnimationFrame(animate);
-  }
-
-  // =============================
-  // HITUNG ARAH KENDARAAN
-  // =============================
-  function getBearing(lat1, lon1, lat2, lon2) {
-
-    var dLon = (lon2 - lon1) * Math.PI / 180;
-
-    lat1 = lat1 * Math.PI / 180;
-    lat2 = lat2 * Math.PI / 180;
-
-    var y = Math.sin(dLon) * Math.cos(lat2);
-    var x = Math.cos(lat1) * Math.sin(lat2) -
-      Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLon);
-
-    var brng = Math.atan2(y, x);
-
-    brng = brng * 180 / Math.PI;
-    brng = (brng + 360) % 360;
-
-    return brng;
-  }
-
 
   async function getUsers() {
     const id = document.getElementById("id").value;
@@ -321,7 +118,11 @@
                 <div class="user-name">${u.unit_id}</div>
                 <div class="user-id">${u.driver}</div>
             </div>
-            
+            <button class="btn-open"
+                onclick="openUserMap('${u.id}')"
+                title="Open detail">
+                OPEN
+            </button>
         `;
       overlay.appendChild(div);
     });
@@ -747,7 +548,6 @@
 
   $(document).ready(function () {
     console.log('Hello World');
-    initMap();
     getLocation();      // initial call
     getUsers();         // initial call
     getLocationTimer(); // start timer
@@ -965,7 +765,7 @@
       });
       let result = await res.json();
       const starting_position = result.starting_position;
-      cameras = result.data;
+     cameras = result.data;
 
       console.log('cameras:', cameras);
 
@@ -992,7 +792,7 @@
         </div>
         `;
 
-        const col2 = document.createElement("div");
+      const col2 = document.createElement("div");
         col2.className = "col-sm-6";
 
         col2.innerHTML = `
@@ -1014,11 +814,11 @@
         container.appendChild(col);
         container.appendChild(col2);
 
-        const mtcam_id = 'videoCanvas' + cam.mtcam_id;
+        const mtcam_id = 'videoCanvas'+ cam.mtcam_id;
         const canvasMtc = document.getElementById(mtcam_id);
         new JSMpeg.Player(cam.ws_mtcam, { canvas: canvasMtc });
 
-        const bwcam_id = 'videoCanvas' + cam.bwcam_id;
+        const bwcam_id = 'videoCanvas'+ cam.bwcam_id;
         const canvasBwc = document.getElementById(bwcam_id);
         new JSMpeg.Player(cam.ws_bwcam, { canvas: canvasBwc });
 

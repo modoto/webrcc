@@ -9,6 +9,101 @@
 <!-- AdminLTE for demo purposes -->
 
 <script>
+
+  // =============================
+  // CUSTOM MARKER
+  // =============================
+  class CustomMarker extends google.maps.OverlayView {
+    constructor(position, map, imageUrl, popup ) {
+      super();
+      this.position = new google.maps.LatLng(position.lat, position.lng);
+      this.map = map;
+      this.imageUrl = imageUrl;
+      this.popup = popup;
+      this.div = null;
+      this.angle = 0;
+
+      this.setMap(map);
+    }
+
+    onAdd() {
+      this.div = document.createElement("div");
+      this.div.style.position = "absolute";
+
+      // container
+      const wrapper = document.createElement("div");
+      wrapper.style.position = "relative";
+
+      const img = document.createElement("img");
+      img.src = this.imageUrl;
+      img.style.width = "45px";
+      img.style.height = "66px";
+      img.style.transformOrigin = "center center";
+      img.style.transition = "transform 0.2s linear";
+
+      // 🔥 LABEL
+      const label = document.createElement("div");
+      label.innerHTML = this.popup || "iki lho";
+      label.style.position = "absolute";
+      label.style.bottom = "100%";
+      label.style.left = "50%";
+      label.style.transform = "translateX(-50%)";
+      label.style.background = "white";
+      label.style.padding = "2px 6px";
+      label.style.borderRadius = "6px";
+      label.style.fontSize = "12px";
+      label.style.whiteSpace = "nowrap";
+      label.style.boxShadow = "0 2px 6px rgba(0,0,0,0.3)";
+
+      this.img = img;
+
+      wrapper.appendChild(img);
+      wrapper.appendChild(label);
+      this.div.appendChild(wrapper);
+
+      const panes = this.getPanes();
+      panes.overlayImage.appendChild(this.div);
+    }
+
+    draw() {
+      const projection = this.getProjection();
+      if (!projection) return; // ⛑️ WAJIB
+
+      const pos = projection.fromLatLngToDivPixel(this.position);
+
+      if (this.div && pos) {
+        this.div.style.left = pos.x - 22 + "px";
+        this.div.style.top = pos.y - 33 + "px";
+      }
+    }
+
+    updatePosition(latLng) {
+      this.position = new google.maps.LatLng(latLng.lat, latLng.lng);
+
+      if (this.getProjection()) {
+        this.draw();
+      }
+    }
+
+    setRotation(angle) {
+      this.angle = angle;
+      if (this.img) {
+        this.img.style.transform = `rotate(${angle}deg)`;
+      }
+    }
+
+    remove() {
+      this.isRemoved = true;
+
+      if (this.div) {
+        this.div.remove();
+        this.div = null;
+      }
+
+      this.setMap(null);
+    }
+  }
+
   const token = document.getElementById("token").value;
   console.log('token:', token);
 
@@ -17,119 +112,380 @@
 
   let map = null;
   let markersLayer = {};
+  let lastPositions = {};
+  let trails = {};
 
+  let dummyIndex = 0;
+
+  // =============================
+  // DUMMY ROUTE
+  // =============================
+  const dummyRoutes = {
+    1: [
+      [-6.170816684750083, 106.8125426012495],
+      [-6.170842468579525, 106.81243686993679],
+      [-6.170861310607937, 106.81233512848493],
+      [-6.17089106117775, 106.8121855087028],
+      [-6.170903953091587, 106.8119660663232],
+      [-6.170946595571024, 106.81178452765418],
+      [-6.170981304564366, 106.81155910050356],
+      [-6.171002129958689, 106.8114164629779],
+      [-6.171017996925246, 106.81122195726113],
+      [-6.17100609670037, 106.8111770713265],
+      [-6.170967420967688, 106.81117507639605],
+      [-6.17092775354662, 106.81117208400043],
+      [-6.170892052865132, 106.81119602316556],
+      [-6.170877177580461, 106.81123991163498],
+      [-6.170854368809822, 106.81138554155628],
+      [-6.170807759579822, 106.81159301432083],
+      [-6.170779992377015, 106.81176258340727],
+      [-6.170669915235598, 106.81233113860698],
+      [-6.170555871323161, 106.81294856960999],
+      [-6.170456702686047, 106.81352011721144],
+      [-6.170359517403977, 106.81415550257321],
+      [-6.17030100788974, 106.81456446331107],
+      [-6.170304974636674, 106.81465124278472],
+      [-6.1703644758370855, 106.81470909576714],
+      [-6.170411085106078, 106.81469114139328],
+      [-6.170460874050914, 106.81448672351361],
+      [-6.170530764640287, 106.81407415573355],
+
+      [-6.170584614760234, 106.81376876338238],
+      [-6.170656796827325, 106.81344608467174],
+      [-6.170733561873669, 106.81305310805882],
+      [-6.170803452427064, 106.81267280814983],
+      [-6.170829804600547, 106.81252414545813]
+    ],
+
+    2: [
+      [-6.170816684750083, 106.8125426012495],
+      [-6.170842468579525, 106.81243686993679],
+      [-6.170861310607937, 106.81233512848493],
+      [-6.17089106117775, 106.8121855087028],
+      [-6.170903953091587, 106.8119660663232],
+      [-6.170946595571024, 106.81178452765418],
+      [-6.170981304564366, 106.81155910050356],
+      [-6.171002129958689, 106.8114164629779],
+      [-6.171017996925246, 106.81122195726113],
+      [-6.17100609670037, 106.8111770713265],
+      [-6.170967420967688, 106.81117507639605],
+      [-6.17092775354662, 106.81117208400043],
+      [-6.170892052865132, 106.81119602316556],
+      [-6.170877177580461, 106.81123991163498],
+      [-6.170854368809822, 106.81138554155628],
+      [-6.170807759579822, 106.81159301432083],
+      [-6.170779992377015, 106.81176258340727],
+      [-6.170669915235598, 106.81233113860698],
+      [-6.170555871323161, 106.81294856960999],
+      [-6.170456702686047, 106.81352011721144],
+      [-6.170359517403977, 106.81415550257321],
+      [-6.17030100788974, 106.81456446331107],
+      [-6.170304974636674, 106.81465124278472],
+      [-6.1703644758370855, 106.81470909576714],
+      [-6.170411085106078, 106.81469114139328],
+      [-6.170460874050914, 106.81448672351361],
+      [-6.170530764640287, 106.81407415573355],
+
+      [-6.170584614760234, 106.81376876338238],
+      [-6.170656796827325, 106.81344608467174],
+      [-6.170733561873669, 106.81305310805882],
+      [-6.170803452427064, 106.81267280814983],
+      [-6.170829804600547, 106.81252414545813]
+    ]
+  };
+
+  // =============================
+  // INIT MAP
+  // =============================
+  function initMap(starting_position = [-6.17045, 106.81595]) {
+
+    if (map) return;
+
+    map = new google.maps.Map(document.getElementById("map"), {
+      zoom: 14,
+      center: { lat: starting_position[0], lng: starting_position[1] },
+      mapTypeId: "roadmap"
+    });
+  }
+
+  // =============================
+  // OPTION DEVICE
+  // =============================
   async function setOption(newId, newType) {
 
-    // sebelum render, bersihkan marker lama sesuai type
-    Object.values(markersLayer).forEach(marker => map.removeLayer(marker));
-    markersLayer = {};   // reset storage
+    Object.values(markersLayer).forEach(marker => {
+
+      if (!marker) return;
+
+      // marker biasa (kalau ada)
+      if (marker.setMap) {
+        marker.setMap(null);
+      }
+
+      // custom marker
+      if (marker.remove) {
+        marker.remove();
+      }
+    });
+
+    markersLayer = {};
 
     console.log('setOption');
     console.log('deviceid:', newId);
     console.log('type:', newType);
+
     deviceid = newId;
     type = newType;
   }
 
+  // =============================
+  // FETCH GPS API
+  // =============================
   async function getLocation() {
     try {
+
       //console.log('deviceid:', deviceid);
       //console.log('type:', type);
+
       let result;
+
       if (type == "all") {
+
         console.log('getLocation');
+
         const res = await fetch(`/gps/getMaps`, {
           headers: { Authorization: "Bearer " + token }
         });
+
         result = await res.json();
+
       } else if (type == "individu") {
+
         console.log('getLocation');
+
         const res = await fetch(`/gps/getDevice/` + deviceid, {
           headers: { Authorization: "Bearer " + token }
         });
+
         result = await res.json();
+
       } else if (type == "groups") {
+
         console.log('getLocation');
+
         const res = await fetch(`/gps/getMapGroups/` + deviceid, {
           headers: { Authorization: "Bearer " + token }
         });
+
         result = await res.json();
       }
 
       const starting_position = result.starting_position;
       const data = result.data;
+
       //console.log('Data:', data);
 
-      // =============================
-      // 1️⃣ INIT MAP (HANYA SEKALI)
-      // =============================
-      if (!map) {
-        const key = 'xETUuAVe5RphO86wCqU2';
+      initMap(starting_position);
 
-        map = L.map('map').setView(starting_position, 14);
+      updateMarkers(data);
 
-        L.tileLayer(
-          `https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=${key}`,
-          {
-            tileSize: 512,
-            zoomOffset: -1,
-            minZoom: 1,
-            attribution:
-              '&copy; MapTiler &copy; OpenStreetMap contributors',
-            crossOrigin: true
-          }
-        ).addTo(map);
-      }
-      // =============================
-      // 2️⃣ ICON (BISA GLOBAL JUGA)
-      // =============================
-      const carIcon = L.icon({
-        iconUrl: '/images/Top POV.png',
-        iconSize: [45, 66],
-        iconAnchor: [22.5, 60],
-        popupAnchor: [0, -62]
-      });
-
-      // =============================
-      // 3️⃣ UPDATE / CREATE MARKER
-      // =============================
-
-      // bersihkan marker lama kalau type individu
-      //if (type === "individu") {
-      // Object.values(markersLayer).forEach(marker => map.removeLayer(marker));
-      // markersLayer = {};
-      //}
-
-      data.forEach(item => {
-        const id = item.id;
-        const coords = item.coords;
-        const popup = item.popup;
-
-        if (markersLayer[id]) {
-          markersLayer[id].setLatLng(coords);
-        } else {
-          markersLayer[id] = L.marker(coords, { icon: carIcon })
-            .addTo(map)
-            .bindPopup(popup)
-            .openPopup();
-        }
-      });
     } catch (err) {
+
       console.error("getLocation error:", err);
+
     }
   }
 
+  // =============================
+  // UPDATE MARKERS
+  // =============================
+  function updateMarkers(data) {
+
+    if (!map) return;
+
+    data.forEach(item => {
+
+      const id = item.id;
+      const coords = item.coords;
+      const popup = item.popup;
+
+      if (!coords || coords.length < 2) return;
+
+      const latLng = {
+        lat: parseFloat(coords[0]),
+        lng: parseFloat(coords[1])
+      };
+
+      // VALIDASI tambahan
+      if (isNaN(latLng.lat) || isNaN(latLng.lng)) return;
+
+      if (markersLayer[id]) {
+
+        // =====================
+        // HITUNG ROTASI
+        // =====================
+        if (lastPositions[id]) {
+          const last = lastPositions[id];
+          const angle = getBearing(last[0], last[1], coords[0], coords[1]);
+
+          markersLayer[id].setRotation(angle); // 🔥 ROTATE REAL
+        }
+
+        smoothMoveMarkerCustom(markersLayer[id], latLng);
+
+        // TRAIL
+        trails[id].getPath().push(
+          new google.maps.LatLng(latLng.lat, latLng.lng)
+        );
+
+      } else {
+
+        // MARKER
+        markersLayer[id] = new CustomMarker(
+          latLng,
+          map,
+          '/images/Top POV.png',
+          popup 
+        );
+
+        // INFO WINDOW
+        const infowindow = new google.maps.InfoWindow({
+          content: popup
+        });
+
+        markersLayer[id].addListener("click", () => {
+          infowindow.open(map, markersLayer[id]);
+        });
+
+        // TRAIL
+        trails[id] = new google.maps.Polyline({
+          path: [new google.maps.LatLng(latLng.lat, latLng.lng)],
+          geodesic: true,
+          strokeWeight: 3
+        });
+
+        // aktifkan ini jika ingin ada line rute yang di lewati
+        //trails[id].setMap(map);
+      }
+
+      lastPositions[id] = coords;
+    });
+  }
+
+  // =============================
+  // SMOOTH MOVEMENT
+  // =============================
+  function smoothMoveMarkerCustom(marker, newLatLng, duration = 1000) {
+
+    if (!marker || !marker.position) return;
+
+    const start = marker.position;
+
+    // ⛑️ HANDLE DUA TIPE
+    const startLat = typeof start.lat === "function" ? start.lat() : start.lat;
+    const startLng = typeof start.lng === "function" ? start.lng() : start.lng;
+
+    const startTime = performance.now();
+
+    function animate(time) {
+
+      const progress = Math.min((time - startTime) / duration, 1);
+
+      const lat = startLat + (newLatLng.lat - startLat) * progress;
+      const lng = startLng + (newLatLng.lng - startLng) * progress;
+
+      marker.updatePosition({ lat, lng });
+
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      }
+    }
+
+    requestAnimationFrame(animate);
+  }
+
+  // =============================
+  // HITUNG ARAH KENDARAAN
+  // =============================
+  function getBearing(lat1, lon1, lat2, lon2) {
+
+    var dLon = (lon2 - lon1) * Math.PI / 180;
+
+    lat1 = lat1 * Math.PI / 180;
+    lat2 = lat2 * Math.PI / 180;
+
+    var y = Math.sin(dLon) * Math.cos(lat2);
+    var x = Math.cos(lat1) * Math.sin(lat2) -
+      Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLon);
+
+    var brng = Math.atan2(y, x);
+
+    brng = brng * 180 / Math.PI;
+    brng = (brng + 360) % 360;
+
+    return brng;
+  }
+
+  // =============================
+  // GPS SIMULATOR
+  // =============================
+  function simulateGPS() {
+
+    const data = [];
+
+    Object.keys(dummyRoutes).forEach(id => {
+
+      const route = dummyRoutes[id];
+
+      //if (dummyIndex >= route.length) {
+      //dummyIndex = route.length - 1; // berhenti di Indomaret
+      //}
+
+      if (dummyIndex >= route.length) {
+        dummyIndex = 0; // ulang dari awal
+      }
+
+      data.push({
+        id: id,
+        coords: route[dummyIndex],
+        popup: "Motor testing dari Permata Bank ke Indomaret"
+      });
+
+    });
+
+    dummyIndex++;
+
+    updateMarkers(data);
+
+  }
+
+  // =============================
+  // TIMER API
+  // =============================
   let timer1 = null;
+
   async function getLocationTimer() {
     if (timer1) return; // cegah dobel timer
     timer1 = setInterval(async () => {
       await getLocation();
     }, 2000);
+
   }
 
+  // =============================
+  // DOCUMENT READY
+  // =============================
   $(document).ready(async function () {
+
+    initMap(); // supaya dummy bisa jalan tanpa API
     await setOption("0", "all");      // initial call
-    await getLocationTimer(); // start timer
+    //await getLocationTimer(); // start timer
+
+    // SIMULATOR GPS
+    setInterval(() => {
+    simulateGPS();
+    }, 2000);
+
   });
 
 </script>
