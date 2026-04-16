@@ -74,7 +74,7 @@ class UsersController {
 
   static async delete(req, res) {
 
-    await Users.delete(req.params.id);
+    await Users.softDelete(req.params.id);
     res.redirect("/users");
   }
 
