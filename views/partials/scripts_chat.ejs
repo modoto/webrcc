@@ -194,7 +194,7 @@
   function updateChatHeader(conversationId, name, avatar, status, isGroup) {
     document.getElementById("chat-header-name").innerText = name;
     document.getElementById("chat-header-status").innerText = status;
-    
+
     let image = "";
     if (name == "SA" || name == "Admin" || name == "User1" || name == "User2") {
       image = "/images/logo.png";
@@ -651,5 +651,26 @@
     endCall();
   });
 
+  const searchInput = document.getElementById('searchInput');
 
+  searchInput.addEventListener('keyup', function () {
+    // 1. Ambil nilai input dan ubah ke huruf kecil
+    const filter = searchInput.value.toLowerCase();
+
+    // 2. Ambil semua elemen card kontak
+    const contacts = document.querySelectorAll('.wa-contact-item');
+
+    contacts.forEach(contact => {
+      // 3. Cari elemen nama di dalam setiap kontak
+      const nameElement = contact.querySelector('.wa-contact-name');
+      const nameText = nameElement.textContent || nameElement.innerText;
+
+      // 4. Cek apakah nama mengandung kata kunci pencarian
+      if (nameText.toLowerCase().indexOf(filter) > -1) {
+        contact.style.display = ""; // Tampilkan jika cocok
+      } else {
+        contact.style.display = "none"; // Sembunyikan jika tidak cocok
+      }
+    });
+  });
 </script>

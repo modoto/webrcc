@@ -116,7 +116,7 @@ class UnitController {
 
   static async delete(req, res) {
 
-    await Unit.delete(req.params.id);
+    await Unit.softDelete(req.params.id);
     res.redirect("/unit");
   }
 }

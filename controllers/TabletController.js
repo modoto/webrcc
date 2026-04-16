@@ -64,7 +64,7 @@ class TabletController {
 
   static async delete(req, res) {
 
-    await Tablet.delete(req.params.id);
+    await Tablet.softDelete(req.params.id);
     res.redirect("/tablet");
   }
 }

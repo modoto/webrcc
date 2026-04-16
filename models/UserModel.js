@@ -22,6 +22,7 @@ class UserModel {
   }
 
   static async create(data) {
+    console.log('user create data:', data);
     const q = `
       INSERT INTO users (
         user_id, username, display_name, email, password, roles, status, created_at, created_by
