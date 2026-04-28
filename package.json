@@ -22,6 +22,7 @@
     "express": "^5.2.1",
     "express-ejs-layouts": "^2.5.1",
     "express-session": "^1.18.2",
+    "firebase-admin": "^13.8.0",
     "jsonwebtoken": "^9.0.2",
     "luxon": "^3.7.2",
     "mediasoup": "^3.19.14",

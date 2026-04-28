@@ -18,6 +18,16 @@ const { createMediasoup } = require("./mediasoup");
 const { initMediasoup, getRouter } = require("./mediasoupServer");
 const { getOrCreateRoom } = require("./rooms");
 const { requireLogin, requireRole, requireRoles } = require('./helpers/sessionHelper');
+const admin = require("firebase-admin");
+const serviceAccount = require("./komando-8344b-firebase-adminsdk-fbsvc-27b5c0eb01.json");
+
+
+// Initialize the SDK
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
+// The registration token from the client device (Android/iOS/Web)
+const registrationToken = "YOUR_DEVICE_REGISTRATION_TOKEN";
 
 // ====================================================
 //  EXPRESS INITIALIZATION
@@ -26,6 +36,8 @@ const { requireLogin, requireRole, requireRoles } = require('./helpers/sessionHe
 const IP_ADDRESS = process.env.SERVER_ADDRESS;
 const JWT_SECRET = process.env.JWT_SECRET;
 const SOCKET_URL = process.env.SOCKET_URL;
+
+
 
 const app = express();
 app.use(cors());
@@ -246,6 +258,8 @@ io.on("connection", (socket) => {
     // Contoh : roomId = 2, fromUserId = 1, toUserId = 10
     console.log("targetUserId:", targetUserId);
     console.log("onlineUsers:", onlineUsers);
+
+    firebaseSendTopicPrivateCall(roomId, socket.userId, targetUserId);
 
     io.to([...onlineUsers.get(targetUserId) || []]).emit("incoming_call", {
       roomId,
@@ -533,6 +547,38 @@ function closePeer(socket) {
   socket.producers.clear();
   socket.consumers.clear();
 }
+
+
+async function firebaseSendTopicPrivateCall(roomId,fromUserId,toUserId) {
+  const message = {
+    topic: "private_call",
+    data: {
+      v: "1",
+      event: "CALL_INCOMING",
+      ts: Date.now().toString(),
+      id: "evt_call_001",
+      actorId: fromUserId,
+      targetId: toUserId,
+      entityId: roomId,
+      data: JSON.stringify({
+        roomId: "room_123",
+        callerName: "John",
+        callerAvatar: "https://...",
+        timeout: 30000,
+      }),
+    },
+    android: {
+      priority: "high",
+    },
+  };
+  try {
+    const res = await admin.messaging().send(message);
+    console.log("Success:", res);
+  } catch (err) {
+    console.error("Error:", err);
+  }
+}
+
 
 
 // ====================================================
