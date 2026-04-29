@@ -52,7 +52,7 @@ app.use(session({
   secret: "rahasia",
   resave: false,
   saveUninitialized: true,
-  cookie: { maxAge: 1000 * 60 * 30 }
+  cookie: { maxAge: 3600000 } // Durasi session (misal: 60 menit)
 }));
 
 // ====================================================
@@ -259,7 +259,7 @@ io.on("connection", (socket) => {
     console.log("targetUserId:", targetUserId);
     console.log("onlineUsers:", onlineUsers);
 
-    firebaseSendTopicPrivateCall(roomId, socket.userId, targetUserId);
+    firebaseSendTopicPrivateCall(roomId.toString(), socket.userId.toString(), targetUserId.toString());
 
     io.to([...onlineUsers.get(targetUserId) || []]).emit("incoming_call", {
       roomId,

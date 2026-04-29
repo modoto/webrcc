@@ -35,7 +35,7 @@ exports.details = async (req, res) => {
     const id = req.params.id
 
     res.render("activity/details", {
-        title: "Activity Details",
+        title: "Activity | " + row.activity_name,
         layout: "layouts/layout_maps_details",
         id: id,
         type: "groups",

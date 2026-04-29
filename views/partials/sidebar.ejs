@@ -14,7 +14,7 @@
     <!-- SidebarSearch Form -->
     <div class="form-inline mt-2">
       <div class="input-group" data-widget="sidebar-search">
-        <input class="form-control form-control-sidebar" type="search" placeholder="Search" aria-label="Search">
+        <input class="form-control form-control-sidebar" type="hidden" placeholder="Search" aria-label="Search">
       </div>
       <div class="sidebar-search-results">
 
@@ -27,42 +27,21 @@
         <!-- Add icons to the links using the .nav-icon class
                with font-awesome or any other icon font library -->
 
-        <li class="nav-header">DASHBOARD</li>
-
         <li class="nav-item">
           <a href="/dashboard" class="nav-link">
             <i class="far fa-circle nav-icon"></i>
-            <p>Dashboard v1</p>
+            <p>Dashboard</p>
           </a>
         </li>
-        <!-- <li class="nav-item">
-          <a href="/dashboard2" class="nav-link">
-            <i class="far fa-circle nav-icon"></i>
-            <p>Dashboard v2</p>
-          </a>
-        </li>
-        <li class="nav-item">
-          <a href="../../index3.html" class="nav-link">
-            <i class="far fa-circle nav-icon"></i>
-            <p>Dashboard v3</p>
-          </a>
-        </li> -->
+       
 
-        <% if (roles==='Super Admin' ) { %>
-          <li class="nav-header">ACTIVITY</li>
-
+        <% if (roles==='Admin' ) { %>
           <li class="nav-item">
             <a href="/activity" class="nav-link">
               <i class="fas fa-running nav-icon"></i>
               <p>Activity</p>
             </a>
           </li>
-          <!-- <li class="nav-item">
-            <a href="/cctv" class="nav-link">
-              <i class="fas fa-video nav-icon"></i>
-              <p>CCTV</p>
-            </a>
-          </li> -->
           <li class="nav-item">
             <a href="/chat" class="nav-link">
               <i class="fab fa-rocketchat nav-icon"></i>
@@ -83,9 +62,6 @@
               </p>
             </a>
           </li>
-
-          <li class="nav-header">MASTER</li>
-
           <li class="nav-item">
             <a href="/mtcam" class="nav-link">
               <i class="fas fa-video nav-icon"></i>
@@ -120,65 +96,12 @@
               <p>Router</p>
             </a>
           </li>
-
-          <!-- <li class="nav-item">
-            <a href="#" class="nav-link">
-              <i class="fas fa-phone-square nav-icon"></i>
-              <p>Voice Call</p>
-            </a>
-          </li> -->
           <li class="nav-item">
-            <a href="/users" class="nav-link">
-              <i class="fas fa-user-alt nav-icon"></i>
-              <p>Users</p>
-            </a>
-          </li>
-        <% } %>
-
-        <% if (roles==='Admin' ) { %>
-          <li class="nav-header">MASTER</li>
-
-          <li class="nav-item">
-            <a href="/mtcam" class="nav-link">
-              <i class="fas fa-video nav-icon"></i>
-              <p>
-                Motor Camera
-              </p>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="/bwcam" class="nav-link">
+            <a target="_blank" rel="noopener noreferrer" href="https://192.168.10.201:8443" class="nav-link">
               <i class="fas fa-camera nav-icon"></i>
-              <p>
-                Body Camera
-              </p>
+              <p>CCTV</p>
             </a>
           </li>
-          <li class="nav-item">
-            <a href="/vehicle" class="nav-link">
-              <i class="fas fa-motorcycle nav-icon"></i>
-              <p>Vehicle</p>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="/tablet" class="nav-link">
-              <i class="fas fa-tablet-alt nav-icon"></i>
-              <p>Tablet</p>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="/router" class="nav-link">
-              <i class="fas fa-wifi nav-icon"></i>
-              <p>Router</p>
-            </a>
-          </li>
-
-          <!-- <li class="nav-item">
-            <a href="#" class="nav-link">
-              <i class="fas fa-phone-square nav-icon"></i>
-              <p>Voice Call</p>
-            </a>
-          </li> -->
           <li class="nav-item">
             <a href="/users" class="nav-link">
               <i class="fas fa-user-alt nav-icon"></i>
@@ -188,8 +111,50 @@
         <% } %>
 
         <% if (roles==='User' ) { %>
-          <li class="nav-header">ACTIVITY</li>
 
+          <li class="nav-item">
+            <a href="/mtcam" class="nav-link">
+              <i class="fas fa-video nav-icon"></i>
+              <p>
+                Motor Camera
+              </p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="/bwcam" class="nav-link">
+              <i class="fas fa-camera nav-icon"></i>
+              <p>
+                Body Camera
+              </p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="/vehicle" class="nav-link">
+              <i class="fas fa-motorcycle nav-icon"></i>
+              <p>Vehicle</p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="/tablet" class="nav-link">
+              <i class="fas fa-tablet-alt nav-icon"></i>
+              <p>Tablet</p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="/router" class="nav-link">
+              <i class="fas fa-wifi nav-icon"></i>
+              <p>Router</p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="/users" class="nav-link">
+              <i class="fas fa-user-alt nav-icon"></i>
+              <p>Users</p>
+            </a>
+          </li>
+        <% } %>
+
+        <% if (roles==='Komando' ) { %>
           <li class="nav-item">
             <a href="/activity" class="nav-link">
               <i class="fas fa-running nav-icon"></i>
@@ -214,18 +179,10 @@
               <p>Maps</p>
             </a>
           </li>
-          <li class="nav-item">
-            <a href="/unit" class="nav-link">
-              <i class="fas fa-border-all nav-icon"></i>
-              <p>
-                Units
-              </p>
-            </a>
-          </li>
+          
         <% } %>
 
         <% if (roles==='Tab' ) { %>
-          <li class="nav-header">ACTIVITY</li>
           <li class="nav-item">
             <a href="/chat" class="nav-link">
               <i class="fab fa-rocketchat nav-icon"></i>

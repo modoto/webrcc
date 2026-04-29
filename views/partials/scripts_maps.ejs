@@ -479,12 +479,12 @@
 
     initMap(); // supaya dummy bisa jalan tanpa API
     await setOption("0", "all");      // initial call
-    //await getLocationTimer(); // start timer
+    await getLocationTimer(); // start timer
 
     // SIMULATOR GPS
-    setInterval(() => {
-    simulateGPS();
-    }, 2000);
+    //setInterval(() => {
+    //simulateGPS();
+    //}, 2000);
 
   });
 

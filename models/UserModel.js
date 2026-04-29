@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 
 class UserModel {
   static async getAll() {
-    const q = "SELECT * FROM users ORDER BY id ASC";
+    const q = "SELECT * FROM users WHERE deleted_at IS NULL ORDER BY id ASC";
     const result = await db.query(q);
     return result.rows;
   }
@@ -52,6 +52,23 @@ class UserModel {
 
     const arr = [
       data.user_id, data.username, data.display_name, data.email, data.roles, data.status, data.created_by, id
+    ];
+
+    return db.query(q, arr);
+  }
+
+  static async changepassword(id, data) {
+    const q = `
+      UPDATE users SET
+        password=$1, updated_at=NOW(),
+        last_updated_at=NOW()
+      WHERE user_id=$2
+    `;
+
+     const hash = await bcrypt.hash(data.password, 10);
+
+    const arr = [
+      hash, data.user_id, 
     ];
 
     return db.query(q, arr);

@@ -72,6 +72,25 @@ class UsersController {
     res.redirect("/users");
   }
 
+  static async changepassword(req, res) {
+    const { password, confirm_password } = req.body;
+
+    // Cek apakah password cocok
+    if (password !== confirm_password) {
+      // Jika tidak cocok, kirim alert sederhana atau redirect balik dengan pesan error
+      return res.send("<script>alert('Password tidak cocok!'); window.history.back();</script>");
+    }
+
+    try {
+      await Users.changepassword(req.params.id, req.body);
+      res.redirect("/users");
+    } catch (error) {
+      console.error(error);
+      res.status(500).send("Terjadi kesalahan server");
+    }
+  }
+
+
   static async delete(req, res) {
 
     await Users.softDelete(req.params.id);
