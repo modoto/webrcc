@@ -63,11 +63,16 @@
                   <%= row.tab_id %>
                 </td>
                 <td>
-                  <% if(row.status==1){ %>
-                    <span class="badge badge-success">Active</span>
-                    <% } else { %>
-                      <span class="badge badge-danger">Inactive</span>
-                      <% } %>
+                  <div class="custom-control custom-switch">
+                    <input type="checkbox" class="custom-control-input status-toggle" id="status-<%= row.id %>"
+                      data-id="<%= row.id %>" <%=row.status==1 ? 'checked' : '' %>>
+                    <label class="custom-control-label" for="status-<%= row.id %>">
+                      <span id="label-<%= row.id %>"
+                        class="badge <%= row.status == 1 ? 'badge-success' : 'badge-danger' %>">
+                        <%= row.status==1 ? 'Active' : 'Inactive' %>
+                      </span>
+                    </label>
+                  </div>
                 </td>
                 <td width="130">
                   <!-- <a href="/unit/details/<%= //row.id %>" class="btn btn-success btn-sm">
@@ -91,3 +96,45 @@
     </div>
   </div>
 </section>
+
+<script>
+  document.querySelectorAll('.status-toggle').forEach(checkbox => {
+    checkbox.addEventListener('change', function () {
+      const id = this.getAttribute('data-id');
+      const isChecked = this.checked ? 1 : 0;
+      const label = document.getElementById(`label-${id}`);
+
+      // Menggunakan Fetch API
+      fetch('/unit/update-status', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id: id,
+          status: isChecked
+        })
+      })
+        .then(response => {
+          if (!response.ok) throw new Error('Network response was not ok');
+          return response.json();
+        })
+        .then(data => {
+          // Update tampilan label jika berhasil
+          if (isChecked) {
+            label.className = 'badge badge-success';
+            label.innerText = 'Active';
+          } else {
+            label.className = 'badge badge-danger';
+            label.innerText = 'Inactive';
+          }
+          console.log('Success:', data.message);
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('Gagal memperbarui status');
+          this.checked = !this.checked; // Kembalikan posisi checkbox jika gagal
+        });
+    });
+  });
+</script>

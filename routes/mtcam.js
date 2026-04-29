@@ -13,7 +13,7 @@ router.post('/create', requireLogin, MtcamController.create);
 // EDIT
 router.get('/edit/:id', requireLogin, MtcamController.editForm);
 router.post('/edit/:id', requireLogin, MtcamController.update);
-
+router.post("/update-status", requireLogin, MtcamController.updateStatus);
 // DELETE
 router.get('/delete/:id', requireLogin, MtcamController.delete);
 

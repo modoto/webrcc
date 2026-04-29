@@ -391,7 +391,7 @@ io.on("connection", (socket) => {
     const transport = await router.createWebRtcTransport({
       listenIps: [{
         ip: "0.0.0.0",
-        announcedIp: "192.168.18.94" // IP server local
+        announcedIp: "192.168.1.164" // IP server local
         //announcedIp: "192.168.100.5" // IP Ralika
         //announcedIp: "192.168.10.201" // IP server
       }],

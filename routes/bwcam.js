@@ -10,6 +10,7 @@ router.post("/create", requireLogin, BwcamController.create);
 
 router.get("/edit/:id", requireLogin, BwcamController.editForm);
 router.post("/edit/:id", requireLogin, BwcamController.update);
+router.post("/update-status", requireLogin, BwcamController.updateStatus);
 
 router.get("/delete/:id", requireLogin, BwcamController.delete);
 

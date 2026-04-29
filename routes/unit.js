@@ -11,6 +11,7 @@ router.post("/create", requireLogin,  UnitController.create);
 
 router.get("/edit/:id", requireLogin, UnitController.editForm);
 router.post("/edit/:id", requireLogin, UnitController.update);
+router.post("/update-status", requireLogin, UnitController.updateStatus);
 
 router.get("/delete/:id", requireLogin, UnitController.delete);
 

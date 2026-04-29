@@ -1,4 +1,5 @@
 const Mtcam = require('../models/MtcamModel');
+const db = require("../config/db");
 const { getUserIdSession, getUserSession, getTokenSession, getRolesSession } = require('../helpers/sessionHelper');
 
 class MtcamController {
@@ -60,6 +61,25 @@ class MtcamController {
         await Mtcam.update(req.params.id, req.body);
         res.redirect('/mtcam');
     }
+
+    static async updateStatus(req, res) {
+        const { id, status } = req.body;
+        console.log('updateStatus');
+        console.log('id:', id);
+        console.log('status:', status);
+        try {
+            const query = `
+      UPDATE mtcam SET 
+        status=$1,
+        updated_at=NOW()
+      WHERE id=$2
+    `;
+            await db.query(query, [status, id]);
+            res.json({ success: true, message: 'Status updated' });
+        } catch (error) {
+            res.status(500).json({ success: false, error: error.message });
+        }
+    };
 
     static async delete(req, res) {
         await Mtcam.softDelete(req.params.id);
