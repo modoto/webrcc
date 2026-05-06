@@ -88,6 +88,41 @@ app.use("/messages", require("./routes/messages"));
 app.use("/gps", require("./routes/gps"));
 app.use("/mobile", require("./routes/mobile"));
 
+app.post('/api/endcall', async (req, res) => {
+  const { roomId, targetUserId, callerUserId } = req.body;
+  
+  console.log("End Call Request received");
+
+  // 1. Ambil semua socket ID milik user yang ingin diputuskan panggilannya
+  const targetSockets = onlineUsers.get(targetUserId) || [];
+  const callerSockets = onlineUsers.get(callerUserId) || [];
+
+  // 2. Kirim emit ke target (penerima) dan caller (penelepon) 
+  // agar UI di kedua sisi tertutup
+  if (targetSockets.length > 0) {
+    io.to([...targetSockets]).emit("call_rejected", { 
+      roomId, 
+      rejectedBy: 'system/api' 
+    });
+  }
+
+  if (callerSockets.length > 0) {
+    io.to([...callerSockets]).emit("call_rejected", { 
+      roomId, 
+      rejectedBy: 'system/api' 
+    });
+  }
+
+  // Opsi tambahan: Jika Anda menggunakan socket room untuk voice call
+  // io.to(roomId).emit("call_rejected", { roomId, rejectedBy: 'system/api' });
+
+  res.json({
+    status: true,
+    message: "Call termination signal sent"
+  });
+});
+
+
 app.use((req, res, next) => {
   res.locals.baseUrl = process.env.BASE_URL || `${req.protocol}://${req.get("host")}`;
   next();
