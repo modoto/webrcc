@@ -1,0 +1,123 @@
+<% if (locals.sessionToken) { %>
+
+<!-- ===== GLOBAL CALL MODALS (semua halaman) ===== -->
+<style>
+  .gcall-box {
+    background: linear-gradient(160deg, #1a1a2e 0%, #0f3460 100%);
+    color: #fff;
+    border-radius: 16px;
+    padding: 32px 28px;
+    width: 320px;
+    text-align: center;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+  }
+  .gcall-box h3 { font-size: 1.1rem; margin: 0 0 4px; font-weight: 700; }
+  .gcall-box p  { font-size: 0.82rem; color: rgba(255,255,255,0.6); margin: 0 0 16px; }
+  .gcall-avatar {
+    width: 88px; height: 88px; border-radius: 50%;
+    margin-bottom: 14px;
+    border: 3px solid rgba(255,255,255,0.2);
+    object-fit: cover;
+  }
+  .gcall-pulse {
+    animation: gcallPulse 1.4s ease-in-out infinite;
+  }
+  @keyframes gcallPulse {
+    0%,100% { box-shadow: 0 0 0 0 rgba(102,126,234,0.5); }
+    50%      { box-shadow: 0 0 0 14px rgba(102,126,234,0); }
+  }
+  .gcall-controls { display:flex; justify-content:center; gap:24px; margin-top:20px; }
+  .gcall-btn {
+    width: 58px; height: 58px; border-radius: 50%; border: none;
+    font-size: 20px; cursor: pointer; color: #fff;
+    background: rgba(255,255,255,0.12); transition: all 0.2s;
+  }
+  .gcall-btn:hover { background: rgba(255,255,255,0.2); transform: scale(1.05); }
+  .gcall-btn.accept { background: linear-gradient(135deg,#11998e,#38ef7d); }
+  .gcall-btn.accept:hover { opacity:0.9; transform:scale(1.08); }
+  .gcall-btn.danger  { background: linear-gradient(135deg,#d93025,#ff6b6b); }
+  .gcall-btn.danger:hover  { opacity:0.9; transform:scale(1.08); }
+
+  .gcall-participants { margin-top:12px; }
+  .gcall-participant {
+    display:flex; justify-content:space-between;
+    padding:5px 12px; border-radius:8px;
+    background:rgba(255,255,255,0.07); margin-bottom:4px;
+    font-size:0.8rem;
+  }
+  .gcall-participant .mic.active { color:#38ef7d; }
+  .gcall-participant .mic.muted  { color:rgba(255,255,255,0.3); }
+</style>
+
+<!-- Outgoing / Active call modal -->
+<div id="callModal" class="call-modal hidden">
+  <div class="gcall-box">
+    <img id="callAvatar" class="gcall-avatar gcall-pulse" src="">
+    <h3 id="callName">Calling...</h3>
+    <p id="callStatus">Connecting...</p>
+    <div id="participants" class="gcall-participants"></div>
+    <div class="gcall-controls">
+      <button id="btnMute" onclick="toggleMute && toggleMute()" class="gcall-btn" title="Mute">
+        <i id="micIcon" class="fas fa-microphone"></i>
+      </button>
+      <button id="btnEndCall" class="gcall-btn danger" title="End Call">
+        <i class="fas fa-phone-slash"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Incoming call modal -->
+<div id="incomingCallModal" class="call-modal hidden">
+  <div class="gcall-box">
+    <img id="incomingAvatar" class="gcall-avatar gcall-pulse"
+      src="https://ui-avatars.com/api/?name=?&background=667eea&color=fff">
+    <h3 id="callFrom">Incoming Call</h3>
+    <p style="color:rgba(255,255,255,0.55);">Panggilan masuk...</p>
+    <div class="gcall-controls">
+      <button id="btnAccept" class="gcall-btn accept" title="Terima">
+        <i class="fas fa-phone"></i>
+      </button>
+      <button id="btnReject" class="gcall-btn danger" title="Tolak">
+        <i class="fas fa-phone-slash"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+<audio id="ringtone" loop>
+  <source src="/sounds/ringtone.wav" type="audio/wav">
+  <source src="/sounds/ringtone.mp3" type="audio/mpeg">
+</audio>
+
+<!-- Inject session globals untuk call.js (ES module) -->
+<script>
+  window.token      = '<%= locals.sessionToken %>';
+  window.myUserId   = '<%= locals.sessionUserId %>';
+  window.myUsername = '<%= locals.sessionUsername %>';
+
+  // Stub fungsi yang mungkin dipanggil call.js sebelum chat scripts tersedia
+  if (!window.updateCallStatus) {
+    window.updateCallStatus = function(text) {
+      const el = document.getElementById('callStatus');
+      if (el) el.innerText = text;
+    };
+  }
+  if (!window.showOutgoingCallModal) {
+    window.showOutgoingCallModal = function() {
+      document.getElementById('callModal')?.classList.remove('hidden');
+      window.updateCallStatus('Calling...');
+    };
+  }
+</script>
+
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+<script type="module" src="/js/call.js"></script>
+
+<script>
+  document.getElementById('btnEndCall')?.addEventListener('click', () => {
+    if (window.endCall) endCall();
+  });
+</script>
+
+<% } %>

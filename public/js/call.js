@@ -1,7 +1,7 @@
 import * as mediasoupClient from "https://esm.sh/mediasoup-client@3";
 
 const socket = io("/", {
-  auth: { token }
+  auth: { token: window.token }
 });
 
 //const socket = io("https://meeting.modoto.net/");
@@ -245,16 +245,23 @@ socket.on("incoming_call", ({ roomId, fromUserId, toUserId }) => {
     // Menampilkan modal pada Calle
     const modal = document.getElementById("incomingCallModal");
     modal.classList.remove("hidden");
+
+    // Update tampilan incoming modal
+    document.getElementById("callFrom").innerText = `Panggilan dari User #${fromUserId}`;
+    document.getElementById("incomingAvatar").src =
+      `https://ui-avatars.com/api/?name=${fromUserId}&background=667eea&color=fff`;
+
     // Play ringtone
-    //const ringtone = document.getElementById("ringtone");
-    //ringtone.play();
+    const ringtone = document.getElementById("ringtone");
+    if (ringtone) ringtone.play().catch(() => {});
 
     // Event jika panggilan di terima
     document.getElementById("btnAccept").onclick = async () => {
       console.log('btnAccept click');
 
-      //ringtone.pause(); // Stop ringtone
-      //ringtone.currentTime = 0; // Reset the playback to the start
+      const ringtone = document.getElementById("ringtone");
+      if (ringtone) { ringtone.pause(); ringtone.currentTime = 0; }
+
       modal.classList.add("hidden"); // Sembunyikan modal pada Calle
 
       // Menampilkan Modal pada Calle
@@ -273,8 +280,8 @@ socket.on("incoming_call", ({ roomId, fromUserId, toUserId }) => {
     // Event jika panggilan di tolak
     document.getElementById("btnReject").onclick = () => {
       console.log('btnReject click');
-      ringtone.pause();
-      ringtone.currentTime = 0;
+      const ringtone = document.getElementById("ringtone");
+      if (ringtone) { ringtone.pause(); ringtone.currentTime = 0; }
 
       // Tutup modal incoming call
       document.getElementById("incomingCallModal").classList.add("hidden");
@@ -395,14 +402,10 @@ socket.on("peer_left", ({ roomId, leftBy }) => {
 socket.on("call_canceled", ({ roomId, canceledBy }) => {
   console.log("📵 Call canceled by caller:", canceledBy);
   callPending = false;
-  // Stop ringtone
-  // const ringtone = document.getElementById("ringtone");
-  // if (ringtone) {
-  //   ringtone.pause();
-  //   ringtone.currentTime = 0;
-  // }
 
-  // Tutup modal incoming call
+  const ringtone = document.getElementById("ringtone");
+  if (ringtone) { ringtone.pause(); ringtone.currentTime = 0; }
+
   document.getElementById("incomingCallModal")?.classList.add("hidden");
 
   // Optional UI update

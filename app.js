@@ -125,7 +125,11 @@ app.post('/api/endcall', async (req, res) => {
 
 
 app.use((req, res, next) => {
-  res.locals.baseUrl = process.env.BASE_URL || `${req.protocol}://${req.get("host")}`;
+  res.locals.baseUrl    = process.env.BASE_URL || `${req.protocol}://${req.get("host")}`;
+  res.locals.sessionToken    = req.session.token    || '';
+  res.locals.sessionUserId   = req.session.user_id  || '';
+  res.locals.sessionUsername = req.session.username || '';
+  res.locals.socketUrl       = process.env.SOCKET_URL || '';
   next();
 });
 
@@ -140,8 +144,8 @@ const options = {
   // cert: fs.readFileSync('/etc/ssl/server.crt'),
 };
 
-//const server = http.createServer(app);
-const server = https.createServer(options, app);
+const server = http.createServer(app);
+//const server = https.createServer(options, app);
 const io = new Server(server, { cors: { origin: "*" } });
 
 console.log('SOCKET_URL:', SOCKET_URL);
