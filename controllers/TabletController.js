@@ -1,4 +1,5 @@
 const Tablet = require("../models/TabletModel");
+const db = require("../config/db");
 const { getUserIdSession, getUserSession, getTokenSession, getRolesSession } = require('../helpers/sessionHelper');
 
 class TabletController {
@@ -63,9 +64,18 @@ class TabletController {
   }
 
   static async delete(req, res) {
-
     await Tablet.softDelete(req.params.id);
     res.redirect("/tablet");
+  }
+
+  static async updateStatus(req, res) {
+    const { id, status } = req.body;
+    try {
+      await db.query(`UPDATE tablet SET status=$1, updated_at=NOW() WHERE id=$2`, [status, id]);
+      res.json({ success: true, message: 'Status updated' });
+    } catch (error) {
+      res.status(500).json({ success: false, error: error.message });
+    }
   }
 }
 

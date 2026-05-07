@@ -1,0 +1,142 @@
+<section class="content-header">
+  <div class="container-fluid">
+    <div class="row mb-2">
+      <div class="col-sm-6">
+        <h1>BW Camera List</h1>
+      </div>
+      <div class="col-sm-6">
+        <ol class="breadcrumb float-sm-right">
+          <li class="breadcrumb-item"><a href="#">Home</a></li>
+          <li class="breadcrumb-item active">BW Camera</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="content mt-3">
+  <div class="card">
+    <div class="card-header">
+      <a href="/bwcam/create" class="btn btn-primary btn-sm">
+        <i class="fas fa-plus"></i> Add BW Camera
+      </a>
+
+      <div class="card-tools">
+        <button type="button" class="btn btn-tool" data-card-widget="collapse">
+          <i class="fas fa-minus"></i>
+        </button>
+        <button type="button" class="btn btn-tool" data-card-widget="remove">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="card-body">
+      <table id="example2" class="table table-bordered table-hover">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>BWCam ID</th>
+            <th>Device Name</th>
+            <th>IP Address</th>
+            <th>Stream Url</th>
+            <th>RSTP Url</th>
+            <th>Status</th>
+            <th width="120">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% rows.forEach(row=> { %>
+            <tr>
+              <td>
+                <%= row.id %>
+              </td>
+              <td>
+                <%= row.bwcam_id %>
+              </td>
+              <td>
+                <%= row.device_name %>
+              </td>
+              <td>
+                <%= row.ip_address %>
+              </td>
+              <td>
+                <%= row.stream_url %>
+              </td>
+              <td>
+                <%= row.rtsp_url %>
+              </td>
+              <!-- Di dalam <tbody> looping rows -->
+              <td>
+                <div class="custom-control custom-switch">
+                  <input type="checkbox" class="custom-control-input status-toggle" id="status-<%= row.id %>"
+                    data-id="<%= row.id %>" <%=row.status==1 ? 'checked' : '' %>>
+                  <label class="custom-control-label" for="status-<%= row.id %>">
+                    <span id="label-<%= row.id %>"
+                      class="badge <%= row.status == 1 ? 'badge-success' : 'badge-danger' %>">
+                      <%= row.status==1 ? 'Active' : 'Inactive' %>
+                    </span>
+                  </label>
+                </div>
+              </td>
+
+
+              <td width="130">
+                <a href="/bwcam/edit/<%= row.id %>" class="btn btn-warning btn-sm">
+                  <i class="fas fa-edit"></i>
+                </a>
+
+                <a href="/bwcam/delete/<%= row.id %>" onclick="return confirm('Delete this Body Worn Camera?')"
+                  class="btn btn-danger btn-sm">
+                  <i class="fas fa-trash"></i>
+                </a>
+              </td>
+            </tr>
+            <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<script>
+  document.querySelectorAll('.status-toggle').forEach(checkbox => {
+    checkbox.addEventListener('change', function () {
+      const id = this.getAttribute('data-id');
+      const isChecked = this.checked ? 1 : 0;
+      const label = document.getElementById(`label-${id}`);
+
+      // Menggunakan Fetch API
+      fetch('/bwcam/update-status', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id: id,
+          status: isChecked
+        })
+      })
+        .then(response => {
+          if (!response.ok) throw new Error('Network response was not ok');
+          return response.json();
+        })
+        .then(data => {
+          // Update tampilan label jika berhasil
+          if (isChecked) {
+            label.className = 'badge badge-success';
+            label.innerText = 'Active';
+          } else {
+            label.className = 'badge badge-danger';
+            label.innerText = 'Inactive';
+          }
+          console.log('Success:', data.message);
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('Gagal memperbarui status');
+          this.checked = !this.checked; // Kembalikan posisi checkbox jika gagal
+        });
+    });
+  });
+</script>

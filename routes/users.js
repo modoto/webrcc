@@ -15,5 +15,6 @@ router.post("/edit/:id", requireLogin, UsersController.update);
 router.post("/changepassword/:id", requireLogin, UsersController.changepassword);
 
 router.get("/delete/:id", requireLogin, UsersController.delete);
+router.post("/update-status", requireLogin, UsersController.updateStatus);
 
 module.exports = router;

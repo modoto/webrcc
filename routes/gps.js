@@ -4,6 +4,8 @@ const GpsController = require("../controllers/GpsController");
 const { requireLogin, authMiddleware } = require("../helpers/sessionHelper");
 
 router.get("/", requireLogin, authMiddleware, GpsController.index);
+router.get("/history", requireLogin, GpsController.historyPage);
+router.get("/getHistory", requireLogin, GpsController.getHistory);
 router.get("/getMaps", requireLogin, GpsController.getMaps);
 router.get("/getMapGroups/:id", requireLogin, GpsController.getMapGroups);
 router.get("/getDevice/:id", requireLogin, GpsController.getDevice);

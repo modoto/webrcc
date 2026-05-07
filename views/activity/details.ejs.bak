@@ -1,0 +1,176 @@
+<!-- Content Header (Page header) -->
+<section class="content-header" style="background-color: #323232;">
+
+</section>
+
+<!-- Main content -->
+<section class="content" style="background-color: #323232;">
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-4 mb-2">
+                <div class="card" style="background-color: #18261C;">
+                    <div class="card-header">
+                        <h5 class="text-white">#<%= row.activity_id %> - <%= row.activity_name %>
+                        </h5>
+                    </div>
+                    <div class="card-body scrollable-card-body">
+                        <input type="hidden" id="chat_id" value="<%= row.chat_id %>" />
+                        <input type="hidden" id="chat_name" value="<%= row.activity_name %>" />
+                        <div class="row" id="container-cctv">
+                            <div class="col-sm-6">
+                                <div class="canvas-wrapper" style="position: relative; width: 100%;">
+                                    <div id="cameraMTC1" class="camera-name">UNIT-01 MTC</div>
+                                    <div class="camera-expand">
+                                        <a href="#" onclick="toggleRecording('videoCanvas1');return false;"><i
+                                                class="fas fa-video text-white mr-2"></i></a>
+                                        <a href="#" onclick="expandCanvasFullscreen('videoCanvas1');return false;"><i
+                                                class="fas fa-expand-arrows-alt text-white"></i></a>
+                                    </div>
+                                    <canvas id="videoCanvas1" class="img-fluid"></canvas>
+                                    <div id="recordIndicator1" class="record-indicator d-none">● REC</div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="canvas-wrapper" style="position: relative;">
+                                    <div id="cameraBWC1" class="camera-name">UNIT-01 BWC</div>
+                                    <div class="camera-expand">
+                                        <a href="#" onclick="toggleRecording('videoCanvas2');return false;"><i
+                                                class="fas fa-video text-white mr-2"></i></a>
+                                        <a href="#" onclick="expandCanvasFullscreen('videoCanvas2');return false;"><i
+                                                class="fas fa-expand-arrows-alt text-white"></i></a>
+                                    </div>
+                                    <canvas id="videoCanvas2" class="img-fluid"></canvas>
+                                    <div id="recordIndicator2" class="record-indicator d-none">● REC</div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="canvas-wrapper" style="position: relative;">
+                                    <div id="cameraMTC2" class="camera-name">UNIT-02 MTC</div>
+                                    <div class="camera-expand">
+                                        <a href="#" onclick="toggleRecording('videoCanvas3');return false;"><i
+                                                class="fas fa-video text-white mr-2"></i></a>
+                                        <a href="#" onclick="expandCanvasFullscreen('videoCanvas3');return false;"><i
+                                                class="fas fa-expand-arrows-alt text-white"></i></a>
+                                    </div>
+                                    <canvas id="videoCanvas3" class="img-fluid"></canvas>
+                                    <div id="recordIndicator3" class="record-indicator d-none">● REC</div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="canvas-wrapper" style="position: relative;">
+                                    <div id="cameraBWC2" class="camera-name">UNIT-02 BWC</div>
+                                    <div class="camera-expand">
+                                        <a href="#" onclick="toggleRecording('videoCanvas4');return false;"><i
+                                                class="fas fa-video text-white mr-2"></i></a>
+                                        <a href="#" onclick="expandCanvasFullscreen('videoCanvas4');return false;"><i
+                                                class="fas fa-expand-arrows-alt text-white"></i></a>
+                                    </div>
+                                    <canvas id="videoCanvas4" class="img-fluid"></canvas>
+                                    <div id="recordIndicator4" class="record-indicator d-none">● REC</div>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-6">
+                                <div class="canvas-wrapper" style="position: relative;">
+                                    <div id="cameraMTC3" class="camera-name">UNIT-03 MTC</div>
+                                    <div class="camera-expand">
+                                        <a href="#" onclick="toggleRecording('videoCanvas5');return false;"><i
+                                                class="fas fa-video text-white mr-2"></i></a>
+                                        <a href="#" onclick="expandCanvasFullscreen('videoCanvas5');return false;"><i
+                                                class="fas fa-expand-arrows-alt text-white"></i></a>
+                                    </div>
+                                    <canvas id="videoCanvas5" class="img-fluid"></canvas>
+                                    <div id="recordIndicator5" class="record-indicator d-none">● REC</div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="canvas-wrapper" style="position: relative;">
+                                    <div id="cameraBWC3" class="camera-name">UNIT-03 BWC</div>
+                                    <div class="camera-expand">
+                                        <a href="#" onclick="toggleRecording('videoCanvas6');return false;"><i
+                                                class="fas fa-video text-white mr-2"></i></a>
+                                        <a href="#" onclick="expandCanvasFullscreen('videoCanvas6');return false;"><i
+                                                class="fas fa-expand-arrows-alt text-white"></i></a>
+                                    </div>
+                                    <canvas id="videoCanvas6" class="img-fluid"></canvas>
+                                    <div id="recordIndicator6" class="record-indicator d-none">● REC</div>
+                                    <video id="video" autoplay playsinline></video>
+                                </div>
+                            </div>
+                        </div>
+                        
+
+                    </div>
+                    <!-- <div class="card-footer">
+                        <button class="btn btn-primary btn-block mt-4"
+                            onclick="setOption('0', 'all');return false;">VIEW ALL</button>
+                    </div> -->
+                    <!-- /.card-footer-->
+                </div>
+            </div>
+            <div class="col-md-5  mb-2">
+                <div class="card" style="background-color: #18261C;">
+                    <div class="card-body" style="padding: 0;">
+                        <input type="hidden" id="id" value="<%= id %>" />
+                        <input type="hidden" id="type" value="<%= type %>" />
+                        <input type="hidden" id="user_id" value="<%= user_id %>" />
+                        <input type="hidden" id="username" value="<%= username %>" />
+                        <input type="hidden" id="token" value="<%= token %>" />
+                        <input type="hidden" id="socket_url" value="<%= socket_url %>" />
+
+                        <div id="map">
+                            <a href="https://www.maptiler.com"
+                                style="position:absolute;left:10px;bottom:10px;z-index:999;"><img
+                                    src="https://api.maptiler.com/resources/logo.svg" alt="MapTiler logo"></a>
+                        </div>
+
+                        <!-- User Overlay -->
+                        <div class="user-overlay" id="user-overlay">
+                            <!-- User Card -->
+                            <!-- <div class="user-card">
+                                <img src="avatar1.jpg" class="user-avatar">
+                                <div class="user-info">
+                                    <div class="user-name">Budi Santoso</div>
+                                    <div class="user-id">ID: EMP-001</div>
+                                </div>
+                            </div>
+
+                            <div class="user-card">
+                                <img src="avatar2.jpg" class="user-avatar">
+                                <div class="user-info">
+                                    <div class="user-name">Siti Aminah</div>
+                                    <div class="user-id">ID: EMP-002</div>
+                                </div>
+                            </div> -->
+                        </div>
+                    </div>
+                    <!-- /.card-body -->
+                    <div class="card-footer">
+
+                    </div>
+                    <!-- /.card-footer-->
+                </div>
+            </div>
+            <div class="col-md-3  mb-2">
+                <div class="card" style="background-color: #18261C;">
+                    <div class="card-header">
+                        <h5 class="text-white">Group Chat</h5>
+                    </div>
+                    <div class="card-body scrollable-card-body" id="card-body-chat">
+                        <div class="wa-chat-body" id="chat-container">
+                            <!-- Pesan WhatsApp-style akan append di sini -->
+                        </div>
+
+                    </div>
+                    <div class="wa-chat-input">
+                        <input id="msg" type="text" placeholder="Type a message">
+                        <button id="sendMessage">Send</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- /.content -->

@@ -1,4 +1,5 @@
 const Users = require("../models/UserModel");
+const db = require("../config/db");
 const { getUserIdSession, getUserSession, getTokenSession, getRolesSession } = require('../helpers/sessionHelper');
 
 class UsersController {
@@ -95,6 +96,16 @@ class UsersController {
 
     await Users.softDelete(req.params.id);
     res.redirect("/users");
+  }
+
+  static async updateStatus(req, res) {
+    const { id, status } = req.body;
+    try {
+      await db.query(`UPDATE users SET status=$1, updated_at=NOW() WHERE id=$2`, [status, id]);
+      res.json({ success: true, message: 'Status updated' });
+    } catch (error) {
+      res.status(500).json({ success: false, error: error.message });
+    }
   }
 
   static async list(req, res) {

@@ -12,5 +12,6 @@ router.get("/edit/:id", requireLogin, TabletController.editForm);
 router.post("/edit/:id", requireLogin, TabletController.update);
 
 router.get("/delete/:id", requireLogin, TabletController.delete);
+router.post("/update-status", requireLogin, TabletController.updateStatus);
 
 module.exports = router;

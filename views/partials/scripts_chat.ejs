@@ -209,8 +209,9 @@
   // =============================
   //  SEND MESSAGE
   // =============================
-  document.getElementById("sendMessage").onclick = () => {
-    const content = document.getElementById("msg").value;
+  function doSendMessage() {
+    const msgEl = document.getElementById("msg");
+    const content = msgEl.value;
     if (!content.trim()) return;
 
     socket.emit("send_message", {
@@ -231,8 +232,25 @@
       true
     );
 
-    document.getElementById("msg").value = "";
-  };
+    msgEl.value = "";
+    msgEl.style.height = "42px";
+  }
+
+  document.getElementById("sendMessage").onclick = doSendMessage;
+
+  // Enter = kirim, Shift+Enter = baris baru
+  document.getElementById("msg").addEventListener("keydown", function (e) {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      doSendMessage();
+    }
+  });
+
+  // Auto-resize textarea
+  document.getElementById("msg").addEventListener("input", function () {
+    this.style.height = "42px";
+    this.style.height = Math.min(this.scrollHeight, 140) + "px";
+  });
 
 
   // =============================
@@ -256,7 +274,7 @@
   //  TYPING INDICATOR
   // =============================
   let typingTimeout;
-  document.getElementById("msg").addEventListener("input", () => {
+  document.getElementById("msg").addEventListener("input", function () {
     socket.emit("typing", { conversationId: activeConversationId, isTyping: true });
     clearTimeout(typingTimeout);
     typingTimeout = setTimeout(() => {
@@ -576,9 +594,9 @@
   //  HELPERS
   // =============================
   function escapeHtml(txt) {
-    return txt.replace(/[&<>"']/g, t => ({
-      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
-    }[t]));
+    return txt
+      .replace(/[&<>"']/g, t => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[t]))
+      .replace(/\n/g, "<br>");
   }
 
   function timeAgo(date) {

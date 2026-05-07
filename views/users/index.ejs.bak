@@ -1,0 +1,125 @@
+<section class="content-header">
+  <div class="container-fluid">
+    <div class="row mb-2">
+      <div class="col-sm-6">
+        <h1>User List</h1>
+      </div>
+      <div class="col-sm-6">
+        <ol class="breadcrumb float-sm-right">
+          <li class="breadcrumb-item"><a href="#">Home</a></li>
+          <li class="breadcrumb-item active">Users</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="content mt-3">
+  <div class="card">
+    <div class="card-header">
+      <a href="/users/create" class="btn btn-primary btn-sm">
+        <i class="fas fa-plus"></i> Add User
+      </a>
+
+      <div class="card-tools">
+        <button type="button" class="btn btn-tool" data-card-widget="collapse">
+          <i class="fas fa-minus"></i>
+        </button>
+        <button type="button" class="btn btn-tool" data-card-widget="remove">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    </div>
+    <div class="card-body">
+      <table id="example2" class="table table-bordered table-hover">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>User Id</th>
+            <th>Username</th>
+            <th>Display Name</th>
+            <th>Email</th>
+            <th>Roles</th>
+            <th>Status</th>
+            <th width="120">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% rows.forEach(row=> { %>
+            <tr>
+              <td>
+                <%= row.id %>
+              </td>
+              <td>
+                <%= row.user_id %>
+              </td>
+              <td>
+                <%= row.username %>
+              </td>
+              <td>
+                <%= row.display_name %>
+              </td>
+              <td>
+                <%= row.email %>
+              </td>
+              <td>
+                <%= row.roles %>
+              </td>
+              <td>
+                <div class="custom-control custom-switch">
+                  <input type="checkbox" class="custom-control-input status-toggle"
+                    id="status-<%= row.id %>" data-id="<%= row.id %>" <%= row.status==1 ? 'checked' : '' %>>
+                  <label class="custom-control-label" for="status-<%= row.id %>">
+                    <span id="label-<%= row.id %>"
+                      class="badge <%= row.status == 1 ? 'badge-success' : 'badge-danger' %>">
+                      <%= row.status==1 ? 'Active' : 'Inactive' %>
+                    </span>
+                  </label>
+                </div>
+              </td>
+
+              <td width="130">
+                <a href="/users/edit/<%= row.id %>" class="btn btn-warning btn-sm">
+                  <i class="fas fa-edit"></i>
+                </a>
+
+                <a href="/users/delete/<%= row.id %>" onclick="return confirm('Delete this User?')"
+                  class="btn btn-danger btn-sm">
+                  <i class="fas fa-trash"></i>
+                </a>
+              </td>
+            </tr>
+            <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<script>
+  document.querySelectorAll('.status-toggle').forEach(checkbox => {
+    checkbox.addEventListener('change', function () {
+      const id = this.getAttribute('data-id');
+      const isChecked = this.checked ? 1 : 0;
+      const label = document.getElementById(`label-${id}`);
+
+      fetch('/users/update-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, status: isChecked })
+      })
+        .then(response => {
+          if (!response.ok) throw new Error('Network response was not ok');
+          return response.json();
+        })
+        .then(() => {
+          label.className = isChecked ? 'badge badge-success' : 'badge badge-danger';
+          label.innerText = isChecked ? 'Active' : 'Inactive';
+        })
+        .catch(() => {
+          alert('Gagal memperbarui status');
+          this.checked = !this.checked;
+        });
+    });
+  });
+</script>

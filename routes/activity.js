@@ -23,6 +23,7 @@ router.post("/detail/add", requireLogin, ActivityController.addDetail);
 router.get("/detail/delete/:id", requireLogin, ActivityController.deleteDetail);
 
 router.get("/getCamera/:id",  ActivityController.getCamera);
+router.post("/update-status", requireLogin, ActivityController.updateStatus);
 
 // router.get("/detail/delete/:id", async (req, res) => {
 //     const id = req.params.id;

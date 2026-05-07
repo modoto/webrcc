@@ -1,0 +1,148 @@
+<section class="content">
+  <div class="container-fluid mt-3">
+
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Add Vehicle</h3>
+      </div>
+
+      <form action="/vehicle/create" method="POST">
+        <div class="card-body">
+
+          <div class="">
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>Vehicle ID</label>
+                <input name="vehicle_id" class="form-control" value="MT-0" required>
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>Police Number</label>
+                <input name="police_number" class="form-control">
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>Brand</label>
+                <input name="brand" class="form-control" value="Moge">
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>Model</label>
+                <input name="model" class="form-control" value="Sangat Gede">
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>Assembly Year</label>
+                <input name="assembly_year" class="form-control" value="2023">
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>Color</label>
+                <input name="color" class="form-control" value="White">
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>Horse Power</label>
+                <input name="horse_power" class="form-control" value="2500">
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>Chassis Number</label>
+                <input name="chassis_number" class="form-control" value="C123">
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>Machine Number</label>
+                <input name="machine_number" class="form-control" value="M123">
+              </div>
+            </div>
+
+          </div>
+
+          <div class="row">
+
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>Coding</label>
+                <input name="coding" class="form-control" type="number" value="123">
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>BPKB Number</label>
+                <input name="bpkb_number" class="form-control" value="B123">
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>Fuel</label>
+                <input name="fuel" class="form-control" value="Pertamax">
+              </div>
+            </div>
+
+          </div>
+
+          <div class="row">
+
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>Weight</label>
+                <input name="weight" class="form-control" type="number" value="700">
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>Volume (m³)</label>
+                <input name="volume_m3" class="form-control" type="number" step="0.01" value="3000">
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>Status</label>
+                <select class="form-control" name="status">
+                  <option value="1">Active</option>
+                  <option value="0">Inactive</option>
+                </select>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+        <div class="card-footer">
+          <button type="submit" class="btn btn-primary">Save</button>
+          <a href="/vehicle" class="btn btn-secondary">Cancel</a>
+        </div>
+
+      </form>
+
+    </div>
+
+  </div>
+</section>

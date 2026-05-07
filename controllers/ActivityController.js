@@ -1,5 +1,6 @@
 require('dotenv').config(); // Loads variables from .env file into process.env
 const Activity = require('../models/ActivityModel');
+const db = require("../config/db");
 const Unit = require('../models/UnitModel');
 const Bwcam = require("../models/BwcamModel");
 const Mtcam = require('../models/MtcamModel');
@@ -114,6 +115,16 @@ exports.update = async (req, res) => {
 exports.delete = async (req, res) => {
     await Activity.deleteHeader(req.params.id);
     res.redirect("/activity");
+};
+
+exports.updateStatus = async (req, res) => {
+    const { id, status } = req.body;
+    try {
+        await db.query(`UPDATE hd_activity SET status=$1, updated_at=NOW() WHERE id=$2`, [status, id]);
+        res.json({ success: true, message: 'Status updated' });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
 };
 
 ///////////////////////////////////////////////////////

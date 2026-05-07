@@ -1,23 +1,23 @@
-<section class="content mt-3">
-  <div class="container-fluid">
+<section class="content" style="padding:0; height:calc(100vh - 57px); overflow:hidden;">
+  <div class="container-fluid h-100 p-0">
     <div class="wa-container">
 
-      <!-- SIDEBAR KIRI -->
+      <!-- ── SIDEBAR KIRI ── -->
       <div class="wa-sidebar">
-        <input type="hidden" id="user_id" value="<%= user_id %>" />
-        <input type="hidden" id="username" value="<%= username %>" />
-        <input type="hidden" id="token" value="<%= token %>" />
-        <input type="hidden" id="conversationId" value="" />
-        <input type="hidden" id="socket_url" value="<%= socket_url %>" />
+        <input type="hidden" id="user_id"        value="<%= user_id %>" />
+        <input type="hidden" id="username"        value="<%= username %>" />
+        <input type="hidden" id="token"           value="<%= token %>" />
+        <input type="hidden" id="conversationId"  value="" />
+        <input type="hidden" id="socket_url"      value="<%= socket_url %>" />
 
+        <!-- Header -->
         <div class="wa-sidebar-header">
           <div class="wa-profile">
-            <!-- <img src="../../dist/img/user8-128x128.jpg" class="wa-avatar"> -->
-            <img src="https://ui-avatars.com/api/?name=<%= username %>" class="wa-avatar">
+            <img src="https://ui-avatars.com/api/?name=<%= username %>&background=667eea&color=fff" class="wa-avatar">
           </div>
           <div class="wa-header-icons">
-            <i class="fas fa-comment-alt"></i>
-            <i class="fas fa-ellipsis-v" id="sidebarMenuBtn"></i>
+            <i class="fas fa-comment-alt" title="New Chat"></i>
+            <i class="fas fa-ellipsis-v" id="sidebarMenuBtn" title="Menu"></i>
           </div>
 
           <div id="sidebarMenuDropdown" class="wa-dropdown hidden">
@@ -37,103 +37,100 @@
               <i class="fas fa-sign-out-alt"></i> Logout
             </div>
           </div>
-
-
         </div>
 
+        <!-- Search -->
         <div class="wa-search-box">
-          <input type="text" id="searchInput" placeholder="Search or start new chat">
+          <input type="text" id="searchInput" placeholder="Cari kontak...">
         </div>
 
+        <!-- Contact list -->
         <div class="wa-contact-list" id="contact-list">
+          <% rows.forEach(row => { %>
+            <div class="wa-contact-item"
+              data-userid="<%= row.id %>"
+              data-name="<%= row.username %>"
+              data-avatar="https://ui-avatars.com/api/?name=<%= row.username %>&background=667eea&color=fff"
+              data-status="">
 
-          <% rows.forEach(row=> { %>
-            <div class="wa-contact-item" data-userid="<%= row.id %>" data-name="<%= row.username %>"
-              data-avatar="https://ui-avatars.com/api/?name=<%= row.username %>" data-status="">
-
-              <img src="https://ui-avatars.com/api/?name=<%= row.username %>" class="wa-avatar">
+              <img src="https://ui-avatars.com/api/?name=<%= row.username %>&background=667eea&color=fff" class="wa-avatar">
 
               <div class="wa-contact-info">
-                <div class="wa-contact-name">
-                  <%= row.username %>
-                </div>
-                <div class="wa-contact-last-msg">See you tomorrow!</div>
+                <div class="wa-contact-name"><%= row.username %></div>
+                <div class="wa-contact-last-msg"><i class="fas fa-circle" style="font-size:0.45rem; color:#1a9a5e; margin-right:3px;"></i>Online</div>
               </div>
 
-              <!-- 🔥 BUTTON CALL -->
-              <!-- <button class="wa-call-btn-contact" data-userid="<%= //row.id %>" data-name="<%= //row.username %>">
-                <i class="fas fa-phone"></i>
-              </button> -->
-
             </div>
-            <% }) %>
-
+          <% }) %>
         </div>
-
 
       </div>
 
-      <!-- AREA CHAT KANAN -->
+      <!-- ── AREA CHAT KANAN ── -->
       <div class="wa-chat-area">
+
+        <!-- Chat header -->
         <div class="wa-chat-header" id="chat-header">
-          <img id="chat-header-avatar" src="https://ui-avatars.com/api/?name=" class="wa-avatar">
+          <img id="chat-header-avatar"
+            src="https://ui-avatars.com/api/?name=&background=667eea&color=fff"
+            class="wa-avatar">
           <div>
             <div id="chat-header-name" class="wa-chat-name"></div>
             <div id="chat-header-status" class="wa-chat-status"></div>
           </div>
-
-          <button class="btn-call" id="btnCall" >
+          <button class="btn-call" id="btnCall" title="Voice Call">
             <i class="fas fa-phone"></i>
           </button>
-         
-          <!-- <button id="btnEndCall" class="btn-end-call">End</button> -->
           <div id="videos"></div>
         </div>
 
-
+        <!-- Messages -->
         <div class="wa-chat-body" id="chat-container">
-          <!-- Pesan WhatsApp-style akan append di sini -->
+          <div class="chat-empty-state" id="chat-empty">
+            <i class="fas fa-comments"></i>
+            <p>Pilih kontak untuk memulai percakapan</p>
+          </div>
         </div>
 
+        <!-- Input -->
         <div class="wa-chat-input">
-          <input id="msg" type="text" placeholder="Type a message">
-          <button id="sendMessage">Send</button>
+          <textarea id="msg" rows="1" placeholder="Ketik pesan... (Enter kirim, Shift+Enter baris baru)"></textarea>
+          <button id="sendMessage">
+            <i class="fas fa-paper-plane mr-1"></i> Kirim
+          </button>
         </div>
+
       </div>
 
     </div>
-
   </div>
 </section>
 
+<!-- Create Group Modal -->
 <div id="createGroupModal" class="wa-modal hidden">
   <div class="wa-modal-content">
 
     <div class="wa-modal-header">
-      <h3>Create Group</h3>
+      <h3><i class="fas fa-users mr-2"></i>Create Group</h3>
       <span class="wa-modal-close" id="closeCreateGroup">&times;</span>
     </div>
 
-    <input id="groupName" class="wa-input" placeholder="Group Name">
-
-    <input id="groupAvatar" class="wa-input" placeholder="Avatar URL (optional)">
+    <input id="groupName"   class="wa-input" placeholder="Nama Group...">
+    <input id="groupAvatar" class="wa-input" placeholder="Avatar URL (opsional)">
 
     <div class="wa-user-search">
-      <input id="searchUser" type="text" placeholder="Search user..." class="wa-input">
+      <input id="searchUser" type="text" placeholder="Cari user..." class="wa-input">
     </div>
 
-    <div id="memberList" class="wa-user-list">
-      <!-- user list will be inserted here -->
-    </div>
+    <div id="memberList" class="wa-user-list"></div>
 
-    <div id="selectedUsers" class="wa-selected-list hidden">
-      <!-- selected chips -->
-    </div>
-
+    <div id="selectedUsers" class="wa-selected-list hidden"></div>
 
     <div class="wa-modal-footer">
-      <button id="btnCreateGroup" class="wa-btn">Create</button>
-      <button id="btnCancelGroup" class="wa-btn-cancel">Cancel</button>
+      <button id="btnCancelGroup" class="wa-btn-cancel">Batal</button>
+      <button id="btnCreateGroup" class="wa-btn">
+        <i class="fas fa-users mr-1"></i> Buat Group
+      </button>
     </div>
 
   </div>

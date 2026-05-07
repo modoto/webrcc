@@ -92,6 +92,36 @@ class BwcamController {
         }
     }
 
+    static async historyPage(req, res) {
+        const user_id = getUserIdSession(req);
+        const user = getUserSession(req);
+        const token = getTokenSession(req);
+        const roles = getRolesSession(req);
+
+        try {
+            const devices = await GpsModel.getDistinctDevices();
+            res.render('gps-history/index', {
+                title: 'GPS History',
+                layout: 'layouts/main',
+                user_id, username: user, token, roles, devices
+            });
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ code: 500, status: false, message: error.message });
+        }
+    }
+
+    static async getHistory(req, res) {
+        const { device_id, date } = req.query;
+        try {
+            const rows = await GpsModel.getHistoryByDeviceAndDate(device_id, date);
+            res.json({ code: 200, status: true, data: rows });
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ code: 500, status: false, message: error.message });
+        }
+    }
+
     static async create(req, res) {
         const user_id = getUserIdSession(req);
         const user = getUserSession(req);

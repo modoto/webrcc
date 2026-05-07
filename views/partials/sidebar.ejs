@@ -55,6 +55,12 @@
             </a>
           </li>
           <li class="nav-item">
+            <a href="/gps/history" class="nav-link">
+              <i class="fas fa-route nav-icon"></i>
+              <p>GPS History</p>
+            </a>
+          </li>
+          <li class="nav-item">
             <a href="/unit" class="nav-link">
               <i class="fas fa-border-all nav-icon"></i>
               <p>
@@ -162,7 +168,7 @@
             </a>
           </li>
           <li class="nav-item">
-            <a href="/cctv" class="nav-link">
+            <a target="_blank" rel="noopener noreferrer" href="http://192.168.10.201:8443/dashboard.html" class="nav-link">
               <i class="fas fa-video nav-icon"></i>
               <p>CCTV</p>
             </a>
@@ -179,7 +185,13 @@
               <p>Maps</p>
             </a>
           </li>
-          
+          <li class="nav-item">
+            <a href="/gps/history" class="nav-link">
+              <i class="fas fa-route nav-icon"></i>
+              <p>GPS History</p>
+            </a>
+          </li>
+
         <% } %>
 
         <% if (roles==='Tab' ) { %>
@@ -199,7 +211,7 @@
 
           <li class="nav-header">EXIT</li>
             <li class="nav-item">
-              <a href="/" class="nav-link">
+              <a href="/logout" class="nav-link">
                 <i class="nav-icon far fa-circle text-danger"></i>
                 <p class="text">Logout</p>
               </a>

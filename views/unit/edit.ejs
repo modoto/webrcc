@@ -1,120 +1,139 @@
+<style>
+  .page-banner { background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%); border-radius:12px; padding:22px 28px; margin-bottom:24px; display:flex; align-items:center; justify-content:space-between; }
+  .page-banner h2 { color:#fff; font-weight:700; font-size:1.3rem; margin:0; }
+  .page-banner p { color:rgba(255,255,255,0.6); font-size:0.83rem; margin:4px 0 0; }
+  .id-badge { background:rgba(255,255,255,0.12); color:#fff; border-radius:8px; padding:6px 14px; font-family:'Courier New',monospace; font-size:0.9rem; font-weight:700; border:1px solid rgba(255,255,255,0.2); }
+  .form-card { border:none; border-radius:12px; box-shadow:0 2px 16px rgba(0,0,0,0.07); overflow:hidden; }
+  .sec-hdr { background:#f8f9ff; border-left:4px solid #667eea; padding:10px 18px; margin:20px 0 16px; border-radius:0 6px 6px 0; }
+  .sec-hdr span { font-size:0.78rem; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; color:#667eea; }
+  .fg { margin-bottom:18px; }
+  .fg label { font-size:0.78rem; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px; display:block; }
+  .fi { border:1.5px solid #e8e8e8; border-radius:8px; padding:9px 14px; font-size:0.875rem; color:#333; width:100%; transition:border-color 0.2s,box-shadow 0.2s; background:#fff; }
+  .fi:focus { border-color:#667eea; box-shadow:0 0 0 3px rgba(102,126,234,0.12); outline:none; }
+  .fi.mono { font-family:'Courier New',monospace; }
+  .iw { position:relative; }
+  .iw .fi { padding-left:38px; }
+  .iw .ii { position:absolute; left:13px; top:50%; transform:translateY(-50%); color:#aaa; font-size:0.8rem; pointer-events:none; }
+  .sel { appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23aaa' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 12px center; padding-right:36px; }
+  .btn-save { background:linear-gradient(135deg,#667eea,#764ba2); color:#fff; border:none; border-radius:8px; padding:10px 28px; font-weight:700; font-size:0.875rem; transition:all 0.2s; }
+  .btn-save:hover { color:#fff; opacity:0.9; transform:translateY(-1px); box-shadow:0 4px 14px rgba(102,126,234,0.4); }
+  .btn-back { background:#f5f5f5; color:#555; border:none; border-radius:8px; padding:10px 22px; font-weight:600; font-size:0.875rem; }
+  .btn-back:hover { background:#e8e8e8; color:#333; }
+  .divider { height:1px; background:#f0f0f0; margin:20px 0; }
+  .warn-box { background:#fffbf0; border:1px solid #ffe58f; border-radius:8px; padding:10px 16px; font-size:0.82rem; color:#875800; margin-bottom:20px; display:flex; align-items:center; gap:8px; }
+</style>
+
 <section class="content-header">
   <div class="container-fluid">
-    <div class="row mb-2">
-      <div class="col-sm-6">
-        <h1>Edit Unit</h1>
-      </div>
-      <div class="col-sm-6">
-        <ol class="breadcrumb float-sm-right">
-          <li class="breadcrumb-item"><a href="#">Home</a></li>
-          <li class="breadcrumb-item">Unit</li>
-          <li class="breadcrumb-item active">Edit</li>
-        </ol>
-      </div>
-    </div>
+    <ol class="breadcrumb" style="background:transparent;padding:0;margin:0 0 8px;">
+      <li class="breadcrumb-item"><a href="/dashboard">Home</a></li>
+      <li class="breadcrumb-item"><a href="/unit">Unit</a></li>
+      <li class="breadcrumb-item active">Edit Unit</li>
+    </ol>
   </div>
 </section>
 
 <section class="content">
-  <div class="container-fluid mt-3">
-    <div class="card">
-      <div class="card-header"><h4>Form Edit</h4></div>
+  <div class="container-fluid">
 
-      <div class="card-body">
+    <div class="page-banner">
+      <div>
+        <h2><i class="fas fa-pen mr-2"></i>Edit Unit</h2>
+        <p>Perbarui konfigurasi unit armada</p>
+      </div>
+      <span class="id-badge"><i class="fas fa-border-all mr-1"></i><%= row.unit_id %></span>
+    </div>
+
+    <div class="form-card card">
+      <div class="card-body px-4 pb-4">
+
+        <div class="warn-box">
+          <i class="fas fa-exclamation-triangle"></i>
+          Perubahan akan langsung tersimpan ke database saat klik <strong>Simpan Perubahan</strong>.
+        </div>
+
         <form method="POST" action="/unit/edit/<%= row.id %>">
+
+          <!-- KONFIGURASI UNIT -->
+          <div class="sec-hdr">
+            <span><i class="fas fa-border-all mr-1"></i> Konfigurasi Unit</span>
+          </div>
           <div class="row">
-            <div class="col-md-6">
-
-              <div class="form-group">
-                <label>Unit ID</label>
-                <input type="text" class="form-control" name="unit_id" value="<%= row.unit_id %>">
+            <div class="col-md-4 fg">
+              <label>Unit ID</label>
+              <div class="iw">
+                <i class="fas fa-hashtag ii"></i>
+                <input type="text" class="fi mono" name="unit_id" value="<%= row.unit_id %>">
               </div>
-
-              <div class="form-group">
-                <label>Vehicle ID</label>
-                <select class="form-control" name="vehicle_id">
-                <% vehicle.forEach(u=> { %>
-                  <% if(u.vehicle_id == row.vehicle_id){ %>
-                    <option value="<%= u.vehicle_id %>" selected><%= u.vehicle_id %> - <%= u.police_number %></option>
-                  <% } else { %>
-                    <option value="<%= u.vehicle_id %>"><%= u.vehicle_id %> - <%= u.police_number %></option>
-                  <% } %>
-                <% }) %>
-               </select>
-              </div>
-
-              <div class="form-group">
-                <label>Router</label>
-                <select class="form-control" name="router_id">
-                <% routers.forEach(u=> { %>
-                  <% if(u.router_id == row.router_id){ %>
-                    <option value="<%= u.router_id %>" selected><%= u.router_id %> - <%= u.device_name %></option>
-                  <% } else { %>
-                    <option value="<%= u.router_id %>"><%= u.router_id %> - <%= u.device_name %></option>
-                  <% } %>
-                <% }) %>
-               </select>
-              </div>
-
-              <div class="form-group">
-                <label>Motor Cam</label>
-                <select class="form-control" name="mtcam_id">
-                <% mtcams.forEach(u=> { %>
-                  <% if(u.mtcam_id == row.mtcam_id){ %>
-                    <option value="<%= u.mtcam_id %>" selected><%= u.mtcam_id %> - <%= u.device_name %></option>
-                  <% } else { %>
-                    <option value="<%= u.mtcam_id %>"><%= u.mtcam_id %> - <%= u.device_name %></option>
-                  <% } %>
-                <% }) %>
-               </select>
-              </div>
-
             </div>
-            <div class="col-md-6">
 
-              <div class="form-group">
-                <label>BW Cam</label>
-                <select class="form-control" name="bwcam_id">
-                <% bwcams.forEach(u=> { %>
-                  <% if(u.bwcam_id == row.bwcam_id){ %>
-                    <option value="<%= u.bwcam_id %>" selected><%= u.bwcam_id %> - <%= u.device_name %></option>
-                  <% } else { %>
-                    <option value="<%= u.bwcam_id %>"><%= u.bwcam_id %> - <%= u.device_name %></option>
-                  <% } %>
+            <div class="col-md-4 fg">
+              <label>Vehicle</label>
+              <select class="fi sel" name="vehicle_id">
+                <% vehicle.forEach(u => { %>
+                  <option value="<%= u.vehicle_id %>" <%= u.vehicle_id == row.vehicle_id ? 'selected' : '' %>><%= u.vehicle_id %> - <%= u.police_number %></option>
                 <% }) %>
-               </select>
-              </div>
+              </select>
+            </div>
 
-              <div class="form-group">
-                <label>Tablet</label>
-                <select class="form-control" name="tab_id">
-                <% tablet.forEach(u=> { %>
-                  <% if(u.tab_id == row.tab_id){ %>
-                    <option value="<%= u.tab_id %>" selected><%= u.tab_id %> - <%= u.device_name %></option>
-                  <% } else { %>
-                    <option value="<%= u.tab_id %>"><%= u.tab_id %> - <%= u.device_name %></option>
-                  <% } %>
+            <div class="col-md-4 fg">
+              <label>Router</label>
+              <select class="fi sel" name="router_id">
+                <% routers.forEach(u => { %>
+                  <option value="<%= u.router_id %>" <%= u.router_id == row.router_id ? 'selected' : '' %>><%= u.router_id %> - <%= u.device_name %></option>
                 <% }) %>
-               </select>
-              </div>
+              </select>
+            </div>
 
-              <div class="form-group">
-                <label>Status</label>
-                <select class="form-control" name="status">
-                  <option value="1" <%= row.status == 1 ? "selected" : "" %>>Active</option>
-                  <option value="0" <%= row.status == 0 ? "selected" : "" %>>Inactive</option>
-                </select>
-              </div>
+            <div class="col-md-4 fg">
+              <label>Motor Camera</label>
+              <select class="fi sel" name="mtcam_id">
+                <% mtcams.forEach(u => { %>
+                  <option value="<%= u.mtcam_id %>" <%= u.mtcam_id == row.mtcam_id ? 'selected' : '' %>><%= u.mtcam_id %> - <%= u.device_name %></option>
+                <% }) %>
+              </select>
+            </div>
 
-              <input type="hidden" name="user_id" value="USR001">
+            <div class="col-md-4 fg">
+              <label>Body Camera</label>
+              <select class="fi sel" name="bwcam_id">
+                <% bwcams.forEach(u => { %>
+                  <option value="<%= u.bwcam_id %>" <%= u.bwcam_id == row.bwcam_id ? 'selected' : '' %>><%= u.bwcam_id %> - <%= u.device_name %></option>
+                <% }) %>
+              </select>
+            </div>
 
+            <div class="col-md-4 fg">
+              <label>Tablet</label>
+              <select class="fi sel" name="tab_id">
+                <% tablet.forEach(u => { %>
+                  <option value="<%= u.tab_id %>" <%= u.tab_id == row.tab_id ? 'selected' : '' %>><%= u.tab_id %> - <%= u.device_name %></option>
+                <% }) %>
+              </select>
+            </div>
+
+            <div class="col-md-4 fg">
+              <label>Status</label>
+              <select class="fi sel" name="status">
+                <option value="1" <%= row.status == 1 ? 'selected' : '' %>>&#9989; Active</option>
+                <option value="0" <%= row.status == 0 ? 'selected' : '' %>>&#10060; Inactive</option>
+              </select>
             </div>
           </div>
 
-          <button class="btn btn-success">Save</button>
-          <a href="/unit" class="btn btn-secondary">Back</a>
+          <input type="hidden" name="user_id" value="USR001">
+          <div class="divider"></div>
+
+          <button type="submit" class="btn btn-save mr-2">
+            <i class="fas fa-save mr-1"></i> Simpan Perubahan
+          </button>
+          <a href="/unit" class="btn btn-back">
+            <i class="fas fa-arrow-left mr-1"></i> Kembali
+          </a>
+
         </form>
       </div>
     </div>
+
   </div>
 </section>

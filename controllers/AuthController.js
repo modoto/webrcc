@@ -68,6 +68,12 @@ class AuthController {
         res.redirect("/users");
     }
 
+    static logout(req, res) {
+        req.session.destroy(() => {
+            res.redirect("/");
+        });
+    }
+
     static async loginweb(req, res) {
         console.log('AuthController:loginweb');
         const { username, password } = req.body;

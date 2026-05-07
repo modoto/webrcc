@@ -1,68 +1,181 @@
+<style>
+  .page-banner {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    border-radius: 12px;
+    padding: 22px 28px;
+    margin-bottom: 24px;
+  }
+  .page-banner h2 { color:#fff; font-weight:700; font-size:1.3rem; margin:0; }
+  .page-banner p  { color:rgba(255,255,255,0.6); font-size:0.83rem; margin:4px 0 0; }
+
+  .form-card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+    overflow: hidden;
+  }
+  .form-card .section-header {
+    background: #f8f9ff;
+    border-left: 4px solid #667eea;
+    padding: 10px 18px;
+    margin: 20px 0 16px;
+    border-radius: 0 6px 6px 0;
+  }
+  .form-card .section-header span {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #667eea;
+  }
+
+  .field-group { margin-bottom: 18px; }
+  .field-group label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #555;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+  }
+  .field-input {
+    border: 1.5px solid #e8e8e8;
+    border-radius: 8px;
+    padding: 9px 14px;
+    font-size: 0.875rem;
+    color: #333;
+    width: 100%;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    background: #fff;
+  }
+  .field-input:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102,126,234,0.12);
+    outline: none;
+  }
+  .field-input.mono { font-family: 'Courier New', monospace; }
+
+  .input-icon-wrap { position: relative; }
+  .input-icon-wrap .field-input { padding-left: 38px; }
+  .input-icon-wrap .fi-icon {
+    position: absolute;
+    left: 13px; top: 50%;
+    transform: translateY(-50%);
+    color: #aaa; font-size: 0.8rem;
+    pointer-events: none;
+  }
+
+  textarea.field-input { resize: vertical; min-height: 100px; }
+
+  .status-select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23aaa' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 36px;
+  }
+
+  .btn-save {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: #fff; border: none; border-radius: 8px;
+    padding: 10px 28px; font-weight: 700; font-size: 0.875rem;
+    transition: all 0.2s;
+  }
+  .btn-save:hover { color:#fff; opacity:0.9; transform:translateY(-1px); box-shadow:0 4px 14px rgba(102,126,234,0.4); }
+
+  .btn-back {
+    background: #f5f5f5; color: #555; border: none; border-radius: 8px;
+    padding: 10px 22px; font-weight: 600; font-size: 0.875rem; transition: all 0.2s;
+  }
+  .btn-back:hover { background:#e8e8e8; color:#333; }
+
+  .divider { height:1px; background:#f0f0f0; margin:20px 0; }
+</style>
+
 <section class="content-header">
   <div class="container-fluid">
-    <h1>Create Activity</h1>
+    <ol class="breadcrumb" style="background:transparent;padding:0;margin:0 0 8px;">
+      <li class="breadcrumb-item"><a href="/dashboard">Home</a></li>
+      <li class="breadcrumb-item"><a href="/activity">Activity</a></li>
+      <li class="breadcrumb-item active">Tambah Activity</li>
+    </ol>
   </div>
 </section>
 
 <section class="content">
-  <div class="container-fluid mt-3">
-    <div class="card card-default">
-      <div class="card-header">
-        <h4>Form Activity</h4>
-      </div>
+  <div class="container-fluid">
 
-      <div class="card-body">
+    <div class="page-banner">
+      <h2><i class="fas fa-plus-circle mr-2"></i>Tambah Activity Baru</h2>
+      <p>Isi detail kegiatan operasional yang akan ditambahkan</p>
+    </div>
+
+    <div class="form-card card">
+      <div class="card-body px-4 pb-4">
         <form method="POST" action="/activity/create">
-          <input type="hidden" class="form-control" name="room_id">
-          <input type="hidden" class="form-control" name="chat_id">
-          <input type="hidden" class="form-control" name="activity_id">
+          <input type="hidden" name="room_id">
+          <input type="hidden" name="chat_id">
+          <input type="hidden" name="activity_id">
+          <input type="hidden" name="user_id" value="USR001">
 
+          <!-- INFORMASI KEGIATAN -->
+          <div class="section-header">
+            <span><i class="fas fa-clipboard mr-1"></i> Informasi Kegiatan</span>
+          </div>
           <div class="row">
-
-            <div class="col-md-6">
-              <!-- <div class="form-group">
-                <label>Activity ID</label>
-                <input type="text" class="form-control" name="activity_id" placeholder="PAM-001" required>
-              </div> -->
-              <div class="form-group">
-                <label>Name</label>
-                <input type="text" class="form-control" name="activity_name" required>
+            <div class="col-md-6 field-group">
+              <label>Nama Activity</label>
+              <div class="input-icon-wrap">
+                <i class="fas fa-tasks fi-icon"></i>
+                <input type="text" class="field-input" name="activity_name" required placeholder="Nama kegiatan...">
               </div>
-              <div class="form-group">
-                <label>Description</label>
-                <textarea rows="5" class="form-control" name="description"></textarea>
-              </div>
-
             </div>
-
-            <div class="col-md-6">
-              <div class="form-group">
-                <label>Start Date</label>
-                <input type="datetime-local" class="form-control" name="start_date" required>
-              </div>
-              <div class="form-group">
-                <label>End Date</label>
-                <input type="datetime-local" class="form-control" name="end_date" required>
-              </div>
-              <div class="form-group">
-                <label>Status</label>
-                <select name="status" class="form-control">
-                  <option value="1">Active</option>
-                  <option value="0">Inactive</option>
-                </select>
-              </div>
-
-              <input type="hidden" name="user_id" value="USR001">
-
+            <div class="col-md-6 field-group">
+              <label>Description</label>
+              <textarea class="field-input" name="description" rows="3" placeholder="Deskripsi kegiatan..."></textarea>
             </div>
-
           </div>
 
-          <button type="submit" class="btn btn-success">Save</button>
-          <a href="/activity" class="btn btn-secondary">Back</a>
+          <!-- JADWAL & STATUS -->
+          <div class="section-header">
+            <span><i class="fas fa-calendar-alt mr-1"></i> Jadwal & Status</span>
+          </div>
+          <div class="row">
+            <div class="col-md-4 field-group">
+              <label>Start Date</label>
+              <div class="input-icon-wrap">
+                <i class="fas fa-calendar-alt fi-icon"></i>
+                <input type="datetime-local" class="field-input" name="start_date" required>
+              </div>
+            </div>
+            <div class="col-md-4 field-group">
+              <label>End Date</label>
+              <div class="input-icon-wrap">
+                <i class="fas fa-calendar-check fi-icon"></i>
+                <input type="datetime-local" class="field-input" name="end_date" required>
+              </div>
+            </div>
+            <div class="col-md-4 field-group">
+              <label>Status</label>
+              <select class="field-input status-select" name="status">
+                <option value="1">&#10003; Active</option>
+                <option value="0">&#10007; Inactive</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <button type="submit" class="btn btn-save mr-2">
+            <i class="fas fa-save mr-1"></i> Simpan Activity
+          </button>
+          <a href="/activity" class="btn btn-back">
+            <i class="fas fa-arrow-left mr-1"></i> Kembali
+          </a>
 
         </form>
       </div>
     </div>
+
   </div>
 </section>

@@ -1,0 +1,99 @@
+<section class="content-header">
+  <div class="container-fluid">
+    <h1>Create Unit</h1>
+  </div>
+</section>
+
+<section class="content">
+  <div class="container-fluid mt-3">
+    <div class="card">
+      <div class="card-header"><h4>Unit Form</h4></div>
+
+      <div class="card-body">
+        <form method="POST" action="/unit/create">
+          <div class="row">
+            <div class="col-md-6">
+
+              <div class="form-group">
+                <label>Unit ID</label>
+                <input type="text" class="form-control" name="unit_id">
+              </div>
+
+              <div class="form-group">
+                <label>Vehicle</label>
+                <select class="form-control" name="vehicle_id">
+                <% vehicle.forEach(u=> { %>
+                  <option value="<%= u.vehicle_id %>">
+                    <%= u.vehicle_id %> - <%= u.police_number %>
+                  </option>
+                  <% }) %>
+               </select>
+              </div>
+
+              <div class="form-group">
+                <label>Router</label>
+                <select class="form-control" name="router_id">
+                <% routers.forEach(u=> { %>
+                  <option value="<%= u.router_id %>">
+                    <%= u.router_id %> - <%= u.device_name %>
+                  </option>
+                  <% }) %>
+               </select>
+              </div>
+
+              <div class="form-group">
+                <label>Motor Cam</label>
+                 <select class="form-control" name="mtcam_id">
+                <% mtcams.forEach(u=> { %>
+                  <option value="<%= u.mtcam_id %>">
+                    <%= u.mtcam_id %> - <%= u.device_name %>
+                  </option>
+                  <% }) %>
+               </select>
+              </div>
+
+            </div>
+            <div class="col-md-6">
+
+              <div class="form-group">
+                <label>BW Cam</label>
+                 <select class="form-control" name="bwcam_id">
+                <% bwcams.forEach(u=> { %>
+                  <option value="<%= u.bwcam_id %>">
+                    <%= u.bwcam_id %> - <%= u.device_name %>
+                  </option>
+                  <% }) %>
+               </select>
+              </div>
+
+              <div class="form-group">
+                <label>Tablet</label>
+                <select class="form-control" name="tab_id">
+                <% tablet.forEach(u=> { %>
+                  <option value="<%= u.tab_id %>">
+                    <%= u.tab_id %> - <%= u.device_name %>
+                  </option>
+                  <% }) %>
+               </select>
+              </div>
+
+              <div class="form-group">
+                <label>Status</label>
+                <select class="form-control" name="status">
+                  <option value="1">Active</option>
+                  <option value="0">Inactive</option>
+                </select>
+              </div>
+
+              <input type="hidden" name="user_id" value="USR001">
+
+            </div>
+          </div>
+
+          <button class="btn btn-success">Save</button>
+          <a href="/unit" class="btn btn-secondary">Back</a>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>

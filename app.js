@@ -19,6 +19,7 @@ const { initMediasoup, getRouter } = require("./mediasoupServer");
 const { getOrCreateRoom } = require("./rooms");
 const { requireLogin, requireRole, requireRoles } = require('./helpers/sessionHelper');
 const admin = require("firebase-admin");
+require('./schedulers/activityScheduler');
 const serviceAccount = require("./komando-8344b-firebase-adminsdk-fbsvc-27b5c0eb01.json");
 
 
@@ -426,9 +427,7 @@ io.on("connection", (socket) => {
     const transport = await router.createWebRtcTransport({
       listenIps: [{
         ip: "0.0.0.0",
-        announcedIp: "192.168.1.164" // IP server local
-        //announcedIp: "192.168.100.5" // IP Ralika
-        //announcedIp: "192.168.10.201" // IP server
+        announcedIp: process.env.IP_ADDRESS
       }],
       initialAvailableOutgoingBitrate: 1000000,
       enableUdp: true,

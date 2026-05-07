@@ -12,5 +12,6 @@ router.get("/edit/:id", requireLogin, RouterController.editForm);
 router.post("/edit/:id", requireLogin, RouterController.update);
 
 router.get("/delete/:id", requireLogin, RouterController.delete);
+router.post("/update-status", requireLogin, RouterController.updateStatus);
 
 module.exports = router;

@@ -9,5 +9,6 @@ router.post("/create", requireLogin, VehicleController.create);
 router.get("/edit/:id", requireLogin, VehicleController.editForm);
 router.post("/edit/:id", requireLogin, VehicleController.update);
 router.get("/delete/:id", requireLogin, VehicleController.delete);
+router.post("/update-status", requireLogin, VehicleController.updateStatus);
 
 module.exports = router;

@@ -1,151 +1,201 @@
+<style>
+  .page-banner { background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%); border-radius:12px; padding:22px 28px; margin-bottom:24px; display:flex; align-items:center; justify-content:space-between; }
+  .page-banner h2 { color:#fff; font-weight:700; font-size:1.3rem; margin:0; }
+  .page-banner p { color:rgba(255,255,255,0.6); font-size:0.83rem; margin:4px 0 0; }
+  .form-card { border:none; border-radius:12px; box-shadow:0 2px 16px rgba(0,0,0,0.07); overflow:hidden; }
+  .sec-hdr { background:#f8f9ff; border-left:4px solid #667eea; padding:10px 18px; margin:20px 0 16px; border-radius:0 6px 6px 0; }
+  .sec-hdr span { font-size:0.78rem; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; color:#667eea; }
+  .fg { margin-bottom:18px; }
+  .fg label { font-size:0.78rem; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px; display:block; }
+  .fi { border:1.5px solid #e8e8e8; border-radius:8px; padding:9px 14px; font-size:0.875rem; color:#333; width:100%; transition:border-color 0.2s,box-shadow 0.2s; background:#fff; }
+  .fi:focus { border-color:#667eea; box-shadow:0 0 0 3px rgba(102,126,234,0.12); outline:none; }
+  .fi.mono { font-family:'Courier New',monospace; }
+  .iw { position:relative; }
+  .iw .fi { padding-left:38px; }
+  .iw .ii { position:absolute; left:13px; top:50%; transform:translateY(-50%); color:#aaa; font-size:0.8rem; pointer-events:none; }
+  .sel { appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23aaa' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 12px center; padding-right:36px; }
+  .btn-save { background:linear-gradient(135deg,#667eea,#764ba2); color:#fff; border:none; border-radius:8px; padding:10px 28px; font-weight:700; font-size:0.875rem; transition:all 0.2s; }
+  .btn-save:hover { color:#fff; opacity:0.9; transform:translateY(-1px); box-shadow:0 4px 14px rgba(102,126,234,0.4); }
+  .btn-back { background:#f5f5f5; color:#555; border:none; border-radius:8px; padding:10px 22px; font-weight:600; font-size:0.875rem; }
+  .btn-back:hover { background:#e8e8e8; color:#333; }
+  .divider { height:1px; background:#f0f0f0; margin:20px 0; }
+</style>
+
 <section class="content-header">
-    <div class="container-fluid">
-        <div class="row mb-2">
-            <div class="col-sm-6">
-                <h1>Create MT Camera</h1>
-            </div>
-            <div class="col-sm-6">
-                <ol class="breadcrumb float-sm-right">
-                    <li class="breadcrumb-item"><a href="#">Home</a></li>
-                    <li class="breadcrumb-item active">Create MT Camera</li>
-                </ol>
-            </div>
-        </div>
-    </div>
+  <div class="container-fluid">
+    <ol class="breadcrumb" style="background:transparent;padding:0;margin:0 0 8px;">
+      <li class="breadcrumb-item"><a href="/dashboard">Home</a></li>
+      <li class="breadcrumb-item"><a href="/mtcam">Motor Camera</a></li>
+      <li class="breadcrumb-item active">Tambah MTCam</li>
+    </ol>
+  </div>
 </section>
 
 <section class="content">
-    <div class="container-fluid mt-3">
-        <div class="card card-default">
-            <div class="card-header">
-                <h4>MT Camera Form</h4>
-            </div>
+  <div class="container-fluid">
 
-            <div class="card-body">
-                <form method="POST" action="/mtcam/create">
-                    <div class="row">
-
-                        <div class="col-md-6">
-
-                            <div class="form-group">
-                                <label>MTCam ID</label>
-                                <input type="text" class="form-control" name="mtcam_id" value="" required>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Device Name</label>
-                                <input type="text" class="form-control" name="device_name" value="" required>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Model</label>
-                                <input type="text" class="form-control" name="model" value="" required>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Item No</label>
-                                <input type="text" class="form-control" name="item_no" value="" required>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Serial Number</label>
-                                <input type="text" class="form-control" name="serial_number" value="" required>
-                            </div>
-
-                            <div class="form-group">
-                                <label>IP Address</label>
-                                <input type="text" class="form-control" name="ip_address" required>
-                            </div>
-                            <div class="form-group">
-                                <label>MAC Address</label>
-                                <input type="text" class="form-control" name="mac_address" required>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Power</label>
-                                <input type="text" class="form-control" name="power" value="" required>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Username</label>
-                                <input type="text" class="form-control" name="username" value="" required>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Password</label>
-                                <input type="text" class="form-control" name="password" value="" required>
-                            </div>
-                        </div>
-
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label>RTSP URL</label>
-                                <input type="text" class="form-control" name="rtsp_url"
-                                    value="" required>
-                            </div>
-                             <div class="form-group">
-                                <label>RTSP Port</label>
-                                <input type="number" class="form-control" name="rtsp_port" value="" required>
-                            </div>
-                            <div class="form-group">
-                                <label>RTSP Username</label>
-                                <input type="text" class="form-control" name="rtsp_username" value="" required>
-                            </div>
-
-                            <div class="form-group">
-                                <label>RTSP Password</label>
-                                <input type="text" class="form-control" name="rtsp_password" value="" required>
-                            </div>
-
-
-                            <div class="form-group">
-                                <label>Stream URL</label>
-                                <input type="text" name="stream_url" class="form-control"
-                                    value="" required>
-                            </div>
-
-                            
-                            <div class="form-group">
-                                <label>FFMPEG Options</label>
-                                <textarea rows="15" class="form-control" name="ffmpeg_options" required></textarea>
-                            </div>
-                            <div class="form-group">
-                                <label>Max Retries</label>
-                                <input type="number" class="form-control" name="max_retries" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Retry delay</label>
-                                <input type="number" class="form-control" name="retry_delay" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Watchdog Timeout</label>
-                                <input type="number" class="form-control" name="watchdog_timeout" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Watchdog Check Interval</label>
-                                <input type="number" class="form-control" name="watchdog_check_interval" required>
-                            </div>
-
-
-                            <div class="form-group">
-                                <label>Status</label>
-                                <select class="form-control" name="status">
-                                    <option value="1">Active</option>
-                                    <option value="0">Inactive</option>
-                                </select>
-                            </div>
-
-                            <input type="hidden" name="user_id" value="USR001">
-
-                        </div>
-
-                    </div>
-
-                    <button type="submit" class="btn btn-success">Save</button>
-                    <a href="/mtcam" class="btn btn-secondary">Back</a>
-                </form>
-            </div>
-
-        </div>
+    <div class="page-banner">
+      <div>
+        <h2><i class="fas fa-plus-circle mr-2"></i>Tambah Motor Camera Baru</h2>
+        <p>Isi detail perangkat kamera motor patroli</p>
+      </div>
     </div>
+
+    <div class="form-card card">
+      <div class="card-body px-4 pb-4">
+        <form method="POST" action="/mtcam/create">
+
+          <!-- IDENTITAS -->
+          <div class="sec-hdr">
+            <span><i class="fas fa-video mr-1"></i> Identitas</span>
+          </div>
+          <div class="row">
+            <div class="col-md-4 fg">
+              <label>MTCam ID</label>
+              <div class="iw">
+                <i class="fas fa-hashtag ii"></i>
+                <input type="text" class="fi mono" name="mtcam_id" placeholder="MTC-001" required>
+              </div>
+            </div>
+            <div class="col-md-4 fg">
+              <label>Device Name</label>
+              <div class="iw">
+                <i class="fas fa-video ii"></i>
+                <input type="text" class="fi" name="device_name" placeholder="Motor Camera" required>
+              </div>
+            </div>
+            <div class="col-md-4 fg">
+              <label>Model</label>
+              <div class="iw">
+                <i class="fas fa-microchip ii"></i>
+                <input type="text" class="fi" name="model" placeholder="Model kamera">
+              </div>
+            </div>
+            <div class="col-md-4 fg">
+              <label>Item No</label>
+              <input type="text" class="fi mono" name="item_no" placeholder="Item number">
+            </div>
+            <div class="col-md-4 fg">
+              <label>Serial Number</label>
+              <div class="iw">
+                <i class="fas fa-barcode ii"></i>
+                <input type="text" class="fi mono" name="serial_number" placeholder="Serial number">
+              </div>
+            </div>
+            <div class="col-md-4 fg">
+              <label>IP Address</label>
+              <div class="iw">
+                <i class="fas fa-globe ii"></i>
+                <input type="text" class="fi mono" name="ip_address" placeholder="192.168.x.x">
+              </div>
+            </div>
+            <div class="col-md-4 fg">
+              <label>MAC Address</label>
+              <div class="iw">
+                <i class="fas fa-ethernet ii"></i>
+                <input type="text" class="fi mono" name="mac_address" placeholder="XX:XX:XX:XX:XX:XX">
+              </div>
+            </div>
+            <div class="col-md-4 fg">
+              <label>Power</label>
+              <div class="iw">
+                <i class="fas fa-bolt ii"></i>
+                <input type="text" class="fi" name="power" placeholder="12V / 5V">
+              </div>
+            </div>
+            <div class="col-md-4 fg">
+              <label>Username</label>
+              <div class="iw">
+                <i class="fas fa-user ii"></i>
+                <input type="text" class="fi" name="username" placeholder="admin">
+              </div>
+            </div>
+            <div class="col-md-4 fg">
+              <label>Password</label>
+              <div class="iw">
+                <i class="fas fa-lock ii"></i>
+                <input type="password" class="fi" name="password" placeholder="Password">
+              </div>
+            </div>
+          </div>
+
+          <!-- STREAMING -->
+          <div class="sec-hdr">
+            <span><i class="fas fa-broadcast-tower mr-1"></i> Streaming</span>
+          </div>
+          <div class="row">
+            <div class="col-md-6 fg">
+              <label>RTSP URL</label>
+              <input type="text" class="fi mono" name="rtsp_url" placeholder="rtsp://192.168.x.x:554/stream">
+            </div>
+            <div class="col-md-2 fg">
+              <label>RTSP Port</label>
+              <input type="number" class="fi" name="rtsp_port" placeholder="554">
+            </div>
+            <div class="col-md-2 fg">
+              <label>RTSP Username</label>
+              <input type="text" class="fi" name="rtsp_username">
+            </div>
+            <div class="col-md-2 fg">
+              <label>RTSP Password</label>
+              <input type="text" class="fi" name="rtsp_password">
+            </div>
+            <div class="col-md-6 fg">
+              <label>Stream URL</label>
+              <div class="iw">
+                <i class="fas fa-broadcast-tower ii"></i>
+                <input type="text" class="fi" name="stream_url" placeholder="ws://192.168.x.x:9990">
+              </div>
+            </div>
+          </div>
+
+          <!-- FFMPEG -->
+          <div class="sec-hdr">
+            <span><i class="fas fa-sliders-h mr-1"></i> FFMPEG</span>
+          </div>
+          <div class="row">
+            <div class="col-md-12 fg">
+              <label>FFMPEG Options</label>
+              <textarea class="fi" name="ffmpeg_options" rows="6" placeholder="-c:v copy -c:a aac ..."></textarea>
+            </div>
+            <div class="col-md-3 fg">
+              <label>Max Retries</label>
+              <input type="number" class="fi" name="max_retries" placeholder="10">
+            </div>
+            <div class="col-md-3 fg">
+              <label>Retry Delay (ms)</label>
+              <input type="number" class="fi" name="retry_delay" placeholder="5000">
+            </div>
+            <div class="col-md-3 fg">
+              <label>Watchdog Timeout (ms)</label>
+              <input type="number" class="fi" name="watchdog_timeout" placeholder="10000">
+            </div>
+            <div class="col-md-3 fg">
+              <label>Watchdog Check Interval (ms)</label>
+              <input type="number" class="fi" name="watchdog_check_interval" placeholder="3000">
+            </div>
+            <div class="col-md-3 fg">
+              <label>Status</label>
+              <select class="fi sel" name="status">
+                <option value="1">&#9989; Active</option>
+                <option value="0">&#10060; Inactive</option>
+              </select>
+            </div>
+          </div>
+
+          <input type="hidden" name="user_id" value="USR001">
+          <div class="divider"></div>
+
+          <button type="submit" class="btn btn-save mr-2">
+            <i class="fas fa-save mr-1"></i> Simpan MTCam
+          </button>
+          <a href="/mtcam" class="btn btn-back">
+            <i class="fas fa-arrow-left mr-1"></i> Kembali
+          </a>
+
+        </form>
+      </div>
+    </div>
+
+  </div>
 </section>

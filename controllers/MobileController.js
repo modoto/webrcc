@@ -14,7 +14,7 @@ class MobileController {
             dt.personnel, hd.status FROM hd_activity hd
             left join (select activity_id, count(id) as personnel from dt_activity group by activity_id) dt
             on hd.activity_id = dt.activity_id 
-            WHERE hd.deleted_at IS NULL ORDER BY id DESC`;
+            WHERE hd.deleted_at IS NULL AND hd.status='Active' ORDER BY id DESC`;
             const { rows } = await pool.query(q);
             res.json({ code: 200, status: true, message: 'Success', data: rows });
         } catch (error) {

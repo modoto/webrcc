@@ -1,0 +1,370 @@
+<style>
+  .page-header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); border-radius:12px; padding:24px 28px; margin-bottom:24px; display:flex; align-items:center; justify-content:space-between; }
+  .page-header h2 { color:#fff; font-weight:700; font-size:1.5rem; margin:0; }
+  .page-header p { color:rgba(255,255,255,0.6); margin:4px 0 0; font-size:0.85rem; }
+
+  .filter-card { border:none; border-radius:12px; box-shadow:0 2px 12px rgba(0,0,0,0.08); margin-bottom:24px; }
+  .filter-card .card-body { padding:20px 24px; }
+
+  .filter-label { font-size:0.75rem; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px; display:block; }
+  .filter-input {
+    border: 1.5px solid #e8e8e8;
+    border-radius: 8px;
+    padding: 9px 14px;
+    font-size: 0.875rem;
+    color: #333;
+    width: 100%;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    background: #fff;
+    height: 40px;
+  }
+  .filter-input:focus { border-color:#667eea; box-shadow:0 0 0 3px rgba(102,126,234,0.12); outline:none; }
+
+  .filter-select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23aaa' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 36px;
+  }
+
+  .btn-tampilkan {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: #fff; border: none; border-radius: 8px;
+    padding: 0 24px; height: 40px; font-weight: 700; font-size: 0.875rem;
+    width: 100%; transition: all 0.2s;
+  }
+  .btn-tampilkan:hover { color:#fff; opacity:0.9; transform:translateY(-1px); box-shadow:0 4px 12px rgba(102,126,234,0.4); }
+
+  .summary-pills { display:flex; align-items:center; gap:12px; flex-wrap:wrap; height:40px; }
+  .sum-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 12px; border-radius: 20px;
+    font-size: 0.78rem; font-weight: 700;
+  }
+  .sum-pill.start { background:#e8f8f0; color:#1a9a5e; }
+  .sum-pill.end { background:#fef0f0; color:#d93025; }
+  .sum-pill.total { background:#f0f2ff; color:#667eea; }
+
+  .map-card { border:none; border-radius:12px; box-shadow:0 2px 12px rgba(0,0,0,0.08); overflow:hidden; }
+  .map-card .card-header { background:#fff; border-bottom:1px solid #f0f0f0; padding:14px 20px; display:flex; align-items:center; justify-content:space-between; }
+  .map-card .card-header h5 { font-weight:700; color:#1a1a2e; margin:0; font-size:0.95rem; }
+
+  #gps-map { width:100%; height:65vh; min-height:400px; }
+  .map-placeholder {
+    width:100%; height:65vh; min-height:400px;
+    display:flex; align-items:center; justify-content:center;
+    background: linear-gradient(135deg, #f8f9ff 0%, #f0f2ff 100%);
+  }
+  .map-placeholder-inner { text-align:center; color:#aaa; }
+  .map-placeholder-inner i { font-size:3.5rem; opacity:0.25; margin-bottom:16px; display:block; color:#667eea; }
+  .map-placeholder-inner p { font-size:0.88rem; margin:0; }
+  .map-placeholder-inner strong { color:#667eea; }
+
+  .log-card { border:none; border-radius:12px; box-shadow:0 2px 12px rgba(0,0,0,0.08); overflow:hidden; }
+  .log-card .card-header { background:#fff; border-bottom:1px solid #f0f0f0; padding:14px 20px; display:flex; align-items:center; justify-content:space-between; }
+  .log-card .card-header h5 { font-weight:700; color:#1a1a2e; margin:0; font-size:0.95rem; }
+  .log-card .card-body { max-height:65vh; overflow-y:auto; padding:0; }
+
+  .log-table thead th { background:#f8f9ff; color:#555; font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.6px; border:none; padding:10px 12px; position:sticky; top:0; z-index:1; }
+  .log-table tbody td { vertical-align:middle; padding:10px 12px; font-size:0.82rem; color:#444; border-color:#f5f5f5; }
+  .log-table tbody tr:hover { background:#f8f9ff; }
+  .log-table .mono { font-family:'Courier New',monospace; font-size:0.78rem; color:#0f3460; }
+
+  .empty-log { padding:40px 20px; text-align:center; color:#bbb; }
+  .empty-log i { font-size:2.5rem; opacity:0.25; margin-bottom:10px; display:block; }
+  .empty-log p { font-size:0.85rem; margin:0; }
+
+  .device-chip {
+    display:inline-flex; align-items:center; gap:6px;
+    background:#f0f2ff; color:#667eea;
+    padding:4px 12px; border-radius:20px;
+    font-size:0.78rem; font-weight:700;
+    font-family:'Courier New',monospace;
+  }
+</style>
+
+<section class="content-header">
+  <div class="container-fluid">
+    <ol class="breadcrumb" style="background:transparent; padding:0; margin:0 0 8px;">
+      <li class="breadcrumb-item"><a href="/dashboard">Home</a></li>
+      <li class="breadcrumb-item active">GPS History</li>
+    </ol>
+  </div>
+</section>
+
+<section class="content">
+  <div class="container-fluid">
+
+    <!-- Header Banner -->
+    <div class="page-header">
+      <div>
+        <h2><i class="fas fa-route mr-2"></i>GPS History</h2>
+        <p>Lacak riwayat perjalanan perangkat berdasarkan tanggal</p>
+      </div>
+      <div class="device-chip" id="header_device" style="display:none;">
+        <i class="fas fa-satellite-dish"></i>
+        <span id="header_device_label">-</span>
+      </div>
+    </div>
+
+    <!-- Filter Card -->
+    <div class="card filter-card">
+      <div class="card-body">
+        <div class="row align-items-end">
+          <div class="col-md-4">
+            <label class="filter-label"><i class="fas fa-satellite-dish mr-1"></i> Device ID</label>
+            <select id="device_id" class="filter-input filter-select">
+              <option value="">-- Pilih Device --</option>
+              <% devices.forEach(d => { %>
+                <option value="<%= d.device_id %>"><%= d.device_id %></option>
+              <% }) %>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label class="filter-label"><i class="fas fa-calendar-alt mr-1"></i> Tanggal</label>
+            <input type="date" id="filter_date" class="filter-input"
+              value="<%= new Date().toISOString().split('T')[0] %>">
+          </div>
+          <div class="col-md-2">
+            <label class="filter-label">&nbsp;</label>
+            <button id="btn_cari" class="btn-tampilkan">
+              <i class="fas fa-search mr-1"></i> Tampilkan
+            </button>
+          </div>
+          <div class="col-md-3" id="summary_bar" style="display:none;">
+            <label class="filter-label">&nbsp;</label>
+            <div class="summary-pills">
+              <span class="sum-pill start">
+                <i class="fas fa-circle" style="font-size:0.5rem;"></i>
+                Start: <strong id="sum_start">-</strong>
+              </span>
+              <span class="sum-pill end">
+                <i class="fas fa-circle" style="font-size:0.5rem;"></i>
+                End: <strong id="sum_end">-</strong>
+              </span>
+              <span class="sum-pill total">
+                <i class="fas fa-map-pin"></i>
+                <strong id="sum_total">0</strong> titik
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Map + Log -->
+    <div class="row">
+
+      <!-- Map -->
+      <div class="col-md-8 mb-4">
+        <div class="card map-card">
+          <div class="card-header">
+            <h5><i class="fas fa-map-marked-alt mr-2" style="color:#667eea;"></i>Rute Perjalanan</h5>
+            <span id="map_status" style="font-size:0.78rem; color:#aaa;">Belum ada data</span>
+          </div>
+          <div class="card-body p-0">
+            <div id="map-placeholder" class="map-placeholder">
+              <div class="map-placeholder-inner">
+                <i class="fas fa-map-marked-alt"></i>
+                <p>Pilih device dan tanggal,<br>lalu klik <strong>Tampilkan</strong></p>
+              </div>
+            </div>
+            <div id="gps-map" style="display:none;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Log Table -->
+      <div class="col-md-4 mb-4">
+        <div class="card log-card">
+          <div class="card-header">
+            <h5><i class="fas fa-list mr-2" style="color:#667eea;"></i>Log GPS</h5>
+            <span id="log_count" style="font-size:0.78rem; color:#aaa;">0 titik</span>
+          </div>
+          <div class="card-body">
+            <div id="empty_info" class="empty-log">
+              <i class="fas fa-satellite-dish"></i>
+              <p>Belum ada data GPS</p>
+            </div>
+            <table class="table log-table mb-0" id="log_table" style="display:none;">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Waktu</th>
+                  <th>Lat</th>
+                  <th>Lng</th>
+                </tr>
+              </thead>
+              <tbody id="log_tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</section>
+
+<!-- Google Maps -->
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBzaqzF2hvrmrKe9bimHiLid3AOTNAGNDQ"></script>
+<script>
+  let gmap = null;
+  let polyline = null;
+  let markers = [];
+  let infoWindow = null;
+
+  function ensureMapInit() {
+    if (!gmap) {
+      gmap = new google.maps.Map(document.getElementById('gps-map'), {
+        zoom: 14,
+        center: { lat: -6.2, lng: 106.816 },
+        mapTypeId: 'roadmap'
+      });
+      infoWindow = new google.maps.InfoWindow();
+    }
+  }
+
+  function clearMap() {
+    if (polyline) { polyline.setMap(null); polyline = null; }
+    markers.forEach(m => m.setMap(null));
+    markers = [];
+  }
+
+  function renderRoute(data) {
+    ensureMapInit();
+    clearMap();
+
+    if (data.length === 0) {
+      alert('Tidak ada data GPS untuk filter ini.');
+      return;
+    }
+
+    const path = data.map(r => ({
+      lat: parseFloat(r.latitute),
+      lng: parseFloat(r.longitude)
+    }));
+
+    polyline = new google.maps.Polyline({
+      path,
+      geodesic: true,
+      strokeColor: '#667eea',
+      strokeOpacity: 1.0,
+      strokeWeight: 4
+    });
+    polyline.setMap(gmap);
+
+    // Marker START
+    const startM = new google.maps.Marker({
+      position: path[0],
+      map: gmap,
+      title: 'Start',
+      label: { text: 'S', color: 'white', fontWeight: 'bold' },
+      icon: {
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: 10,
+        fillColor: '#1a9a5e',
+        fillOpacity: 1,
+        strokeColor: '#fff',
+        strokeWeight: 2
+      }
+    });
+    startM.addListener('click', () => {
+      infoWindow.setContent(`<b>START</b><br>${data[0].device_id}<br>${data[0].created_at}`);
+      infoWindow.open(gmap, startM);
+    });
+    markers.push(startM);
+
+    // Marker END
+    const last = data[data.length - 1];
+    const endM = new google.maps.Marker({
+      position: path[path.length - 1],
+      map: gmap,
+      title: 'End',
+      label: { text: 'E', color: 'white', fontWeight: 'bold' },
+      icon: {
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: 10,
+        fillColor: '#d93025',
+        fillOpacity: 1,
+        strokeColor: '#fff',
+        strokeWeight: 2
+      }
+    });
+    endM.addListener('click', () => {
+      infoWindow.setContent(`<b>END</b><br>${last.device_id}<br>${last.created_at}`);
+      infoWindow.open(gmap, endM);
+    });
+    markers.push(endM);
+
+    const bounds = new google.maps.LatLngBounds();
+    path.forEach(p => bounds.extend(p));
+    gmap.fitBounds(bounds);
+  }
+
+  function renderTable(data) {
+    const tbody = document.getElementById('log_tbody');
+    tbody.innerHTML = '';
+    data.forEach((r, i) => {
+      tbody.innerHTML += `<tr>
+        <td style="color:#aaa;">${i + 1}</td>
+        <td style="font-size:0.8rem;">${r.created_at.split(' ')[1] || r.created_at.split('T')[1]?.slice(0,8) || '-'}</td>
+        <td class="mono">${parseFloat(r.latitute).toFixed(6)}</td>
+        <td class="mono">${parseFloat(r.longitude).toFixed(6)}</td>
+      </tr>`;
+    });
+    document.getElementById('log_table').style.display = '';
+    document.getElementById('empty_info').style.display = 'none';
+    document.getElementById('log_count').textContent = data.length + ' titik';
+  }
+
+  function renderSummary(data) {
+    document.getElementById('sum_total').textContent = data.length;
+    const t0 = data.length ? (data[0].created_at.split(' ')[1] || data[0].created_at.split('T')[1]?.slice(0,8) || '-') : '-';
+    const t1 = data.length ? (data[data.length-1].created_at.split(' ')[1] || data[data.length-1].created_at.split('T')[1]?.slice(0,8) || '-') : '-';
+    document.getElementById('sum_start').textContent = t0;
+    document.getElementById('sum_end').textContent = t1;
+    document.getElementById('summary_bar').style.display = '';
+  }
+
+  document.getElementById('btn_cari').addEventListener('click', function () {
+    const device_id = document.getElementById('device_id').value;
+    const date = document.getElementById('filter_date').value;
+
+    if (!device_id || !date) {
+      alert('Pilih Device ID dan Tanggal terlebih dahulu.');
+      return;
+    }
+
+    const btn = this;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Loading...';
+
+    // Update header device chip
+    document.getElementById('header_device_label').textContent = device_id;
+    document.getElementById('header_device').style.display = '';
+    document.getElementById('map_status').textContent = device_id + ' · ' + date;
+
+    fetch(`/gps/getHistory?device_id=${encodeURIComponent(device_id)}&date=${encodeURIComponent(date)}`)
+      .then(r => r.json())
+      .then(res => {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-search mr-1"></i> Tampilkan';
+
+        if (res.code !== 200) { alert('Gagal mengambil data.'); return; }
+
+        document.getElementById('map-placeholder').style.display = 'none';
+        document.getElementById('gps-map').style.display = 'block';
+
+        renderRoute(res.data);
+        renderTable(res.data);
+        renderSummary(res.data);
+      })
+      .catch(() => {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-search mr-1"></i> Tampilkan';
+        alert('Terjadi kesalahan koneksi.');
+      });
+  });
+</script>

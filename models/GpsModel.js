@@ -30,6 +30,26 @@ class GpsModel {
         return result.rows;
     }
 
+    static async getDistinctDevices() {
+        const result = await db.query(
+            "SELECT DISTINCT device_id FROM gps_log ORDER BY device_id ASC"
+        );
+        return result.rows;
+    }
+
+    static async getHistoryByDeviceAndDate(device_id, date) {
+        const result = await db.query(
+            `SELECT id, activity_id, device_id, latitute, longitude,
+                to_char(created_at AT TIME ZONE 'Asia/Jakarta', 'YYYY-MM-DD HH24:MI:SS') as created_at
+             FROM gps_log
+             WHERE device_id = $1
+               AND DATE(created_at AT TIME ZONE 'Asia/Jakarta') = $2
+             ORDER BY created_at ASC`,
+            [device_id, date]
+        );
+        return result.rows;
+    }
+
     static async create(data) {
         const jakartaNow = DateTime.now().setZone('Asia/Jakarta');
         const dateNow = jakartaNow.toFormat('yyyy-MM-dd HH:mm:ss'); 
