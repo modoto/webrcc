@@ -90,37 +90,37 @@ app.use("/gps", require("./routes/gps"));
 app.use("/mobile", require("./routes/mobile"));
 
 app.post('/api/endcall', async (req, res) => {
-  const { roomId, targetUserId, callerUserId } = req.body;
-  
-  console.log("End Call Request received");
+  const { roomId, userId } = req.body; // userId = siapa yang keluar
+  console.log("End Call API received, roomId:", roomId, "userId:", userId);
 
-  // 1. Ambil semua socket ID milik user yang ingin diputuskan panggilannya
-  const targetSockets = onlineUsers.get(targetUserId) || [];
-  const callerSockets = onlineUsers.get(callerUserId) || [];
-
-  // 2. Kirim emit ke target (penerima) dan caller (penelepon) 
-  // agar UI di kedua sisi tertutup
-  if (targetSockets.length > 0) {
-    io.to([...targetSockets]).emit("call_rejected", { 
-      roomId, 
-      rejectedBy: 'system/api' 
+  const room = getRoom(roomId);
+  if (room) {
+    // Cari socket milik user yang keluar
+    let leavingSocket = null;
+    room.peers.forEach(peer => {
+      if (String(peer.userId) === String(userId)) leavingSocket = peer;
     });
+
+    if (leavingSocket) room.peers.delete(leavingSocket.id);
+
+    const remaining = [...room.peers.values()];
+
+    if (remaining.length === 1) {
+      remaining[0].emit("call_ended", { roomId, endedBy: userId });
+    } else if (remaining.length > 1) {
+      remaining.forEach(peer => {
+        peer.emit("peer_left", { roomId, leftBy: userId });
+      });
+    } else {
+      // Tidak ada yang tersisa, tutup semua via socket.io room
+      io.to(`call_${roomId}`).emit("call_ended", { roomId, endedBy: 'system/api' });
+    }
+  } else {
+    // Room tidak ditemukan — kirim call_ended ke semua anggota yang mungkin masih terhubung
+    io.to(`call_${roomId}`).emit("call_ended", { roomId, endedBy: 'system/api' });
   }
 
-  if (callerSockets.length > 0) {
-    io.to([...callerSockets]).emit("call_rejected", { 
-      roomId, 
-      rejectedBy: 'system/api' 
-    });
-  }
-
-  // Opsi tambahan: Jika Anda menggunakan socket room untuk voice call
-  // io.to(roomId).emit("call_rejected", { roomId, rejectedBy: 'system/api' });
-
-  res.json({
-    status: true,
-    message: "Call termination signal sent"
-  });
+  res.json({ status: true, message: "Call termination signal sent" });
 });
 
 
@@ -327,14 +327,13 @@ io.on("connection", (socket) => {
     const roomName = `call_${roomId}`;
     socket.join(roomName);
 
+    firebaseSendTopicGroupCall(roomId.toString(), socket.userId.toString(), participantIds || []);
+
     (participantIds || []).forEach(targetUserId => {
       const sockets = onlineUsers.get(targetUserId);
-      //console.log("uid:", targetUserId);
-      //console.log("sockets:", sockets);
       if (!sockets) return;
 
       sockets.forEach(socketId => {
-        //console.log("call to:", socketId);
         io.to([...onlineUsers.get(targetUserId) || []]).emit("incoming_call", {
           roomId,
           fromUserId: socket.userId,
@@ -377,26 +376,29 @@ io.on("connection", (socket) => {
   // END CALL
   // =======================
   socket.on("end_call", ({ roomId }) => {
-    console.log("📴 end_call from", socket.id);
+    console.log("📴 end_call from", socket.id, "room peers:", getRoom(roomId)?.peers?.size);
 
     const room = getRoom(roomId);
     if (!room) return;
 
-    // notify peers BEFORE cleanup
-    room.peers.forEach(peer => {
-      if (peer.id !== socket.id) {
-        peer.emit("call_ended", {
-          roomId,
-          endedBy: socket.userId
-        });
-      }
-    });
+    // Remove peer dulu, hitung sisa
+    room.peers.delete(socket.id);
+    const remaining = [...room.peers.values()].filter(p => p.id !== socket.id);
+    const remainingCount = remaining.length;
+
+    if (remainingCount === 1) {
+      // Hanya 1 orang tersisa → call sudah tidak ada gunanya, akhiri
+      remaining[0].emit("call_ended", { roomId, endedBy: socket.userId });
+    } else if (remainingCount > 1) {
+      // Masih banyak peserta → cukup beritahu bahwa 1 orang keluar
+      remaining.forEach(peer => {
+        peer.emit("peer_left", { roomId, leftBy: socket.userId });
+      });
+    }
+    // remainingCount === 0 → tidak ada yang perlu diberitahu
 
     // cleanup mediasoup
     closePeer(socket);
-
-    // remove peer from room
-    room.peers.delete(socket.id);
 
     // leave socket.io room
     socket.leave(`call_${roomId}`);
@@ -583,20 +585,28 @@ function closePeer(socket) {
 }
 
 
-async function firebaseSendTopicPrivateCall(roomId,fromUserId,toUserId) {
+async function firebaseSendTopicPrivateCall(roomId, fromUserId, toUserId) {
+  let callerName = "";
+  try {
+    const userRow = await pool.query("SELECT display_name FROM users WHERE id = $1", [fromUserId]);
+    if (userRow.rows.length > 0) callerName = userRow.rows[0].display_name || "";
+  } catch (e) {
+    console.error("firebaseSendTopicPrivateCall: gagal ambil callerName", e);
+  }
+
   const message = {
     topic: "private_call",
     data: {
       v: "1",
-      event: "CALL_INCOMING",
+      event: "PRIVATE_CALL_INCOMING",
       ts: Date.now().toString(),
       id: "evt_call_001",
       actorId: fromUserId,
       targetId: toUserId,
       entityId: roomId,
       data: JSON.stringify({
-        roomId: "room_123",
-        callerName: "John",
+        roomId: roomId,
+        callerName: callerName,
         callerAvatar: "https://...",
         timeout: 30000,
       }),
@@ -613,6 +623,44 @@ async function firebaseSendTopicPrivateCall(roomId,fromUserId,toUserId) {
   }
 }
 
+
+async function firebaseSendTopicGroupCall(roomId, fromUserId, participantIds) {
+  let callerName = "";
+  try {
+    const userRow = await pool.query("SELECT display_name FROM users WHERE id = $1", [fromUserId]);
+    if (userRow.rows.length > 0) callerName = userRow.rows[0].display_name || "";
+  } catch (e) {
+    console.error("firebaseSendTopicGroupCall: gagal ambil callerName", e);
+  }
+
+  const message = {
+    topic: "group_call",
+    data: {
+      v: "1",
+      event: "GROUP_CALL_INCOMING",
+      ts: Date.now().toString(),
+      id: "evt_call_group_001",
+      actorId: fromUserId,
+      entityId: roomId,
+      data: JSON.stringify({
+        roomId: roomId,
+        callerName: callerName,
+        callerAvatar: "https://...",
+        participantIds: JSON.stringify(participantIds),
+        timeout: 30000,
+      }),
+    },
+    android: {
+      priority: "high",
+    },
+  };
+  try {
+    const res = await admin.messaging().send(message);
+    console.log("Group call Firebase success:", res);
+  } catch (err) {
+    console.error("Group call Firebase error:", err);
+  }
+}
 
 
 // ====================================================

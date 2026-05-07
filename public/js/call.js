@@ -371,11 +371,25 @@ socket.on("producerClosed", ({ producerId }) => {
 socket.on("call_ended", ({ roomId, endedBy }) => {
   console.log("📴 Call ended by", endedBy);
 
-  // 🔥 pastikan ini call yang aktif
   if (roomId !== currentRoomId) return;
 
   cleanupMedia();
   closeCallUI();
+});
+
+// Satu peserta keluar dari group call — call tetap berjalan
+socket.on("peer_left", ({ roomId, leftBy }) => {
+  console.log("👋 Peer left group call:", leftBy, "roomId:", roomId);
+
+  if (roomId !== currentRoomId) return;
+
+  // Perbarui status UI agar user tahu siapa yang keluar
+  updateCallStatus?.(`Peserta ${leftBy} meninggalkan panggilan`);
+
+  // Kembalikan teks status ke "Connected" setelah 3 detik
+  setTimeout(() => {
+    if (callActive) updateCallStatus?.("Connected");
+  }, 3000);
 });
 
 socket.on("call_canceled", ({ roomId, canceledBy }) => {
