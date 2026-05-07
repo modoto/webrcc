@@ -144,8 +144,8 @@ const options = {
   // cert: fs.readFileSync('/etc/ssl/server.crt'),
 };
 
-const server = http.createServer(app);
-//const server = https.createServer(options, app);
+//const server = http.createServer(app);
+const server = https.createServer(options, app);
 const io = new Server(server, { cors: { origin: "*" } });
 
 console.log('SOCKET_URL:', SOCKET_URL);
@@ -157,9 +157,9 @@ io.use((socket, next) => {
     //console.log("token:", token);
     if (!token) return next(new Error("Unauthorized"));
 
-    // decode jwt
+    // decode jwt — normalisasi ke String agar Map lookup konsisten
     const decoded = jwt.verify(token, JWT_SECRET);
-    socket.userId = decoded.userId; // userId VALID
+    socket.userId = String(decoded.userId);
     next();
 
   } catch (err) {
@@ -288,23 +288,18 @@ io.on("connection", (socket) => {
   // CALL SIGNALING (2)
   // =======================
   socket.on("call_user", ({ roomId, targetUserId }) => {
-    // Server menerima sinyal dan membuat nama room baru dari parameter roomId yang di kirim dari caller
-    // Contoh roomName = call_2
     const roomName = `call_${roomId}`;
-    // Caller join ke room call_2
     socket.join(roomName);
 
-    // server mengirim sinyal ke target user yang sedang online dengan parameter roomid, userid Caller dan userid Calle
-    // Contoh : roomId = 2, fromUserId = 1, toUserId = 10
-    console.log("targetUserId:", targetUserId);
-    console.log("onlineUsers:", onlineUsers);
+    const tid = String(targetUserId);
+    console.log("call_user → targetUserId:", tid, "| online?", onlineUsers.has(tid));
 
-    firebaseSendTopicPrivateCall(roomId.toString(), socket.userId.toString(), targetUserId.toString());
+    firebaseSendTopicPrivateCall(roomId.toString(), socket.userId, tid);
 
-    io.to([...onlineUsers.get(targetUserId) || []]).emit("incoming_call", {
+    io.to([...onlineUsers.get(tid) || []]).emit("incoming_call", {
       roomId,
       fromUserId: socket.userId,
-      toUserId: targetUserId
+      toUserId: tid
     });
   });
 
@@ -331,18 +326,16 @@ io.on("connection", (socket) => {
     const roomName = `call_${roomId}`;
     socket.join(roomName);
 
-    firebaseSendTopicGroupCall(roomId.toString(), socket.userId.toString(), participantIds || []);
+    const ids = (participantIds || []).map(String);
+    firebaseSendTopicGroupCall(roomId.toString(), socket.userId, ids);
 
-    (participantIds || []).forEach(targetUserId => {
-      const sockets = onlineUsers.get(targetUserId);
+    ids.forEach(tid => {
+      const sockets = onlineUsers.get(tid);
       if (!sockets) return;
-
-      sockets.forEach(socketId => {
-        io.to([...onlineUsers.get(targetUserId) || []]).emit("incoming_call", {
-          roomId,
-          fromUserId: socket.userId,
-          toUserId: targetUserId
-        });
+      io.to([...sockets]).emit("incoming_call", {
+        roomId,
+        fromUserId: socket.userId,
+        toUserId: tid
       });
     });
   });
@@ -351,13 +344,12 @@ io.on("connection", (socket) => {
   // REJECT CALL (10)
   // =======================
   socket.on("reject_call", ({ roomId, callerUserId }) => {
-
     console.log("📴 Call Rejected by:", socket.userId);
-    io.to([...onlineUsers.get(callerUserId) || []]).emit("call_rejected", { roomId, rejectedBy: socket.userId });
+    io.to([...onlineUsers.get(String(callerUserId)) || []]).emit("call_rejected", { roomId, rejectedBy: socket.userId });
   });
 
   socket.on("reject_group_call", ({ roomId, fromUserId }) => {
-    io.to([...onlineUsers.get(fromUserId) || []]).emit("group_call_rejected", {
+    io.to([...onlineUsers.get(String(fromUserId)) || []]).emit("group_call_rejected", {
       roomId,
       rejectedBy: socket.userId
     });
@@ -368,9 +360,7 @@ io.on("connection", (socket) => {
   // =======================
   socket.on("cancel_call", ({ roomId, targetUserId }) => {
     console.log("📴 Call canceled by caller:", socket.userId);
-
-    // Kirim ke callee yang sedang berdering
-    io.to([...onlineUsers.get(targetUserId) || []]).emit("call_canceled", {
+    io.to([...onlineUsers.get(String(targetUserId)) || []]).emit("call_canceled", {
       roomId,
       canceledBy: socket.userId
     });
@@ -380,33 +370,28 @@ io.on("connection", (socket) => {
   // END CALL
   // =======================
   socket.on("end_call", ({ roomId }) => {
-    console.log("📴 end_call from", socket.id, "room peers:", getRoom(roomId)?.peers?.size);
+    const roomName = `call_${roomId}`;
 
+    // Hitung peserta socket.io sebelum keluar (termasuk diri sendiri)
+    const ioRoom = io.sockets.adapter.rooms.get(roomName);
+    const ioSize = ioRoom ? ioRoom.size : 1;
+    const remainingCount = ioSize - 1; // setelah ini socket akan leave
+
+    console.log("📴 end_call from", socket.id, "| io room size:", ioSize, "| remaining:", remainingCount);
+
+    // Update mediasoup peers
     const room = getRoom(roomId);
-    if (!room) return;
+    if (room) room.peers.delete(socket.id);
 
-    // Remove peer dulu, hitung sisa
-    room.peers.delete(socket.id);
-    const remaining = [...room.peers.values()].filter(p => p.id !== socket.id);
-    const remainingCount = remaining.length;
-
+    // Kirim event ke semua peserta lain via socket.io room (lebih reliabel dari room.peers)
     if (remainingCount === 1) {
-      // Hanya 1 orang tersisa → call sudah tidak ada gunanya, akhiri
-      remaining[0].emit("call_ended", { roomId, endedBy: socket.userId });
+      socket.to(roomName).emit("call_ended", { roomId, endedBy: socket.userId });
     } else if (remainingCount > 1) {
-      // Masih banyak peserta → cukup beritahu bahwa 1 orang keluar
-      remaining.forEach(peer => {
-        peer.emit("peer_left", { roomId, leftBy: socket.userId });
-      });
+      socket.to(roomName).emit("peer_left", { roomId, leftBy: socket.userId });
     }
-    // remainingCount === 0 → tidak ada yang perlu diberitahu
 
-    // cleanup mediasoup
     closePeer(socket);
-
-    // leave socket.io room
-    socket.leave(`call_${roomId}`);
-
+    socket.leave(roomName);
     broadcastUsers(roomId);
   });
 
@@ -575,6 +560,14 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", () => {
     closePeer(socket);
+
+    // Bersihkan dari onlineUsers
+    const uid = String(socket.userId);
+    if (onlineUsers.has(uid)) {
+      onlineUsers.get(uid).delete(socket.id);
+      if (onlineUsers.get(uid).size === 0) onlineUsers.delete(uid);
+    }
+    console.log("Disconnected:", socket.id, "user:", uid, "| online count:", onlineUsers.get(uid)?.size ?? 0);
   });
 });
 

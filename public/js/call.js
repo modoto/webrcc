@@ -268,6 +268,8 @@ socket.on("incoming_call", ({ roomId, fromUserId, toUserId }) => {
       const callModal = document.getElementById("callModal");
       callModal.classList.remove("hidden");
 
+      callActive = true;
+
       // Calle Start MediaSoup
       await startMediasoup(roomId);
 
@@ -376,11 +378,11 @@ socket.on("producerClosed", ({ producerId }) => {
 // });
 
 socket.on("call_ended", ({ roomId, endedBy }) => {
-  console.log("📴 Call ended by", endedBy);
+  console.log("📴 Call ended by", endedBy, "| roomId:", roomId, "currentRoomId:", currentRoomId);
 
-  if (roomId !== currentRoomId) return;
+  if (String(roomId) !== String(currentRoomId)) return;
 
-  cleanupMedia();
+  try { cleanupMedia(); } catch(e) { console.warn("cleanupMedia error:", e); }
   closeCallUI();
 });
 
@@ -388,7 +390,7 @@ socket.on("call_ended", ({ roomId, endedBy }) => {
 socket.on("peer_left", ({ roomId, leftBy }) => {
   console.log("👋 Peer left group call:", leftBy, "roomId:", roomId);
 
-  if (roomId !== currentRoomId) return;
+  if (String(roomId) !== String(currentRoomId)) return;
 
   // Perbarui status UI agar user tahu siapa yang keluar
   updateCallStatus?.(`Peserta ${leftBy} meninggalkan panggilan`);

@@ -670,6 +670,11 @@
     .participant .mic.active { color: #38ef7d; }
     .participant .mic.muted { color: rgba(255,255,255,0.4); }
 
+    @keyframes gcallPulse {
+      0%,100% { box-shadow: 0 0 0 0 rgba(102,126,234,0.5); }
+      50%      { box-shadow: 0 0 0 14px rgba(102,126,234,0); }
+    }
+
     @keyframes microphoneAnimation {
       0%   { transform: translateY(0); color: rgba(255,255,255,0.4); }
       50%  { transform: translateY(-6px); color: #38ef7d; }
@@ -759,7 +764,11 @@
 
   <div id="incomingCallModal" class="call-modal hidden">
     <div class="call-box">
+      <img id="incomingAvatar" class="call-avatar"
+        src="https://ui-avatars.com/api/?name=?&background=667eea&color=fff"
+        style="animation: gcallPulse 1.4s ease-in-out infinite;">
       <h3 id="callFrom">Incoming Call</h3>
+      <p style="color:rgba(255,255,255,0.55); margin:0 0 8px;">Panggilan masuk...</p>
       <div class="call-actions">
         <button id="btnAccept" class="btn-accept">
           <i class="fas fa-phone mr-1"></i> Accept
