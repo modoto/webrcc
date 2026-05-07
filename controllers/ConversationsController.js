@@ -537,12 +537,12 @@ class ConversationsController {
                 users_without_conversation AS (
                 SELECT
                     u.id                id,
-                    NULL::INTEGER        AS conversation_id,   -- 🔥 FIX
+                    NULL::INTEGER        AS conversation_id,
                     false               AS is_group,
                     u.username          AS display_name,
                     'https://ui-avatars.com/api/?name=' || u.username AS display_avatar,
-                    NULL::TEXT          AS last_message,        -- 🔥 FIX
-                    NULL::TIMESTAMP     AS last_time,           -- 🔥 FIX
+                    NULL::TEXT          AS last_message,
+                    NULL::TIMESTAMP     AS last_time,
                     0                   AS unread_count
 
                 FROM users u
@@ -552,7 +552,12 @@ class ConversationsController {
                     FROM conversation_users cu1
                     JOIN conversation_users cu2
                         ON cu1.conversation_id = cu2.conversation_id
-                    WHERE cu1.user_id = $1 and cu2.user_id is not null
+                    JOIN conversations c
+                        ON c.id = cu1.conversation_id
+                        AND c.is_group = false
+                    WHERE cu1.user_id = $1
+                        AND cu2.user_id != $1
+                        AND cu2.user_id IS NOT NULL
                     )
                 )
 
