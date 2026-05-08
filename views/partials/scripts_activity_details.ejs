@@ -492,9 +492,10 @@
   // =============================
   //  SEND MESSAGE
   // =============================
-  document.getElementById("sendMessage").onclick = () => {
+  function sendMessage() {
     const conversationId = document.getElementById("chat_id").value;
-    const content = document.getElementById("msg").value;
+    const msgEl = document.getElementById("msg");
+    const content = msgEl.value;
     if (!content.trim()) return;
 
     socket.emit("send_message", {
@@ -515,8 +516,18 @@
       true
     );
 
-    document.getElementById("msg").value = "";
-  };
+    msgEl.value = "";
+    msgEl.style.height = "auto";
+  }
+
+  document.getElementById("sendMessage").onclick = sendMessage;
+
+  document.getElementById("msg").addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
 
   // =============================
   //  SCROLL PAGINATION
@@ -536,10 +547,13 @@
 
 
   // =============================
-  //  TYPING INDICATOR
+  //  TYPING INDICATOR + AUTO RESIZE
   // =============================
   let typingTimeout;
-  document.getElementById("msg").addEventListener("input", () => {
+  document.getElementById("msg").addEventListener("input", function () {
+    this.style.height = "auto";
+    this.style.height = Math.min(this.scrollHeight, 120) + "px";
+
     socket.emit("typing", { conversationId: activeConversationId, isTyping: true });
     clearTimeout(typingTimeout);
     typingTimeout = setTimeout(() => {

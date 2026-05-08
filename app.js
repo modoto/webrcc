@@ -138,14 +138,14 @@ app.use((req, res, next) => {
 //  SOCKET.IO SETUP
 // ====================================================
 const options = {
-  key: fs.readFileSync('key.pem'),
-  cert: fs.readFileSync('cert.pem'),
-  // key: fs.readFileSync('/etc/ssl/server.key'),
-  // cert: fs.readFileSync('/etc/ssl/server.crt'),
+  //key: fs.readFileSync('key.pem'),
+  //cert: fs.readFileSync('cert.pem'),
+  key: fs.readFileSync('/etc/ssl/server.key'),
+  cert: fs.readFileSync('/etc/ssl/server.crt'),
 };
 
-const server = http.createServer(app);
-//const server = https.createServer(options, app);
+//const server = http.createServer(app);
+const server = https.createServer(options, app);
 const io = new Server(server, { cors: { origin: "*" } });
 
 console.log('SOCKET_URL:', SOCKET_URL);
