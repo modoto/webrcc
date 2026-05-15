@@ -815,11 +815,11 @@
 
         const mtcam_id = 'videoCanvas'+ cam.mtcam_id;
         const canvasMtc = document.getElementById(mtcam_id);
-        new JSMpeg.Player(cam.ws_mtcam, { canvas: canvasMtc });
+        new JSMpeg.Player(cam.ws_mtcam, { canvas: canvasMtc, disableGl: true });
 
         const bwcam_id = 'videoCanvas'+ cam.bwcam_id;
         const canvasBwc = document.getElementById(bwcam_id);
-        new JSMpeg.Player(cam.ws_bwcam, { canvas: canvasBwc });
+        new JSMpeg.Player(cam.ws_bwcam, { canvas: canvasBwc, disableGl: true });
 
       });
     } catch (err) {
